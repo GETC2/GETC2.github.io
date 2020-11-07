@@ -3,11 +3,27 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://www.GETC2.com/categories/</loc>
+    <loc>https://www.GETC2.com/</loc>
+    <lastmod>2020-11-07T10:28:48+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://www.GETC2.com/</loc>
+    <loc>https://www.GETC2.com/post/password-reset-poisoning/</loc>
+    <lastmod>2020-11-07T10:28:48+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.GETC2.com/post/</loc>
+    <lastmod>2020-11-07T10:28:48+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.GETC2.com/post/host-head-attack/</loc>
+    <lastmod>2020-11-05T16:02:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.GETC2.com/categories/</loc>
   </url>
   
   <url>
