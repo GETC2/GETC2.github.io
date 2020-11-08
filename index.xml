@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 08 Nov 2020 10:55:47 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 08 Nov 2020 14:39:50 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Accessing Internal Websites</title>
+      <link>https://GETC2.github.io/post/accessing-internal-websites/</link>
+      <pubDate>Sun, 08 Nov 2020 14:39:50 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/accessing-internal-websites/</guid>
+      <description>利用Host头部注入访问内网 有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看DNS record的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的DNS record。但是只要知道内</description>
+    </item>
+    
     <item>
       <title>Access Restricted Func</title>
       <link>https://GETC2.github.io/post/access-restricted-func/</link>
