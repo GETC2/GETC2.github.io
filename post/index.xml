@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 07 Nov 2020 10:28:48 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 08 Nov 2020 09:11:56 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Web Cache Poisoning</title>
+      <link>https://GETC2.github.io/post/web-cache-poison/</link>
+      <pubDate>Sun, 08 Nov 2020 09:11:56 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/web-cache-poison/</guid>
+      <description>Web Cache Poisoning 这一篇博客主要记录如何利用Host头部注入以及Web cache poisoning来实现客户端攻击。 有的时候我们会发现应用容易受到Host头部攻击，应用会将攻击者注入Host头部的payload返回给用户。XSS和Host头部注入有点相似，XSS是攻击者构造链</description>
+    </item>
+    
     <item>
       <title>Password Reset Poisoning</title>
       <link>https://GETC2.github.io/post/password-reset-poisoning/</link>
