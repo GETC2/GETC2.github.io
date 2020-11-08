@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 08 Nov 2020 09:11:56 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 08 Nov 2020 10:55:47 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Access Restricted Func</title>
+      <link>https://GETC2.github.io/post/access-restricted-func/</link>
+      <pubDate>Sun, 08 Nov 2020 10:55:47 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/access-restricted-func/</guid>
+      <description>通过Host头部注入绕过认证 有的应用通过Host头部来实现用户认证，这种时候可以通过操作Host头部来绕过认证。 这种情况比较简单，直接通过lab来说明比较直观。 lab lab描述 访问管理员页面并删除用户carlos的帐号。 首先需要搞清楚管理员页面是什么。我们可以</description>
+    </item>
+    
     <item>
       <title>Web Cache Poisoning</title>
       <link>https://GETC2.github.io/post/web-cache-poison/</link>
