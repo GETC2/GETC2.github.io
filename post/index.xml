@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 08 Nov 2020 14:39:50 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 30 Dec 2020 09:52:56 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Egress Analysis</title>
+      <link>https://GETC2.github.io/post/egress-analysis/</link>
+      <pubDate>Wed, 30 Dec 2020 09:52:56 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/egress-analysis/</guid>
+      <description>简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的</description>
+    </item>
+    
     <item>
       <title>Accessing Internal Websites</title>
       <link>https://GETC2.github.io/post/accessing-internal-websites/</link>
