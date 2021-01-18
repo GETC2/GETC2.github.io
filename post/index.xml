@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 30 Dec 2020 09:52:56 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 18 Jan 2021 15:34:26 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Metadata Treasure Hunt</title>
+      <link>https://GETC2.github.io/post/metadata-threasure-hunt/</link>
+      <pubDate>Mon, 18 Jan 2021 15:34:26 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/metadata-threasure-hunt/</guid>
+      <description>文件元数据收集 （Recon） 通过这个博客来展示在recon的过程中，如何从文件元数据中获得有用的信息。 实验设置 现在我们手头上有三个文件： WidgetStatisticalAnalysis.xls WidgetStatisticalWhitepaper.doc WidgetStatisticalWhitepaper.pdf 目标是利用exiftool和strings来收集关于目标的信息。 Exiftool 首先用exiftool来看看doc文件有什么元数</description>
+    </item>
+    
     <item>
       <title>Egress Analysis</title>
       <link>https://GETC2.github.io/post/egress-analysis/</link>
