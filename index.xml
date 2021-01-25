@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 18 Jan 2021 21:00:11 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 21 Jan 2021 12:42:25 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nmap</title>
+      <link>https://GETC2.github.io/post/nmap/</link>
+      <pubDate>Thu, 21 Jan 2021 12:42:25 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/nmap/</guid>
+      <description>Nmap完整使用流程 Host discovery 第一步是发现上线机器，由于nmap默认端口扫描之前会进行机器上线确定，如果单纯为了扫描机器而不需要扫描端口的话，可以直接指定·-sP选项： 由于指定了--packet-trace选项，nmap会显示具体的发包。可以看出，由于目标地址块</description>
+    </item>
+    
     <item>
       <title>Recon-ng</title>
       <link>https://GETC2.github.io/post/recon-ng/</link>
