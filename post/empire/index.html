@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Empire | GET command and control</title>
+    <meta property="og:title" content="Empire - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-01-27T08:22:03&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-01-27T08:22:03&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="Empire">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/empire/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">Empire</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年1月27日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="empire的基本使用流程">Empire的基本使用流程</h1>
+<p>Empire是用于后渗透阶段的框架，里面整合了用于各种后渗透阶段活动的powershell脚本。这里记录一下empire的基本使用流程。</p>
+<h2 id="实验环境">实验环境</h2>
+<p>实验由两台主机组成，一个是攻击者主机，另一台是目标主机。</p>
+<h2 id="实验步骤">实验步骤</h2>
+<h3 id="1-启动empire">1 启动Empire</h3>
+<p>首先cd到empire的目录中，然后运行reset.sh脚本。目的是生成公钥和私钥以及自签名的证书，这些是为了加密通信通道。这个脚本也会清除之前的渗透活动中生成的数据，防止混乱。</p>
+<p><code>$ cd /opt/empire/setup</code></p>
+<p><code>sec560@slingshot:/opt/empire/setup$ sudo ./reset.sh</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-44-21.png" alt=""></p>
+<p>此脚本还会自动启动Empire，同时会提示你输入密码，直接Enter生成随机密码。</p>
+<p>另一种启动方法是直接从<code>/opt/empire</code>中运行<code>./empire</code>脚本。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-47-22.png" alt=""></p>
+<p>可以看到Empire启动之初会提示加载了多少模块，以及活动的listeners和agents。（listeners相当于metasploit中的handler，agents相当于meterpreter）。</p>
+<p>进入到Empire之后，可以输入<code>?</code>查询可用的命令：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-48-12.png" alt=""></p>
+<p>另外我们可以直接搜索想要用的模块：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-51-12.png" alt=""></p>
+<p>这一点和metasploit是一样的。</p>
+<h2 id="2-设置listener">2 设置listener</h2>
+<p>在Empire中，我们可以通过命令listeners来列出已有的listener：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-53-56.png" alt=""></p>
+<p>可以发现我们并没有在线的listener，而此时Empire的prompt已经改变了，我们再次询问可以利用的命令，发现可以使用uselistener来使用listener模块。这个命令是用来选择各种不同的listener的，我们可以通过双击Tab建来查看可供选择的listener类型：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-57-22.png" alt=""></p>
+<p>在这里我们使用http，这种类型同时支持http和https，即使使用http也会加密通讯：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-59-45.png" alt=""></p>
+<p>为了查看设置listener的参数，我们可以输入info。</p>
+<p>Empire的listener有很多有用的参数，比如：</p>
+<ul>
+<li>KillDate：在指定时间点之后listener不再监听</li>
+<li>Stagingkey： 伪随机生成的加密密钥</li>
+<li>WorkingHours：限制agents回连listener的时间段</li>
+<li>DefaultDelay：设置agents每间隔多少时间回连listener</li>
+</ul>
+<p>现实中的红队会为了stealth设置这些参数，实验中我们为了节省时间可以不用管：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-04-48.png" alt=""></p>
+<p>然后直接运行listener并回退：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-06-57.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-07-13.png" alt=""></p>
+<h2 id="3-部署agent">3 部署agent</h2>
+<p>之后直接部署agent回连listener，首先选择需要部署的stager的种类：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-09-51.png" alt=""></p>
+<p>和listener同样，连续输入两次Enter查看可供选择的stager，这里我们选择windows/launcher_bat，这种stager通过bat文件执行powershell。</p>
+<p>和listener一样，输入info查看可供设置的选项：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-12-27.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-13-39.png" alt=""></p>
+<p>我们直接设置stager对应的listener，然后生成stager。</p>
+<p>然后直接利用python伺服生成的stager：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-15-31.png" alt=""></p>
+<p>之后直接到目标机器上面下载此stager，运行具有标准权限的powershell下载stager：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-17-41.png" alt=""></p>
+<p>然后直接双击运行此bat文件，该文件之后会消失，因为stager会自动删除此文件。</p>
+<p>再回到Empire中会发现agent已经上线了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-19-27.png" alt=""></p>
+<p>我们直接输入agents命令查看已存在的agent，此时prompt会改变，输入<code>?</code>查看可应用的命令：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-21-29.png" alt=""></p>
+<p>我们可以直接输入interact与agent交互:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-22-41.png" alt=""></p>
+<h2 id="4-模块">4. 模块</h2>
+<p>Empire有许多不同用处的模块，这些模块主要是为了扩展已上线的agent的功能来进行各种后渗透活动，比如权限提升，权限维持，信息搜集，recon等等。我们可以通过usemodule命令来查看可供选择模块：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-27-02.png" alt=""></p>
+<p>作为例子，我们可以使用其中的一个模块：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-28-25.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_09-28-48.png" alt=""></p>
+<p>这个模块主要是搜集目标机器上的各种信息，比如打开的文件，服务以及防火墙规则。</p>
+<p>其实可供利用的模块还有很多，比如我们可以利用模块检查是否可以权限提升，如果是windows的话，可能还需要bypassUAC，然后可以使用一些需要高权限的模块，比如dumphash之类的。这些模块的使用方法和上面的例子都是一样的，就不多说了。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/netcat_port_forward/">Netcat port forward</a></li>
+        
+        <li><a href="/post/veil/">Veil</a></li>
+        
+        <li><a href="/post/nmap/">Nmap</a></li>
+        
+        <li><a href="/post/recon-ng/">Recon-ng</a></li>
+        
+        <li><a href="/post/metadata-threasure-hunt/">Metadata Treasure Hunt</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/empire/" title="Empire">Empire</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/netcat_port_forward/" title="Netcat port forward">Netcat port forward</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/veil/" title="Veil">Veil</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/nmap/" title="Nmap">Nmap</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/recon-ng/" title="Recon-ng">Recon-ng</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/metadata-threasure-hunt/" title="Metadata Treasure Hunt">Metadata Treasure Hunt</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/egress-analysis/" title="Egress Analysis">Egress Analysis</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/accessing-internal-websites/" title="Accessing Internal Websites">Accessing Internal Websites</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/access-restricted-func/" title="Access Restricted Func">Access Restricted Func</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/web-cache-poison/" title="Web Cache Poisoning">Web Cache Poisoning</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>
