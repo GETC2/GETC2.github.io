@@ -6,7 +6,43 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 27 Jan 2021 08:22:03 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 28 Jan 2021 15:54:52 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Sniff Ntlm</title>
+      <link>https://GETC2.github.io/post/sniff-ntlm/</link>
+      <pubDate>Thu, 28 Jan 2021 15:54:52 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/sniff-ntlm/</guid>
+      <description>嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd</description>
+    </item>
+    
+    <item>
+      <title>Msf Pivot</title>
+      <link>https://GETC2.github.io/post/msf-pivot/</link>
+      <pubDate>Thu, 28 Jan 2021 15:13:59 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/msf-pivot/</guid>
+      <description>与metasploit有关的pivoting方法总结 1. metasploit内置的端口转发 首先是最简单的端口转发，命令如下所示： portfwd add -l local_port_num -r ip_addr -p remote_port_num 在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。 2. metasploit内置的ro</description>
+    </item>
+    
+    <item>
+      <title>Dump the Hash</title>
+      <link>https://GETC2.github.io/post/dump-the-hash/</link>
+      <pubDate>Thu, 28 Jan 2021 14:41:09 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/dump-the-hash/</guid>
+      <description>利用meterpreter获取目标机器的hash 在后渗透的阶段，很重要的一项任务就是获取目标机器上的hash，当然不论是windows还是linux都需要有相应的权限才有可能获取到hash。 在这里，我们演示如何通过meterpreter的后渗透模块来获取h</description>
+    </item>
+    
+    <item>
+      <title>Hydra</title>
+      <link>https://GETC2.github.io/post/hydra/</link>
+      <pubDate>Thu, 28 Jan 2021 13:56:42 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/hydra/</guid>
+      <description>利用Hydra进行password guessing 在对密码进行猜测时，Hydra很灵活。它可以针对单个或者多个目标进行密码猜测，同时支持单个用户，密码或者用户列表，密码列表来进行密码猜测。 完善字典 由于目标可能存在lockout，我们需要尽可能完善字典，删除不必要的密码。</description>
+    </item>
+    
     <item>
       <title>Empire</title>
       <link>https://GETC2.github.io/post/empire/</link>

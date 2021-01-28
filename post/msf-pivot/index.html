@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Netcat port forward | GET command and control</title>
-    <meta property="og:title" content="Netcat port forward - GET command and control">
+    <title>Msf Pivot | GET command and control</title>
+    <meta property="og:title" content="Msf Pivot - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-01-27T07:58:38&#43;08:00">
+    <meta property="article:published_time" content="2021-01-28T15:13:59&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-01-27T07:58:38&#43;08:00">
+    <meta property="article:modified_time" content="2021-01-28T15:13:59&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Netcat port forward">
+    <meta name="description" content="Msf Pivot">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/netcat_port_forward/">
+    <meta property="og:url" content="https://GETC2.github.io/post/msf-pivot/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,42 +68,37 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Netcat port forward</h1>
+                            <h1 class="post-title">Msf Pivot</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年1月27日
+                            2021年1月28日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="利用netcat实现端口转发">利用netcat实现端口转发</h1>
-<h2 id="实验环境">实验环境</h2>
-<p>现有两台主机，一台是攻击者主机（windows），另一台是目标主机（Linux）。目标是通过攻击者主机成功登录目标主机ssh服务。</p>
-<h2 id="实验步骤">实验步骤</h2>
-<p>首先利用Putty登录目标主机：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-01-42.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-04-38.png" alt=""></p>
-<p>可以看到成功登录ssh服务。</p>
-<p>然后我们在目标主机的防火墙上禁止对端口22的访问：</p>
-<p><code>sudo iptables -i eth0 -A INPUT -p tcp --dport 22 -j DROP</code></p>
-<p>然后再登陆ssh服务发现超时：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-07-48.png" alt=""></p>
-<p>接着我们模拟目标主机允许针对某个特定端口的访问：</p>
-<p><code>sudo iptables -i eth0 -I INPUT -p tcp --dport 4444 -j ACCEPT</code></p>
-<p>然后我们就可以准备利用netcat实现端口转发了。</p>
-<p>首先创建一个FIFO的文件：</p>
-<p><code>mknod /tmp/backpipe p</code></p>
-<p>然后在目标主机上实现netcat的端口转发：</p>
-<p><code>nc -nvlp 4444 0&lt;/tmp/backpipe | nc -nv 127.0.0.1 22 1&gt;/tmp/backpipe</code></p>
-<p>我们直接用putty来测试是否可以登录ssh服务：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-12-55.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-14-22.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-14-36.png" alt=""></p>
-<p>可以发现我们可以直接登录ssh。</p>
-<p>我们还可以直接用tcpdump来观察各个端口的流量：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-27_08-17-14.png" alt=""></p>
-<p>可以看到，攻击者主机首先连接到nc的服务端，包从攻击者主机到nc服务端之后，通过标准输出传递到管道的另一端作为nc的客户端的标准输入，而nc客户端则直接连接ssh端口，并将标准输入传递给ssh服务；由于管道是单向传递，所以我们需要创建一个FIFO文件，把nc客户端的标准输出重定向到这个文件中，而nc服务端的标准输入重定向到这个文件，从而使得ssh服务的包可以逆向传递到攻击者主机中。</p>
+                            <h1 id="与metasploit有关的pivoting方法总结">与metasploit有关的pivoting方法总结</h1>
+<h2 id="1-metasploit内置的端口转发">1. metasploit内置的端口转发</h2>
+<p>首先是最简单的端口转发，命令如下所示：</p>
+<p><code>portfwd add -l local_port_num -r ip_addr -p remote_port_num</code></p>
+<p>在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。</p>
+<h2 id="2-metasploit内置的route">2. metasploit内置的route</h2>
+<p>由于端口转发是单个端口对应的转发，因此每当要访问另外的端口就需要再输入额外的命令。这样很麻烦，如果目标是在一个子网段内，我们就可以直接利用<code>route</code>命令来转发针对目标子网的访问。</p>
+<p>这种情况下有两种设置方法：</p>
+<ol>
+<li>prompt为<code>msf5</code>时，可以使用<code>route add</code>命令（需要注意的是，在prompt为<code>meterpreter</code>时，<code>route</code>命令查看的是目标内置的路由信息）</li>
+<li>prompt为<code>meterpreter</code>，直接使用后渗透模块：<code>post/multi/manage/autoroute</code></li>
+</ol>
+<p>这种方法可以将metasploit代到目标内网中，但是其他的工具无法借由此访问目标内网。</p>
+<h2 id="3-借助ssh的本地端口转发">3. 借助ssh的本地端口转发</h2>
+<p>在我们拥有一个目标机器的ssh密码时，可以直接建立ssh的本地端口转发。然后在mstasploit的exploit中的参数中直接设置<code>RHOSTS</code>和<code>RPORT</code>为回环地址和相应的本地端口。</p>
+<p>这种方法在面对大量需要访问的目标和服务是同样有着局限性。</p>
+<h2 id="4-借助ssh的动态端口转发">4. 借助ssh的动态端口转发</h2>
+<p>同样，在知道了对应ssh服务的用户密码时，我们可以直接设置ssh来进行动态端口转发，这样ssh就会在本地运行socks代理。要利用这个代理把msf代到目标中的话，可以直接在msf模块的参数中指定proxy。</p>
+<p>比如在ssh代理端口为<code>9999</code>的情况下，我们可以直接这样设置msf：</p>
+<p><code>msf5 exploit(windows/smb/psexec) &gt; set Proxies socks4:127.0.0.1:9999 Proxies =&gt; socks4:127.0.0.1:9999 msf5 exploit(windows/smb/psexec) &gt; set ReverseAllowProxy true ReverseAllowProxy =&gt; true</code></p>
+<h2 id="5-利用msf内置的socks代理和route命令">5. 利用msf内置的socks代理和route命令</h2>
+<p>在已有<code>meterpreter</code>的情况下，如果我们想利用这个<code>session</code>来把其他工具代到目标内网中的话，可以运行msf内置的socks代理模块，同时添加route。其他工具就可以利用<code>meterpreter</code>来访问内网。</p>
 
                         </div>
 
@@ -116,15 +111,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
+        <li><a href="/post/dump-the-hash/">Dump the Hash</a></li>
+        
+        <li><a href="/post/hydra/">Hydra</a></li>
+        
+        <li><a href="/post/empire/">Empire</a></li>
+        
+        <li><a href="/post/netcat_port_forward/">Netcat port forward</a></li>
+        
         <li><a href="/post/veil/">Veil</a></li>
-        
-        <li><a href="/post/nmap/">Nmap</a></li>
-        
-        <li><a href="/post/recon-ng/">Recon-ng</a></li>
-        
-        <li><a href="/post/metadata-threasure-hunt/">Metadata Treasure Hunt</a></li>
-        
-        <li><a href="/post/egress-analysis/">Egress Analysis</a></li>
         
     </ul>
 </div>

@@ -64,6 +64,70 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/sniff-ntlm/" title="Sniff Ntlm" >Sniff Ntlm</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年1月28日
+                            </date>
+                            
+                            <div class="post-content">
+                                嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/sniff-ntlm/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/msf-pivot/" title="Msf Pivot" >Msf Pivot</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年1月28日
+                            </date>
+                            
+                            <div class="post-content">
+                                与metasploit有关的pivoting方法总结 1. metasploit内置的端口转发 首先是最简单的端口转发，命令如下所示： portfwd add -l local_port_num -r ip_addr -p remote_port_num 在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。 2. metasploit内置的ro……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/msf-pivot/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/dump-the-hash/" title="Dump the Hash" >Dump the Hash</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年1月28日
+                            </date>
+                            
+                            <div class="post-content">
+                                利用meterpreter获取目标机器的hash 在后渗透的阶段，很重要的一项任务就是获取目标机器上的hash，当然不论是windows还是linux都需要有相应的权限才有可能获取到hash。 在这里，我们演示如何通过meterpreter的后渗透模块来获取h……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/dump-the-hash/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/hydra/" title="Hydra" >Hydra</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年1月28日
+                            </date>
+                            
+                            <div class="post-content">
+                                利用Hydra进行password guessing 在对密码进行猜测时，Hydra很灵活。它可以针对单个或者多个目标进行密码猜测，同时支持单个用户，密码或者用户列表，密码列表来进行密码猜测。 完善字典 由于目标可能存在lockout，我们需要尽可能完善字典，删除不必要的密码。……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/hydra/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
                                     <a href="https://GETC2.github.io/post/empire/" title="Empire" >Empire</a>
                                 </h1>
                             </header>
@@ -155,70 +219,6 @@
                                 文件元数据收集 （Recon） 通过这个博客来展示在recon的过程中，如何从文件元数据中获得有用的信息。 实验设置 现在我们手头上有三个文件： WidgetStatisticalAnalysis.xls WidgetStatisticalWhitepaper.doc WidgetStatisticalWhitepaper.pdf 目标是利用exiftool和strings来收集关于目标的信息。 Exiftool 首先用exiftool来看看doc文件有什么元数……
                             </div>
                             <p class="readmore"><a href="https://GETC2.github.io/post/metadata-threasure-hunt/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/egress-analysis/" title="Egress Analysis" >Egress Analysis</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年12月30日
-                            </date>
-                            
-                            <div class="post-content">
-                                简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/egress-analysis/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/accessing-internal-websites/" title="Accessing Internal Websites" >Accessing Internal Websites</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年11月8日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用Host头部注入访问内网 有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看DNS record的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的DNS record。但是只要知道内……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/accessing-internal-websites/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/access-restricted-func/" title="Access Restricted Func" >Access Restricted Func</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年11月8日
-                            </date>
-                            
-                            <div class="post-content">
-                                通过Host头部注入绕过认证 有的应用通过Host头部来实现用户认证，这种时候可以通过操作Host头部来绕过认证。 这种情况比较简单，直接通过lab来说明比较直观。 lab lab描述 访问管理员页面并删除用户carlos的帐号。 首先需要搞清楚管理员页面是什么。我们可以……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/access-restricted-func/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/web-cache-poison/" title="Web Cache Poisoning" >Web Cache Poisoning</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年11月8日
-                            </date>
-                            
-                            <div class="post-content">
-                                Web Cache Poisoning 这一篇博客主要记录如何利用Host头部注入以及Web cache poisoning来实现客户端攻击。 有的时候我们会发现应用容易受到Host头部攻击，应用会将攻击者注入Host头部的payload返回给用户。XSS和Host头部注入有点相似，XSS是攻击者构造链……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/web-cache-poison/">阅读全文</a></p>
                         </article>
                     
                     
