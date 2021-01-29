@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Recon-ng | GET command and control</title>
-    <meta property="og:title" content="Recon-ng - GET command and control">
+    <title>Responder | GET command and control</title>
+    <meta property="og:title" content="Responder - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-01-18T21:00:11&#43;08:00">
+    <meta property="article:published_time" content="2021-01-29T19:48:33&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-01-18T21:00:11&#43;08:00">
+    <meta property="article:modified_time" content="2021-01-29T19:48:33&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Recon-ng">
+    <meta name="description" content="Responder">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/recon-ng/">
+    <meta property="og:url" content="https://GETC2.github.io/post/responder/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,60 +68,39 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Recon-ng</h1>
+                            <h1 class="post-title">Responder</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年1月18日
+                            2021年1月29日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="利用recon-ng收集信息">利用Recon-ng收集信息</h1>
-<p><code>Recon-ng</code>是一个用来收集目标的框架。通过这篇博客来记录<code>Recon-ng</code>的基本使用。</p>
-<h1 id="实验设置">实验设置</h1>
-<p>目标的DNS服务器地址是<code>10.10.10.60</code>.</p>
-<ul>
-<li>利用已有的目标IP地址块来进行反向DNS查询确定域名。</li>
-<li>利用DNS cache snooping来确定目标使用的杀毒软件，为后期免杀做准备。</li>
-</ul>
-<h1 id="实验步骤">实验步骤</h1>
-<h2 id="dns反向查询">DNS反向查询</h2>
-<p>首先启动<code>Recon-ng</code>：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-19-05.png" alt=""></p>
-<p>查看参数设置：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-21-10.png" alt=""></p>
-<p>DNS服务器是默认的谷歌服务器，修改为目标DNS服务器：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-13-04.png" alt=""></p>
-<p><code>Recon-ng</code>和<code>metasploit</code>一样，功能是按模块划分的，我们可以方便地通过内置<code>search</code>命令寻找我们需要用的模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-25-22.png" alt=""></p>
-<p>由于输入是地址块而不是单个地址，因此选择第三个模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-27-40.png" alt=""></p>
-<p>从模块的描述信息可以看出，模块的输入参数默认为内置的<code>netblocks</code>表，我们可以查看<code>netblocks</code>表的内容：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-31-15.png" alt=""></p>
-<p>可以看到，内置的netblocks表没有内容，我们可以通过内置命令add添加记录：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-32-23.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-32-32.png" alt=""></p>
-<p>最后就是直接运行模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-34-42.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-35-35.png" alt=""></p>
-<p>可以看到，地址块中只有一部分地址有反向解析结果。一般不是所有的地址都有对应的<code>PTR</code>记录，<code>DMZ</code>内的服务器很多有对应的记录。</p>
-<p><code>Recon-ng</code>会自动将搜集到的信息填充到内置的表中，比如<code>hosts</code>, <code>domanins</code>&hellip;&hellip;</p>
-<p>我们可以查看此次查询的结果：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-39-28.png" alt=""></p>
-<h2 id="dns-cache-snooping">DNS cache snooping</h2>
-<p>这次我们通过<code>DNS cache snooping</code>来了解目标使用的杀毒软件。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-41-40.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-41-49.png" alt=""></p>
-<p>可以发现，<code>cache_snoop</code>模块的一个输入是内置的文件：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-41-59.png" alt=""></p>
-<p>这些就是杀毒软件更新signature时访问的域名。通过向参数<code>NAMESERVER</code>指明的DNS服务器询问这些域名，可以知道目标有没有使用对应的杀软。</p>
-<p>这个模块的<code>NAMESERVER</code>参数无法由<code>Recon-ng</code>的全局参数填充，此处需要额外设置：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-46-43.png" alt=""></p>
-<p>最后直接运行模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-46-55.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-47-05.png" alt=""></p>
-<p>可以看到，目标有可能使用了<code>symantec</code>和<code>avg</code>两种杀软，在后面对工具进行免杀测试是很有用的。</p>
+                            <h1 id="responder获取netntlm哈希">Responder获取NetNTLM哈希</h1>
+<p>windows的命名解析顺序如下：</p>
+<ol>
+<li>本地host文件</li>
+<li>DNS</li>
+<li>Link-Local Multicast Name Resolution （LLMNR）</li>
+<li>NetBIOS</li>
+</ol>
+<p>如果输入的主机名错误，那么目标机器就会利用LLMNR向子网内的主机发送解析请求。作为攻击者，我们可以声称我们是对应的主机，并要求进行NetNTLM认证，这样就可以获得对应认证过程的哈希。</p>
+<p>获得的哈希可以用于破解或者进行重放攻击。</p>
+<h2 id="实验">实验</h2>
+<h3 id="1-启动responder">1. 启动Responder</h3>
+<p><code>sudo /opt/responder/Responder.py -I eth0</code></p>
+<p>当<code>Responder</code>监测到LLNMR的请求时，会把我们的地址发送过去伪装成目标所请求的主机。然后和目标协商认证并获取哈希。</p>
+<h3 id="2-请求不存在的主机">2. 请求不存在的主机</h3>
+<p>在另一台windows机器上模拟请求不存在的目标主机，使得windows发出LLNMR的请求：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_20-43-29.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_20-42-54.png" alt=""></p>
+<p>我们直接输入账号密码，这里已经在用NTLM协议认证了。</p>
+<h3 id="3-获取认证哈希并破解">3. 获取认证哈希并破解</h3>
+<p>在<code>Responder</code>的输出中可以看到获取的哈希：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_20-45-09.png" alt=""></p>
+<p><code>Responder</code>默认也会输出结果到log中，我们可以破解哈希也可以利用这些哈希进行重放攻击，当然需要提前设置好重放。这里我们直接试着破解：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_20-48-17.png" alt=""></p>
 
                         </div>
 
@@ -134,15 +113,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/metadata-threasure-hunt/">Metadata Treasure Hunt</a></li>
+        <li><a href="/post/kerberoasting/">Kerberoasting</a></li>
         
-        <li><a href="/post/egress-analysis/">Egress Analysis</a></li>
+        <li><a href="/post/sniff-ntlm/">Sniff Ntlm</a></li>
         
-        <li><a href="/post/accessing-internal-websites/">Accessing Internal Websites</a></li>
+        <li><a href="/post/msf-pivot/">Msf Pivot</a></li>
         
-        <li><a href="/post/access-restricted-func/">Access Restricted Func</a></li>
+        <li><a href="/post/dump-the-hash/">Dump the Hash</a></li>
         
-        <li><a href="/post/web-cache-poison/">Web Cache Poisoning</a></li>
+        <li><a href="/post/hydra/">Hydra</a></li>
         
     </ul>
 </div>

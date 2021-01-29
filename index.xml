@@ -6,7 +6,34 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 28 Jan 2021 15:54:52 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 29 Jan 2021 21:05:37 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Golden Ticket</title>
+      <link>https://GETC2.github.io/post/golden-ticket/</link>
+      <pubDate>Fri, 29 Jan 2021 21:05:37 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/golden-ticket/</guid>
+      <description>Golden Ticket 之前我们利用Kerberoasting获取了具有域管理员权限的账号svcsqlserver，我们可以利用这个账号和dcsync来获取krbtgt账号的hash，从而可以生成Golden Ticket，其实就是伪造的域管理员的TGT。 实验 首先登陆到目标域的</description>
+    </item>
+    
+    <item>
+      <title>Responder</title>
+      <link>https://GETC2.github.io/post/responder/</link>
+      <pubDate>Fri, 29 Jan 2021 19:48:33 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/responder/</guid>
+      <description>Responder获取NetNTLM哈希 windows的命名解析顺序如下： 本地host文件 DNS Link-Local Multicast Name Resolution （LLMNR） NetBIOS 如果输入的主机名错误，那么目标机器就会利用LLMNR向子网内的主机发送解析请求。作为攻击者，我们可以声称我们是对应的主机，并要求进行NetN</description>
+    </item>
+    
+    <item>
+      <title>Kerberoasting</title>
+      <link>https://GETC2.github.io/post/kerberoasting/</link>
+      <pubDate>Fri, 29 Jan 2021 19:07:11 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/kerberoasting/</guid>
+      <description>Kerberoasting kerberoasting是通过向KDC请求针对目标服务的服务票据并针对该服务对应的账号进行破解的攻击。 合适的目标服务是对应的账号是手动生成的，因为机器自动生成的账号密码很难破解。 实验设置 我们已经得到了目标域的一个有效的账号密码，现在我们需要利用这个账号</description>
+    </item>
+    
     <item>
       <title>Sniff Ntlm</title>
       <link>https://GETC2.github.io/post/sniff-ntlm/</link>
