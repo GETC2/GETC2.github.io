@@ -6,7 +6,25 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 29 Jan 2021 21:05:37 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 30 Jan 2021 18:34:55 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Virtual Host Discovery</title>
+      <link>https://GETC2.github.io/post/virtual-host-discovery/</link>
+      <pubDate>Sat, 30 Jan 2021 18:34:55 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/virtual-host-discovery/</guid>
+      <description>Virtual Host Discovery 之前说过在针对Web进行渗透测试时，需要知道目标的Host Name。因为一个IP可能有多个Host，不知道对应的域名，就无法访问网站，那么渗透测试也就无从说起。 针对这个问题，之前通过DNS试图寻找目标的隐藏Host。其实我们还可以通过HTTPS证书来</description>
+    </item>
+    
+    <item>
+      <title>DNS Harvesting</title>
+      <link>https://GETC2.github.io/post/dns-harvesting/</link>
+      <pubDate>Sat, 30 Jan 2021 15:08:37 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/dns-harvesting/</guid>
+      <description>DNS Harvesting 在针对Web进行渗透时，我们需要尽可能地掌握目标的所有可访问域名。有的域名并没有被目标的其他的页面reference到的情况下，我们可以利用DNS来获取隐藏域名。 通过DNS的话一般有以下几个方法： DNS zone transfer DNS brute force DNS reverse lookup 一般来说DNS zone transfer的情况</description>
+    </item>
+    
     <item>
       <title>Golden Ticket</title>
       <link>https://GETC2.github.io/post/golden-ticket/</link>

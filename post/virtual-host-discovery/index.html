@@ -7,22 +7,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tags | GET command and control</title>
-    <meta property="og:title" content="Tags - GET command and control">
+    <title>Virtual Host Discovery | GET command and control</title>
+    <meta property="og:title" content="Virtual Host Discovery - GET command and control">
     <meta property="og:type" content="article">
         
+    <meta property="article:published_time" content="2021-01-30T18:34:55&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-01-30T18:34:55&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Tags">
+    <meta name="description" content="Virtual Host Discovery">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/tags/">
+    <meta property="og:url" content="https://GETC2.github.io/post/virtual-host-discovery/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
     
+        <link rel="stylesheet" href="/css/prism.css">
+    
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="alternate" type="application/rss+xml+xml" href="https://GETC2.github.io/tags/index.xml" title="GET command and control" />
     <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 
     
@@ -31,7 +36,6 @@
     
     
 </head>
-
 
 <body>
 <header id="header" class="clearfix">
@@ -47,7 +51,7 @@
             </div>
             <div>
                 <nav id="nav-menu" class="clearfix">
-                    <a class="" href="https://GETC2.github.io/">首页</a>
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
                     
                 </nav>
             </div>
@@ -61,17 +65,70 @@
         <div class="col-group">
 
             <div class="col-8" id="main">
-                <header>
-                    
-                        <h1>共有0个标签</h1>
-                    
-                </header>
-                <div class="post-archive">
-                    
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">Virtual Host Discovery</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年1月30日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="virtual-host-discovery">Virtual Host Discovery</h1>
+<p>之前说过在针对<code>Web</code>进行渗透测试时，需要知道目标的<code>Host Name</code>。因为一个<code>IP</code>可能有多个<code>Host</code>，不知道对应的域名，就无法访问网站，那么渗透测试也就无从说起。</p>
+<p>针对这个问题，之前通过<code>DNS</code>试图寻找目标的隐藏<code>Host</code>。其实我们还可以通过<code>HTTPS</code>证书来查找目标的隐藏域名。</p>
+<h2 id="实验说明">实验说明</h2>
+<p>为了演示，我们只选择一个域名作为目标：<code>sec542.com</code>。</p>
+<p>这里我们使用一个专门查询证书的网站：<code>https:\\crt.sh</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-30_18-58-26.png" alt=""></p>
+<p>这里的百分号是通配符，匹配任意的子域名。搜索结果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-30_18-58-53.png" alt=""></p>
+<p>可以看到，通过搜索出来的证书，我们可以发现目标域名的子域名。</p>
+<p>除了这个网站，以下的网站也可以针对目标查询证书：</p>
+<p><code>https://transparencyreport.google.com/https/certificates</code></p>
+<p>不过第一个网站的搜索结果更为完备一些。</p>
 
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/dns-harvesting/">DNS Harvesting</a></li>
+        
+        <li><a href="/post/golden-ticket/">Golden Ticket</a></li>
+        
+        <li><a href="/post/responder/">Responder</a></li>
+        
+        <li><a href="/post/kerberoasting/">Kerberoasting</a></li>
+        
+        <li><a href="/post/sniff-ntlm/">Sniff Ntlm</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
                 </div>
             </div>
-
             <div id="secondary">
     <section class="widget">
         <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
@@ -172,9 +229,24 @@
 </footer>
 
 
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
 <a id="rocket" href="#top"></a>
 <script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
-
 
 
 
