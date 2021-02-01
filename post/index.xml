@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 30 Jan 2021 18:34:55 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 01 Feb 2021 18:48:32 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Username Harvesting</title>
+      <link>https://GETC2.github.io/post/username-harvesting/</link>
+      <pubDate>Mon, 01 Feb 2021 18:48:32 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/username-harvesting/</guid>
+      <description>Username Harvesting 在针对Web进行渗透测试并发现用户登录入口的时候，下一步就是字典或者爆破。但是为了更有效率，我们首先需要有效的用户名列表。 我们可以在收集信息时就注意有关用户名的信息；另一种方法就是依靠登录界面面对有效用户名和无效用户名的不一致性来推测。这又细分为两种方</description>
+    </item>
+    
     <item>
       <title>Virtual Host Discovery</title>
       <link>https://GETC2.github.io/post/virtual-host-discovery/</link>

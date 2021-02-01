@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Hydra | GET command and control</title>
-    <meta property="og:title" content="Hydra - GET command and control">
+    <title>Username Harvesting | GET command and control</title>
+    <meta property="og:title" content="Username Harvesting - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-01-28T13:56:42&#43;08:00">
+    <meta property="article:published_time" content="2021-02-01T18:48:32&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-01-28T13:56:42&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-01T18:48:32&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Hydra">
+    <meta name="description" content="Username Harvesting">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/hydra/">
+    <meta property="og:url" content="https://GETC2.github.io/post/username-harvesting/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,52 +68,39 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Hydra</h1>
+                            <h1 class="post-title">Username Harvesting</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年1月28日
+                            2021年2月1日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="利用hydra进行password-guessing">利用Hydra进行password guessing</h1>
-<p>在对密码进行猜测时，Hydra很灵活。它可以针对单个或者多个目标进行密码猜测，同时支持单个用户，密码或者用户列表，密码列表来进行密码猜测。</p>
-<h2 id="完善字典">完善字典</h2>
-<p>由于目标可能存在lockout，我们需要尽可能完善字典，删除不必要的密码。比如目标有针对密码的设置策略，需要包括大小写字母，数字，最短字符限制，我们就需要提前把不符合这个策略的密码删除掉。 <code>pw-inspector</code>可以根据策略来筛选字典。</p>
-<p>用<code>john the ripper</code>自带的字典来举例，目标公司的密码策略如下：</p>
+                            <h1 id="username-harvesting">Username Harvesting</h1>
+<p>在针对<code>Web</code>进行渗透测试并发现用户登录入口的时候，下一步就是字典或者爆破。但是为了更有效率，我们首先需要有效的用户名列表。</p>
+<p>我们可以在收集信息时就注意有关用户名的信息；另一种方法就是依靠登录界面面对有效用户名和无效用户名的不一致性来推测。这又细分为两种方法：</p>
 <ol>
-<li>
-<p>最短6个字符</p>
-</li>
-<li>
-<p>包含数字</p>
-</li>
-<li>
-<p>包含至少一个大写字母</p>
-</li>
-<li>
-<p>包含至少一个小写字母</p>
-</li>
-<li>
-<p>密码至少要满足规则2，3，4中的任意两个规则</p>
-</li>
+<li>根据返回的页面的不一致性来推测。比如当输入有效用户名时，页面刷新后，用户名还显示在界面中；而无效用户名则不显示。</li>
+<li>如果无论是有效还是无效用户名，返回的页面都一样的话，第一种方法就不起作用了。但是有可能后端存储用户密码的哈希算法耗时很长，针对无效用户名，后端根本就不对提交的密码进行哈希，而有效的用户名的密码就会进行运算。由于哈希算法耗时相对较长，我们可以根据这个来推断用户名的有效性。</li>
 </ol>
-<p>此时我们可以利用<code>pw-inspector</code>来针对此策略筛选密码。</p>
-<p>首先查看初始密码个数：</p>
-<p><code>$ wc -l /opt/password.lst 3559 /opt/password.lst</code></p>
-<p>然后直接对字典筛选：</p>
-<p><code>$ cat /opt/password.lst | pw-inspector -m 6 -n -u -l -c 2 | wc -l</code></p>
-<p><code>424</code></p>
-<p>可以发现，密码数量大大减少，在保证不被lockout的前提下可以大大节省时间。</p>
-<h2 id="hydra使用示例">Hydra使用示例</h2>
-<p>我们可以直接使用GUI版本的hydra，即xhydra：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-28_14-12-27.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-28_14-11-42.png" alt=""></p>
-<p>正如所提到的，Hydra可以支持多种形式的密码猜测攻击。</p>
-<p>同时我们还可以调整Hydra的task数目，即一次同时针对多少个密码进行猜测：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-28_14-20-55.png" alt=""></p>
-<p>利用GUI来进行设置还是很简单的，这里就不加举例说明了。需要说的是，在GUI中所做的各种设置，hydra会输出对应的命令行版本。</p>
+<p>第一种和第二种都可以利用<code>ZAP</code>的<code>fuzzer</code>或者<code>BurpSuite</code>的<code>intruder</code>来进行攻击，我们就用<code>ZAP</code>以第二种情况为例介绍如何收集有效的用户名。</p>
+<h2 id="实验目标">实验目标</h2>
+<p>目标网站为：<code>http://sec542.org/userenum/securelogin.php</code>，我们发现第一种方法无法起作用，这里想通过响应的返回时间来收集用户名。</p>
+<h2 id="实验步骤">实验步骤</h2>
+<p>首先启动代理访问目标网站，然后在<code>ZAP</code>里启动针对此请求的<code>fuzzing</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-01_19-19-46.png" alt=""></p>
+<p>然后针对此请求的用户名部分选取要<code>fuzzing</code>的部分，并选择<code>payload</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-01_19-21-52.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-01_19-23-10.png" alt=""></p>
+<p>这里由于用户名的组成是名的第一个字母和姓，所以我们需要分两个输入点进行攻击。</p>
+<p>然后直接开始攻击：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-01_19-25-03.png" alt=""></p>
+<p>结果出来后，我们发现所有的响应大小都一样，但是有一些响应的<code>RTT</code>很大：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-01_19-26-12.png" alt=""></p>
+<p>一般的响应的<code>RTT</code>都在100ms之下，但是其中几个的响应时间都在300左右。由于响应时间还受目标的特定时刻的负载影响，我们可以多运行几次来筛选结果。</p>
+<h2 id="总结">总结</h2>
+<p>这种依靠时间而不是具体的响应结果来推断有效用户名的手法最终还是依靠后端的代码，如果后端的代码使用的哈希算法很快或者程序员对此种攻击有所了解，从而针对有效，无效用户名都进行哈希运算的话，我们就无法靠这个办法收集有效用户名了。</p>
 
                         </div>
 
@@ -126,15 +113,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/empire/">Empire</a></li>
+        <li><a href="/post/virtual-host-discovery/">Virtual Host Discovery</a></li>
         
-        <li><a href="/post/netcat_port_forward/">Netcat port forward</a></li>
+        <li><a href="/post/dns-harvesting/">DNS Harvesting</a></li>
         
-        <li><a href="/post/veil/">Veil</a></li>
+        <li><a href="/post/golden-ticket/">Golden Ticket</a></li>
         
-        <li><a href="/post/nmap/">Nmap</a></li>
+        <li><a href="/post/responder/">Responder</a></li>
         
-        <li><a href="/post/recon-ng/">Recon-ng</a></li>
+        <li><a href="/post/kerberoasting/">Kerberoasting</a></li>
         
     </ul>
 </div>
