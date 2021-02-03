@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 01 Feb 2021 18:48:32 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Feb 2021 13:59:10 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>XSS</title>
+      <link>https://GETC2.github.io/post/xss/</link>
+      <pubDate>Wed, 03 Feb 2021 13:59:10 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/xss/</guid>
+      <description>Cross Site Scripting XSS漏洞大概分为三种： 反射型XSS 存储型XSS DOM XSS 其中存储型的漏洞的注入点一般是博客的评论，社交网站的各种个人介绍或者动态。这些注入是直接通过HTTP来和目标服务交互的。但是除了这种注入外，还有一种称为Out-of-band存储型XSS。 具体来说就</description>
+    </item>
+    
     <item>
       <title>Username Harvesting</title>
       <link>https://GETC2.github.io/post/username-harvesting/</link>

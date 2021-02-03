@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Veil | GET command and control</title>
-    <meta property="og:title" content="Veil - GET command and control">
+    <title>XSS | GET command and control</title>
+    <meta property="og:title" content="XSS - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-01-26T18:32:29&#43;08:00">
+    <meta property="article:published_time" content="2021-02-03T13:59:10&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-01-26T18:32:29&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-03T13:59:10&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Veil">
+    <meta name="description" content="XSS">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/veil/">
+    <meta property="og:url" content="https://GETC2.github.io/post/xss/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,47 +68,40 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Veil</h1>
+                            <h1 class="post-title">XSS</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年1月26日
+                            2021年2月3日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="veil的一般使用流程">Veil的一般使用流程</h1>
-<p>veil框架主要用来生成payload并对payload进行免杀。下面我们来看一下veil的基本使用步骤。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-37-50.png" alt=""></p>
-<p>veil主要由两个工具组成，我们主要关注如何通过Evasion来对payload免杀。可以看到，初始界面会提示veil支持的命令，直接通过use指定使用Evasion。</p>
-<p>之后提示符会变成Veil/Evasion&gt;:，我们可以通过list命令查看此模块支持的payload：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-40-40.png" alt=""></p>
-<p>首先我们看到一些auxiliary模块，比如coldwar_wrapper.py，这个模块可以把windows执行文件转换为WAR文件使之运行在Java运行环境中；pyinstaller_wrapper.py可以把python脚本转换为windows执行文件。这些处理可以针对一些杀软进行免杀。</p>
-<p>然后我们可以看到通过语言进行了分组的payload，比如C，power shell，python，ruby编写的payload。同一种语言中，payload主要有stage和stager进行区分，比如stager有rev_http, rev_tcp;而stage有meterpreter，shellcode_inject。这些payload可以针对不同的杀软有免杀效果。</p>
-<p>针对每一个特定的payload，我们可以通过一下命令来获得详细设置信息：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-49-22.png" alt=""></p>
-<p>可以看到，我们可以设置payload的LHOST，LPORT参数，这些和metasploit是一致的。</p>
-<p>接下来我们直接生成payload。首先是选择要生成的payload：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-52-35.png" alt=""></p>
-<p>然后查看要设置的参数并设置参数：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-52-42.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-52-58.png" alt=""></p>
-<p>设置完参数后，直接利用generate命令生成payload：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-55-12.png" alt=""></p>
-<p>veil会提示输入payload的名称。</p>
-<p>结束后，veil默认会生成两个文件，一个是bat文件，里面是利用powershell写的payload；另一个是针对metasploit的设置文件，用来设置multi/handler的参数。</p>
-<p>我们可以进一步查看生成的两个文件：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-58-59.png" alt=""></p>
-<p>可以看到，该payload首先判断目标的architecture，然后有根据地执行payload，而且payload进行了base64解码。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_18-59-14.png" alt=""></p>
-<p>而metasploit的配置文件中的参数和veil中选择的payload以及设置的参数相对应。</p>
-<p>接下来直接启动metasploit：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_19-03-37.png" alt=""></p>
-<p>然后在另一台windows机器上执行payload：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_19-04-38.png" alt=""></p>
-<p>现实中可以通过钓鱼邮件或者发送链接直接发送payload。</p>
-<p>然后就可以发现meterpreter的会话开启了：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-26_19-06-08.png" alt=""></p>
+                            <h1 id="cross-site-scripting">Cross Site Scripting</h1>
+<p><code>XSS</code>漏洞大概分为三种：</p>
+<ol>
+<li>反射型<code>XSS</code></li>
+<li>存储型<code>XSS</code></li>
+<li><code>DOM XSS</code></li>
+</ol>
+<p>其中存储型的漏洞的注入点一般是博客的评论，社交网站的各种个人介绍或者动态。这些注入是直接通过<code>HTTP</code>来和目标服务交互的。但是除了这种注入外，还有一种称为<code>Out-of-band</code>存储型<code>XSS</code>。</p>
+<p>具体来说就是通过别的协议或者物理方法注入<code>Javascript</code>，而当客户端利用浏览器和<code>HTTP</code>来浏览被注入代码的页面时就会触发执行。后半部分和普通的<code>XSS</code>是一样的。比方说，我们可以故意扫描目标网络，在<code>ICMP</code>中写入<code>Javascript</code>代码，使得对方的<code>IDS</code>或者<code>SIEM</code>系统抓包并记录到<code>log</code>中去。由于主流的<code>log</code>分析都是使用浏览器，当对方防守人员打开浏览器分析日志时，我们就可以触发<code>XSS</code>。</p>
+<p>下面我们就用一个实验来说明这种攻击手段。</p>
+<h1 id="实验步骤">实验步骤</h1>
+<p>与上面举的例子不同，这里我们使用<code>DNS</code>作为带外协议来传输<code>payload</code>。我们可以在自己控制的<code>DNS</code>服务器下面生成<code>txt</code>记录，其中的值是<code>Javascript</code>。当目标通过浏览器和一些网站来查询我们的域名时，我们就可以触发攻击。</p>
+<h2 id="1-修改zone文件">1. 修改<code>zone</code>文件</h2>
+<p>首先我们修改<code>zone</code>文件，写入一个<code>TXT</code>记录：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-03_14-17-32.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-03_14-18-01.png" alt=""></p>
+<p>然后记得重启<code>DNS</code>服务器：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-03_14-20-51.png" alt=""></p>
+<h2 id="2-客户端利用浏览器查询对应域名">2. 客户端利用浏览器查询对应域名</h2>
+<p>直接利用自己搭建的网站来查询对应域名：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-03_14-20-18.png" alt=""></p>
+<p>然后成功触发<code>XSS</code>漏洞：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-03_14-25-51.png" alt=""></p>
+<h2 id="结论">结论</h2>
+<p>关于如何<code>deliver</code>这个<code>payload</code>，同样的，我们可以利用这个域名对目标进行攻击，促使对方对此域名进行调查。当然也可以直接发送查询的<code>URL</code>，只不过有安全意识的人应该不会随便点击。</p>
 
                         </div>
 
@@ -121,15 +114,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/nmap/">Nmap</a></li>
+        <li><a href="/post/username-harvesting/">Username Harvesting</a></li>
         
-        <li><a href="/post/recon-ng/">Recon-ng</a></li>
+        <li><a href="/post/virtual-host-discovery/">Virtual Host Discovery</a></li>
         
-        <li><a href="/post/metadata-threasure-hunt/">Metadata Treasure Hunt</a></li>
+        <li><a href="/post/dns-harvesting/">DNS Harvesting</a></li>
         
-        <li><a href="/post/egress-analysis/">Egress Analysis</a></li>
+        <li><a href="/post/golden-ticket/">Golden Ticket</a></li>
         
-        <li><a href="/post/accessing-internal-websites/">Accessing Internal Websites</a></li>
+        <li><a href="/post/responder/">Responder</a></li>
         
     </ul>
 </div>
