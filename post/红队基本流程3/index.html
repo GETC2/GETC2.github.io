@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Golden Ticket | GET command and control</title>
-    <meta property="og:title" content="Golden Ticket - GET command and control">
+    <title>红队基本流程(3) | GET command and control</title>
+    <meta property="og:title" content="红队基本流程(3) - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-01-29T21:05:37&#43;08:00">
+    <meta property="article:published_time" content="2021-02-07T21:29:13&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-01-29T21:05:37&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-07T21:29:13&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Golden Ticket">
+    <meta name="description" content="红队基本流程(3)">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/golden-ticket/">
+    <meta property="og:url" content="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,35 +68,49 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Golden Ticket</h1>
+                            <h1 class="post-title">红队基本流程(3)</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年1月29日
+                            2021年2月7日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="golden-ticket">Golden Ticket</h1>
-<p>之前我们利用<code>Kerberoasting</code>获取了具有域管理员权限的账号<code>svcsqlserver</code>，我们可以利用这个账号和<code>dcsync</code>来获取<code>krbtgt</code>账号的hash，从而可以生成Golden Ticket，其实就是伪造的域管理员的TGT。</p>
-<h2 id="实验">实验</h2>
-<p>首先登陆到目标域的主机：</p>
-<p><code>PsExec64.exe -accepteula -u sec560.local\svcsqlserver \\10.10.10.10 cmd.exe</code></p>
-<p>然后直接启动<code>mimikatz</code>：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_21-14-25.png" alt=""></p>
-<p>生成Golden Ticket需要伪造的目标信息，比如域，SID，账户名，接下来直接获取这些信息：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_21-16-24.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/image-20210129211854722.png" alt="image-20210129211854722"></p>
-<p>然后就可以利用<code>mimikatz</code>生成Golden Ticket了：</p>
-<p><code>mimikatz # kerberos::golden /rc4:5525e655c06299c7e4179e2cc5621fb3 /user:Administrator /domain:sec560.local /sid:S-1-5-21-721047592-4068106649-2889670365</code></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_21-19-27.png" alt=""></p>
-<p>最后我们可以直接利用Golden Ticket从域外主机访问域内主机。利用<code>mimikatz</code>将票据注入内存：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_21-26-17.png" alt=""></p>
-<p>为了确认，我们可以查看现有的票据：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-29_21-26-45.png" alt=""></p>
-<p>之后我们就可以直接访问域控了：</p>
-<p><code>PsExec64.exe -accepteula \\dc01 cmd.exe</code></p>
-<p><code>C:\Windows\system32&gt; whoami sec560.local\Administrator</code></p>
+                            <h1 id="红队基本流程之三testing">红队基本流程之三：Testing</h1>
+<p>在完成<code>Planning</code>之后，红队就可以开始针对目标行动了。而这又分为许多步骤，比较典型的就是以下步骤：</p>
+<ol>
+<li>基础设施建设</li>
+<li>侦察（Recon）</li>
+<li>社会工程</li>
+<li><code>Weaponization</code></li>
+<li><code>Initial Access</code></li>
+<li><code>Network Propagation</code></li>
+<li><code>Action on Objectives</code></li>
+</ol>
+<h2 id="基础设施建设">基础设施建设</h2>
+<p>这一步一般就是选择在云端部署必要的设施，有的时候这一步需要花一段时间，比如域名需要经过一段时间才能获得<code>reputation</code>。有的目标网关会根据域名的<code>reputation</code>和<code>categorization</code>来决定是否允许流量外出。</p>
+<h2 id="侦察recon">侦察(Recon)</h2>
+<p>这一步的目的主要是为了获得<code>foothold</code>，如果模拟的<code>Adeversary</code>使用钓鱼邮件，那么就需要在这一步确定可能的发信目标，包括邮件地址，职位，发信的背景准备之类。</p>
+<h2 id="社会工程">社会工程</h2>
+<p>基于前面的步骤，为了提高发信的成功率，我们需要利用各种途径和目标人员建立关系并取得信任，从而顺利执行初始的<code>payload</code>。</p>
+<h2 id="weaponization"><code>Weaponization</code></h2>
+<p>在发信之前，我们需要准备<code>payload</code>和<code>C2</code>，并将<code>payload</code>和适当的载体结合。比如<code>payload</code>是宏的情况，我们可以使之与<code>office</code>文档结合便于投递。</p>
+<h2 id="initial-access"><code>Initial Access</code></h2>
+<p>借由目标人员成功执行<code>payload</code>之后，我们就可以获得<code>C2</code>了。</p>
+<h2 id="network-propagation"><code>Network Propagation</code></h2>
+<p>这一步骤其实又分为很多小的阶段。比如：</p>
+<ul>
+<li><code>Discovery</code>, 了解当前系统和内网的拓扑</li>
+<li>权限提升，之后的一些行动可能需要高权限的账号，寻找不适当的配置或者漏洞来进行权限提升</li>
+<li>权限维持，通过计划任务，服务，<code>registry</code></li>
+<li><code>Credential Access</code>，典型的比如直接搜索带有密码关键词的文件，<code>registry</code>, <code>lsass</code>内存，<code>SAM</code>数据库</li>
+<li>横向移动，可以透过漏洞或者之前获得密码来横向移动</li>
+</ul>
+<h2 id="action-on-objectives"><code>Action on Objectives</code></h2>
+<p>根据模拟的<code>Adversary</code>的，目标有可能是窃取数据，或者恶意破坏系统。</p>
+<p>如果是窃取数据，那么首先要确定并收集有用的数据，之后可以压缩加密传输数据。</p>
+<p>破坏系统的话，可以是让服务下线，加密数据进行勒索，破坏删除数据</p>
 
                         </div>
 
@@ -109,15 +123,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/responder/">Responder</a></li>
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">红队基本流程(2)</a></li>
         
-        <li><a href="/post/kerberoasting/">Kerberoasting</a></li>
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/">红队基本流程(1)</a></li>
         
-        <li><a href="/post/sniff-ntlm/">Sniff Ntlm</a></li>
+        <li><a href="/post/xss/">XSS</a></li>
         
-        <li><a href="/post/msf-pivot/">Msf Pivot</a></li>
+        <li><a href="/post/username-harvesting/">Username Harvesting</a></li>
         
-        <li><a href="/post/dump-the-hash/">Dump the Hash</a></li>
+        <li><a href="/post/virtual-host-discovery/">Virtual Host Discovery</a></li>
         
     </ul>
 </div>

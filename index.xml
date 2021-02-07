@@ -6,13 +6,40 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 05 Feb 2021 14:13:26 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Feb 2021 22:04:03 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>红队基本流程之一—Threat Intelligence</title>
-      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E4%B9%8B%E4%B8%80threat/</link>
+      <title>红队基本流程(4)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/</link>
+      <pubDate>Sun, 07 Feb 2021 22:04:03 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/</guid>
+      <description>红队基本流程之四：Closure 在实现了模拟Adversary的目标后，最后就是收尾了。 在这个步骤，红队的主要责任就是介绍整个行动的流程，从一开始的发信到之后的最终目标，所有的操作以及时间节点，还有结果都要进行记录并展示。这主要是为了和蓝队的响应做对照，看</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(3)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/</link>
+      <pubDate>Sun, 07 Feb 2021 21:29:13 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/</guid>
+      <description>红队基本流程之三：Testing 在完成Planning之后，红队就可以开始针对目标行动了。而这又分为许多步骤，比较典型的就是以下步骤： 基础设施建设 侦察（Recon） 社会工程 Weaponization Initial Access Network Propagation Action on Objectives 基础设施建设 这一步一般就是选择在云端部署必要的设施，有的时候这一步需</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(2)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/</link>
+      <pubDate>Fri, 05 Feb 2021 20:07:41 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/</guid>
+      <description>红队基本流程之二：Planning 之前介绍过红队基本流程中的Threat Intelligence。其实，它与planning之间是密不可分的。planning中有的决定依靠Threat Inteligence。比如Adversary使用的TTP，最后拟定的A</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(1)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/</link>
       <pubDate>Fri, 05 Feb 2021 14:13:26 +0800</pubDate>
       
-      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E4%B9%8B%E4%B8%80threat/</guid>
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/</guid>
       <description>红队基本流程之一：Threat Intelligence 简介 在进行红队活动时，需要遵循一定的框架和方法。这里的框架和方法确定了针对特定目标进行模拟红队行动的宏观步骤。如今存在着很多可供选择的框架和方法，这里我们介绍其中一个，总共分为四个步骤，如下图所示： 我们首先介绍第一步，即Th</description>
     </item>
     

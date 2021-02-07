@@ -64,7 +64,55 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E4%B9%8B%E4%B8%80threat/" title="红队基本流程之一—Threat Intelligence" >红队基本流程之一—Threat Intelligence</a>
+                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" title="红队基本流程(4)" >红队基本流程(4)</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年2月7日
+                            </date>
+                            
+                            <div class="post-content">
+                                红队基本流程之四：Closure 在实现了模拟Adversary的目标后，最后就是收尾了。 在这个步骤，红队的主要责任就是介绍整个行动的流程，从一开始的发信到之后的最终目标，所有的操作以及时间节点，还有结果都要进行记录并展示。这主要是为了和蓝队的响应做对照，看……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/" title="红队基本流程(3)" >红队基本流程(3)</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年2月7日
+                            </date>
+                            
+                            <div class="post-content">
+                                红队基本流程之三：Testing 在完成Planning之后，红队就可以开始针对目标行动了。而这又分为许多步骤，比较典型的就是以下步骤： 基础设施建设 侦察（Recon） 社会工程 Weaponization Initial Access Network Propagation Action on Objectives 基础设施建设 这一步一般就是选择在云端部署必要的设施，有的时候这一步需……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/" title="红队基本流程(2)" >红队基本流程(2)</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年2月5日
+                            </date>
+                            
+                            <div class="post-content">
+                                红队基本流程之二：Planning 之前介绍过红队基本流程中的Threat Intelligence。其实，它与planning之间是密不可分的。planning中有的决定依靠Threat Inteligence。比如Adversary使用的TTP，最后拟定的A……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/" title="红队基本流程(1)" >红队基本流程(1)</a>
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
@@ -74,7 +122,7 @@
                             <div class="post-content">
                                 红队基本流程之一：Threat Intelligence 简介 在进行红队活动时，需要遵循一定的框架和方法。这里的框架和方法确定了针对特定目标进行模拟红队行动的宏观步骤。如今存在着很多可供选择的框架和方法，这里我们介绍其中一个，总共分为四个步骤，如下图所示： 我们首先介绍第一步，即Th……
                             </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E4%B9%8B%E4%B8%80threat/">阅读全文</a></p>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/">阅读全文</a></p>
                         </article>
                     
                         <article class="post">
@@ -171,54 +219,6 @@
                                 Responder获取NetNTLM哈希 windows的命名解析顺序如下： 本地host文件 DNS Link-Local Multicast Name Resolution （LLMNR） NetBIOS 如果输入的主机名错误，那么目标机器就会利用LLMNR向子网内的主机发送解析请求。作为攻击者，我们可以声称我们是对应的主机，并要求进行NetN……
                             </div>
                             <p class="readmore"><a href="https://GETC2.github.io/post/responder/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/kerberoasting/" title="Kerberoasting" >Kerberoasting</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月29日
-                            </date>
-                            
-                            <div class="post-content">
-                                Kerberoasting kerberoasting是通过向KDC请求针对目标服务的服务票据并针对该服务对应的账号进行破解的攻击。 合适的目标服务是对应的账号是手动生成的，因为机器自动生成的账号密码很难破解。 实验设置 我们已经得到了目标域的一个有效的账号密码，现在我们需要利用这个账号……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/kerberoasting/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/sniff-ntlm/" title="Sniff Ntlm" >Sniff Ntlm</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月28日
-                            </date>
-                            
-                            <div class="post-content">
-                                嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/sniff-ntlm/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/msf-pivot/" title="Msf Pivot" >Msf Pivot</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月28日
-                            </date>
-                            
-                            <div class="post-content">
-                                与metasploit有关的pivoting方法总结 1. metasploit内置的端口转发 首先是最简单的端口转发，命令如下所示： portfwd add -l local_port_num -r ip_addr -p remote_port_num 在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。 2. metasploit内置的ro……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/msf-pivot/">阅读全文</a></p>
                         </article>
                     
                     
