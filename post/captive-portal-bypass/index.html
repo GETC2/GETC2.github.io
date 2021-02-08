@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Host头部攻击 | GET command and control</title>
-    <meta property="og:title" content="Host头部攻击 - GET command and control">
+    <title>Captive Portal Bypass | GET command and control</title>
+    <meta property="og:title" content="Captive Portal Bypass - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2020-11-05T16:02:41&#43;08:00">
+    <meta property="article:published_time" content="2021-02-08T16:27:23&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2020-11-05T16:02:41&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-08T16:27:23&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Host头部攻击">
+    <meta name="description" content="Captive Portal Bypass">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/host-head-attack/">
+    <meta property="og:url" content="https://GETC2.github.io/post/captive-portal-bypass/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,75 +68,55 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Host头部攻击</h1>
+                            <h1 class="post-title">Captive Portal Bypass</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2020年11月5日
+                            2021年2月8日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="host头部由来">Host头部由来</h1>
-<p>HTTP/1.1强制要求Host请求头。在以下几种情况下，没有Host头部无法获得请求的资源。</p>
-<ul>
-<li>在服务器同时伺服多个域名的时候，服务器需要知道请求所指向的具体域名。</li>
-<li>客户端与多个后端之间存在中间节点，比如负载均衡器和反向代理。此时中间节点需要知道具体的域名确定负责请求的后端。</li>
-</ul>
-<h1 id="host头部攻击">Host头部攻击</h1>
-<p>Host头部攻击主要是利用网站对Host头部的不当处理。如果网站不对Host头部进行适当的验证或转义，在头部被注入payload的情况下，攻击者就可以利用这种攻击来控制服务器的行为。通过对Host头部进行注入的攻击叫做Host头部注入攻击。</p>
-<p>现成的web应用往往不知道自己部署在哪个域名上，除非域名在configuration里面注明。当应用需要生成带有域名的资源路径的时候，应用可能会从Host头部取值。</p>
-<p>另外一种情况是Host头部被用于应用的不同系统之间的交互。比如反向代理服务器会查看Host头部用来将请求转发到正确的后端服务器进行处理。如果Host头部被篡改，而且代理服务器没有验证头部，攻击者可以利用代理服务器访问内网或者进行SSRF攻击。</p>
-<p>由于Host头部有多种用途，通过Host头部注入攻击可以实现其他攻击，比如：</p>
+                            <h1 id="captive-portal-bypass">Captive Portal Bypass</h1>
+<p><code>Captive Portal</code>就是所谓的强制门户认证系统。当我们在公共场所连接WIFI的时候，比如大学，机场，酒店，经常会有一个认证界面自动跳出来，只有经过某种形式的认证（比如用户名加密码，或者手机号加验证码）才能访问网络。这其实就是<code>Network Access Control</code>（NAC）的一种简单形式。由于用户的设备具有多样性特点，无法统一进行管理（比如安装客户端），所以只能进行简单的认证。</p>
+<p>这种认证通常是通过<code>IP</code>和<code>MAC</code>地址进行的。要想绕过认证，一般有三种思路：</p>
 <ol>
-<li>web缓存毒化</li>
-<li>攻击特定业务逻辑</li>
-<li>基于路由的SSRF</li>
-<li>经典的服务端漏洞，比如SQL注入</li>
+<li>攻击提供认证页面的<code>Web</code>服务器，利用常用的<code>Web</code>漏洞</li>
+<li>攻击认证之前的<code>DNS</code>或者<code>DHCP</code>服务</li>
+<li>攻击其他已经经过认证的客户端，比如通过<code>impersonate</code>别人的<code>IP</code> 或者<code>MAC</code></li>
+<li>有的客户端不支持这种认证，系统为了支持老式设备会根据设备的<code>OUI</code>来辨别此种设备并放弃认证</li>
 </ol>
-<h1 id="host头部漏洞的成因">Host头部漏洞的成因</h1>
+<p>这次我们针对第四种方法来展示如何绕过认证。</p>
+<p>需要注意的是由于通过改变设备的<code>OUI</code>来假冒老式设备很方便，所以有的系统针对这种攻击做出了相应的防御：</p>
 <ol>
-<li>应用假定Host头部无法被用户控制，因而没有对头部进行适当的验证和转义。</li>
-<li>服务器的configuration不合适。有时应用对Host头部进行了适当的验证和转义，但是由于不适当的服务器configuration，导致Host头部可以通过注入其他头部来覆盖，比如X-forwarded-for头部。</li>
+<li>观察浏览器的<code>User-Agent</code>头部是否与<code>OUI</code>一致</li>
+<li>通过<code>passive OS fingerprinting</code>来确认操作系统是否一致</li>
+<li>通过在<code>HTTP</code>响应中插入<code>Javascript</code>脚本来查询特定参数确定是否一致</li>
 </ol>
-<h1 id="如何确认host头部漏洞">如何确认Host头部漏洞</h1>
-<p>基本的思路是验证通过修改Host头部是否还能得到正常的响应。</p>
-<ol>
-<li>
-<p>修改Host头部为无意义的值</p>
-<p>头部变为无意义的值后，一种情况是得到“Invalid Host header”，这一般是由于中间节点或者后端服务器需要正确的Host头部来转发请求。另一种情况是得到正常的响应。这种情况可能是由于服务器被配置为如果有无法识别的Host头部，将请求转发到默认的网站。</p>
-<p>在得到“Invalid Host header”之后，还有其他方法来绕过验证。</p>
-</li>
-<li>
-<p>利用有缺陷的验证</p>
-<p>有的时候服务器对Host头部的验证是有缺陷的。比如说有的解析算法会忽略Host头部后面的端口：example.com:xx。这种情况下可以在端口部分注入payload。还有的服务器会验证Host头部是否以合适的域名结尾，这种情况下可以在源域名的基础上申请子域名来绕过验证。</p>
-</li>
-<li>
-<p>发送有歧义的Host头部</p>
-<p>有的时候对Host头部进行验证的系统和利用头部并造成漏洞的系统不是同一个系统。通过利用这些系统对Host头部处理的不一致也可以成功进行攻击。具体来说，通过发送有歧义的请求，不同系统对这个请求会做出不同的选择，从而绕过验证并且注入payload。</p>
-<ul>
-<li>
-<p>注入重复的头部</p>
-<p>不同的系统对重复的头部处理方法可能不同，导致在一个系统中其中一个Host头部覆盖掉另一个，而在另一个系统正相反。</p>
-</li>
-<li>
-<p>在请求行注入绝对路径</p>
-<p>有的服务器理解请求行的绝对路径。在请求行的优先于Host头部的时候就可以对头部注入payload。</p>
-</li>
-<li>
-<p>在头部添加换行</p>
-<p>一些服务器把一开始有空格的头部当成上一个头部的换行，而一些服务器忽略空格。</p>
-<pre><code>GET /example HTTP/1.1
-  Host: bad-stuff-here
- Host: vulnerable-website.com
-</code></pre></li>
-</ul>
-</li>
-<li>
-<p>注入覆盖Host头部的其他头部</p>
-<p>有的时候请求经过中间节点后，Host头部会被改变，为了保存原来的头部，中间节点会添加<code>X-Forwarded-Host</code>来注明原来的Host头部。</p>
-</li>
-</ol>
+<p>所以我们需要相应地修改设备参数来绕过这些验证。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>我们要访问<code>http:\\wophaos.sec660.org</code>，但是需要通过认证才能访问网络，目标就是绕过认证访问此网站。其中由于<code>IOS10</code>不支持认证，所以不需要认证。</p>
+<h3 id="步骤">步骤</h3>
+<p>首先访问目标网站：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_16-49-39.png" alt=""></p>
+<p>可以发现跳转到认证页面，页面提示我们可以通过假冒<code>iPad</code>来绕过认证。</p>
+<p>我们知道，特定设备的辨别是通过<code>MAC</code>地址的前三个字节确定的，我们可以查看虚拟机的地址并与分配给制造商的地址进行比照：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_16-58-15.png" alt=""></p>
+<p>我们的虚拟机的地址显示这是由虚拟机公司分配的，现在我们需要查找苹果公司的地址范围并修改地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_16-59-48.png" alt=""></p>
+<p>现在我们可以试试绕过认证：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-00-49.png" alt=""></p>
+<p>这说明认证系统为了应对假冒，还对我们的系统进行了验证。首先从改变最简单的<code>User-Agent</code>开始：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-10-14.png" alt=""></p>
+<p>除了<code>User-Agent</code>，其中<code>App Version</code>,<code>Platform</code>,<code>Vendor</code>这些参数也修改了，这些参数可能会被认证系统通过脚本读取。</p>
+<p>然后再次访问认证界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-12-36.png" alt=""></p>
+<p>可以发现我们已经认证成功了。这个系统没有通过<code>TCP/IP</code>栈来确定我们的操作系统，如果有需要的话我们还需要修改一些系统参数来模仿<code>IOS</code>，或者直接写脚本发送与<code>IOS</code>的协议栈一致的包（Linux协议栈的一些参数无法更改，因此我们可能需要利用脚本发包）。目标认证系统一般会隔一段时间嗅探我们的包并确定操作系统，因此我们可以每隔一段时间启动脚本。</p>
+<p>认证成功之后我们直接访问目标网站：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-17-17.png" alt=""></p>
+<h2 id="结论">结论</h2>
+<p>这个实验展示了如何绕过<code>Captive Portal</code>认证。考虑到访问设备的多样性，为了便于部署，这种认证系统很薄弱。有多种方法可以绕过认证，最简单的就是假冒<code>MAC</code>地址。</p>
 
                         </div>
 
@@ -144,6 +124,23 @@
 
 
                         
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">红队基本流程(4)</a></li>
+        
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">红队基本流程(3)</a></li>
+        
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">红队基本流程(2)</a></li>
+        
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/">红队基本流程(1)</a></li>
+        
+        <li><a href="/post/xss/">XSS</a></li>
+        
+    </ul>
+</div>
 
 
                         <div class="post-meta meta-tags">
