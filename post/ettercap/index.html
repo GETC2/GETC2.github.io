@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Captive Portal Bypass | GET command and control</title>
-    <meta property="og:title" content="Captive Portal Bypass - GET command and control">
+    <title>Ettercap | GET command and control</title>
+    <meta property="og:title" content="Ettercap - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-02-08T16:27:23&#43;08:00">
+    <meta property="article:published_time" content="2021-02-09T14:32:30&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-02-08T16:27:23&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-09T14:32:30&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Captive Portal Bypass">
+    <meta name="description" content="Ettercap">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/captive-portal-bypass/">
+    <meta property="og:url" content="https://GETC2.github.io/post/ettercap/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,55 +68,57 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Captive Portal Bypass</h1>
+                            <h1 class="post-title">Ettercap</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年2月8日
+                            2021年2月9日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="captive-portal-bypass">Captive Portal Bypass</h1>
-<p><code>Captive Portal</code>就是所谓的强制门户认证系统。当我们在公共场所连接WIFI的时候，比如大学，机场，酒店，经常会有一个认证界面自动跳出来，只有经过某种形式的认证（比如用户名加密码，或者手机号加验证码）才能访问网络。这其实就是<code>Network Access Control</code>（NAC）的一种简单形式。由于用户的设备具有多样性特点，无法统一进行管理（比如安装客户端），所以只能进行简单的认证。</p>
-<p>这种认证通常是通过<code>IP</code>和<code>MAC</code>地址进行的。要想绕过认证，一般有三种思路：</p>
-<ol>
-<li>攻击提供认证页面的<code>Web</code>服务器，利用常用的<code>Web</code>漏洞</li>
-<li>攻击认证之前的<code>DNS</code>或者<code>DHCP</code>服务</li>
-<li>攻击其他已经经过认证的客户端，比如通过<code>impersonate</code>别人的<code>IP</code> 或者<code>MAC</code></li>
-<li>有的客户端不支持这种认证，系统为了支持老式设备会根据设备的<code>OUI</code>来辨别此种设备并放弃认证</li>
-</ol>
-<p>这次我们针对第四种方法来展示如何绕过认证。</p>
-<p>需要注意的是由于通过改变设备的<code>OUI</code>来假冒老式设备很方便，所以有的系统针对这种攻击做出了相应的防御：</p>
-<ol>
-<li>观察浏览器的<code>User-Agent</code>头部是否与<code>OUI</code>一致</li>
-<li>通过<code>passive OS fingerprinting</code>来确认操作系统是否一致</li>
-<li>通过在<code>HTTP</code>响应中插入<code>Javascript</code>脚本来查询特定参数确定是否一致</li>
-</ol>
-<p>所以我们需要相应地修改设备参数来绕过这些验证。</p>
+                            <h1 id="利用ettercap实现中间人攻击">利用Ettercap实现中间人攻击</h1>
+<p>在实现了<code>Network Access Control</code>的局域网上，无论是之前介绍的<code>Captive Portal</code>认证，还是<code>802.1X</code>认证，抑或是实现了<code>VLAN</code>的交换机，我们都可以通过某种形式的攻击绕过这种限制从而获得局域网络的访问权。在获得局域网的访问权之后，我们就加入了广播域，从而可以监听，修改包。更为具体地说，我们可以通过中间人攻击来监听，修改流量，从而获取有用的信息，比如明文密码。</p>
+<p>在这里我们介绍如何利用<code>Ettercap</code>这一个工具来进行<code>ARP spoofing</code>，从而实现中间人攻击。</p>
 <h2 id="实验">实验</h2>
 <h3 id="目标">目标</h3>
-<p>我们要访问<code>http:\\wophaos.sec660.org</code>，但是需要通过认证才能访问网络，目标就是绕过认证访问此网站。其中由于<code>IOS10</code>不支持认证，所以不需要认证。</p>
+<p>通过中间人攻击修改目标获取的<code>HTTP</code>响应，添加针对攻击者主机的<code>SMB</code>访问代码，从而可以获取<code>challenge-reponse</code>并利用其他破解工具解密。</p>
 <h3 id="步骤">步骤</h3>
-<p>首先访问目标网站：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_16-49-39.png" alt=""></p>
-<p>可以发现跳转到认证页面，页面提示我们可以通过假冒<code>iPad</code>来绕过认证。</p>
-<p>我们知道，特定设备的辨别是通过<code>MAC</code>地址的前三个字节确定的，我们可以查看虚拟机的地址并与分配给制造商的地址进行比照：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_16-58-15.png" alt=""></p>
-<p>我们的虚拟机的地址显示这是由虚拟机公司分配的，现在我们需要查找苹果公司的地址范围并修改地址：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_16-59-48.png" alt=""></p>
-<p>现在我们可以试试绕过认证：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-00-49.png" alt=""></p>
-<p>这说明认证系统为了应对假冒，还对我们的系统进行了验证。首先从改变最简单的<code>User-Agent</code>开始：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-10-14.png" alt=""></p>
-<p>除了<code>User-Agent</code>，其中<code>App Version</code>,<code>Platform</code>,<code>Vendor</code>这些参数也修改了，这些参数可能会被认证系统通过脚本读取。</p>
-<p>然后再次访问认证界面：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-12-36.png" alt=""></p>
-<p>可以发现我们已经认证成功了。这个系统没有通过<code>TCP/IP</code>栈来确定我们的操作系统，如果有需要的话我们还需要修改一些系统参数来模仿<code>IOS</code>，或者直接写脚本发送与<code>IOS</code>的协议栈一致的包（Linux协议栈的一些参数无法更改，因此我们可能需要利用脚本发包）。目标认证系统一般会隔一段时间嗅探我们的包并确定操作系统，因此我们可以每隔一段时间启动脚本。</p>
-<p>认证成功之后我们直接访问目标网站：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-08_17-17-17.png" alt=""></p>
-<h2 id="结论">结论</h2>
-<p>这个实验展示了如何绕过<code>Captive Portal</code>认证。考虑到访问设备的多样性，为了便于部署，这种认证系统很薄弱。有多种方法可以绕过认证，最简单的就是假冒<code>MAC</code>地址。</p>
+<ol>
+<li>首先在我们的攻击者机器上上线<code>SMB</code>服务从而获取目标的密码哈希。</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_14-47-08.png" alt=""></p>
+<p>直接使用<code>Metasploit</code>的模块，设置好记录密码哈希的文件（针对不同的哈希格式可以设置不同的文件）。</p>
+<ol start="2">
+<li>编写<code>Ettercap</code>的<code>filter</code></li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_14-49-55.png" alt=""></p>
+<p>我们需要对<code>HTTP</code>请求和响应作出修改：</p>
+<ul>
+<li>将请求头<code>Accept-Encoding</code>修改，避免响应被压缩</li>
+<li>将请求头<code>If-Modified-Since</code>修改，避免浏览器的缓存起作用</li>
+<li>在响应中加上针对攻击者机器的<code>SMB</code>共享的访问代码</li>
+</ul>
+<p>编写完之后，直接编译以待<code>Ettercap</code>使用，它会针对嗅探到的包进行匹配，并根据<code>filter</code>来修改包的内容。</p>
+<ol start="3">
+<li>启动<code>Ettercap</code></li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_14-54-42.png" alt=""></p>
+<p>如图所示，我们选择进行<code>arp spoofing</code>攻击，其中<code>smb.ef</code>为上一步编写的<code>filter</code>。其中我们只对<code>10.10.10.70</code>和<code>10.10.76.99</code>进行欺骗，并针对源地址和目的地址符合这两个IP的包进行匹配和修改。</p>
+<ol start="4">
+<li>访问目标网站</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_15-00-36.png" alt=""></p>
+<p>查看页面源码应该可以发现插入的共享链接：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_15-02-46.png" alt=""></p>
+<p>浏览器会使用已经登入的用户的密码来验证，如果失败，可能会提示用户输入用户名和密码。</p>
+<ol start="5">
+<li>查看密码哈希准备破解</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_15-06-38.png" alt=""></p>
+<p>可以发现，我们看到了传递过来的密码哈希，我们可以直接用<code>John the ripper</code>或者<code>hashcat</code>来破解，或者利用彩虹表来寻找密码。</p>
+<h2 id="总结">总结</h2>
+<p>在加入到局域网之后，我们就可以考虑通过各种方法实现中间人攻击，从而嗅探或者修改封包，从而间接地获取密码。</p>
 
                         </div>
 
@@ -129,6 +131,8 @@
     <h2>See Also</h2>
     <ul class="listing">
         
+        <li><a href="/post/captive-portal-bypass/">Captive Portal Bypass</a></li>
+        
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">红队基本流程(4)</a></li>
         
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">红队基本流程(3)</a></li>
@@ -136,8 +140,6 @@
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">红队基本流程(2)</a></li>
         
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/">红队基本流程(1)</a></li>
-        
-        <li><a href="/post/xss/">XSS</a></li>
         
     </ul>
 </div>
