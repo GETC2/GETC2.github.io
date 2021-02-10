@@ -93,7 +93,7 @@
 <li>启动<code>loki</code>嗅探路由认证</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-17-21.png" alt=""></p>
-<p>如上图所示，按照循序启动嗅探，我们需要选择进行嗅探的接口，这里直接选择<code>eth0</code>。</p>
+<p>如上图所示，按照顺序启动嗅探，我们需要选择进行嗅探的接口，这里直接选择<code>eth0</code>。</p>
 <p>然后会发现我们收到了来自路由器的握手：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-19-35.png" alt=""></p>
 <p>路由器<code>10.10.10.40</code>发来<code>HELLO</code>消息。由于利用<code>loki</code>无法观察完成的封包，我们利用<code>Wireshark</code>来观察这个包：</p>
