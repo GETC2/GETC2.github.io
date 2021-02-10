@@ -77,7 +77,51 @@
                         
                         
                         <div class="post-content">
-                            
+                            <h1 id="利用ospf实现中间人攻击">利用OSPF实现中间人攻击</h1>
+<p>之前提到在<code>IPv4</code>环境下可以用<code>arp spoofing</code>实现中间人攻击；在<code>IPv6</code>的环境下可以利用<code>arp</code>的对等协议实现中间人攻击。除了这些，我们还可以直接利用路由协议实现中间人攻击。</p>
+<p>这里我们以<code>OSPF</code>为例，展示如何实现中间人攻击。</p>
+<p>路由器之间为了更新路由表会互相传递信息，其中<code>OSPF</code>为了防止假冒的路由器，使用了<code>MD5 Digest</code>对路由器进行认证。我们可以嗅探进行认证的封包并破解密码，然后向其他路由器发送路由更新，这样可以使目的地为特定网段的封包都经过我们，从而实现中间人攻击。</p>
+<h2 id="实验">实验</h2>
+<p>在这里，我们使用<code>loki</code>这个工具进行路由协议的嗅探，密码破解，路由更新的发送。</p>
+<h3 id="步骤">步骤</h3>
+<ol>
+<li>准备字典文件</li>
+</ol>
+<p>由于<code>loki</code>的<code>bug</code>，我们只能使用字符数小于16的密码，因此需要对字典文件进行处理，删除掉长度大于16的密码：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-15-44.png" alt=""></p>
+<ol start="2">
+<li>启动<code>loki</code>嗅探路由认证</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-17-21.png" alt=""></p>
+<p>如上图所示，按照循序启动嗅探，我们需要选择进行嗅探的接口，这里直接选择<code>eth0</code>。</p>
+<p>然后会发现我们收到了来自路由器的握手：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-19-35.png" alt=""></p>
+<p>路由器<code>10.10.10.40</code>发来<code>HELLO</code>消息。由于利用<code>loki</code>无法观察完成的封包，我们利用<code>Wireshark</code>来观察这个包：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-22-25.png" alt=""></p>
+<p>我们需要的是<code>OSPF</code>协议中的<code>Auth Crypt Key id</code>信息，这个在之后生成和<code>10.10.10.40</code>互相认证的包的时候有用。</p>
+<ol start="3">
+<li>获取<code>MD5 Digest</code>认证并破解密码</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-25-18.png" alt=""></p>
+<p>如图所示，按照顺序选择字典文件，并点击<code>Crack PW</code>。可以从封包的<code>CRACK</code>一列发现密码为<code>giantzombie</code>。</p>
+<ol start="4">
+<li>与目标路由器进行握手</li>
+</ol>
+<p>获取密码之后，我们就可以和路由器进行握手：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-27-53.png" alt=""></p>
+<p>如上所示，我们需要填写破解的密码以及之前通过<code>wireshark</code>获得的<code>ID</code>，然后直接点击<code>Hello</code>与路由器进行握手。握手完成之后，封包的<code>STATE</code>一列会变为<code>FULL</code>，这说明认证成功：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-31-24.png" alt=""></p>
+<ol start="5">
+<li>发送伪造的路由信息</li>
+</ol>
+<p>完成握手之后就可以发送路由信息，从而实现中间人攻击：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-32-39.png" alt=""></p>
+<p>如图所示，填写对应的网段之后，直接点击<code>Add</code>。</p>
+<p>在目标路由器上通过<code>show ip route</code>就可以发现我们添加的路由：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_22-33-58.png" alt=""></p>
+<h2 id="总结">总结</h2>
+<p>可以发现，通过攻击路由协议也可以实现中间人攻击。</p>
+
                         </div>
 
                         
