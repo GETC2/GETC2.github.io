@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Ettercap | GET command and control</title>
-    <meta property="og:title" content="Ettercap - GET command and control">
+    <title>IPv6 Attack | GET command and control</title>
+    <meta property="og:title" content="IPv6 Attack - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-02-09T14:32:30&#43;08:00">
+    <meta property="article:published_time" content="2021-02-10T14:41:01&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-02-09T14:32:30&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-10T14:41:01&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Ettercap">
+    <meta name="description" content="IPv6 Attack">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/ettercap/">
+    <meta property="og:url" content="https://GETC2.github.io/post/ipv6-attack/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,57 +68,42 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Ettercap</h1>
+                            <h1 class="post-title">IPv6 Attack</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年2月9日
+                            2021年2月10日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="利用ettercap实现中间人攻击">利用Ettercap实现中间人攻击</h1>
-<p>在实现了<code>Network Access Control</code>的局域网上，无论是之前介绍的<code>Captive Portal</code>认证，还是<code>802.1X</code>认证，抑或是实现了<code>VLAN</code>的交换机，我们都可以通过某种形式的攻击绕过这种限制从而获得局域网络的访问权。在获得局域网的访问权之后，我们就加入了广播域，从而可以监听，修改包。更为具体地说，我们可以通过中间人攻击来监听，修改流量，从而获取有用的信息，比如明文密码。</p>
-<p>在这里我们介绍如何利用<code>Ettercap</code>这一个工具来进行<code>ARP spoofing</code>，从而实现中间人攻击。</p>
+                            <h1 id="针对ipv6服务攻击">针对IPv6服务攻击</h1>
+<p><code>IPv6</code>提供了很多攻击机会。比如我们可以利用局域网内的<code>IPv6</code>进行中间人攻击。再比如，有的<code>IDS</code>支持<code>IPv4</code>，但是却没有针对<code>IPv6</code>的规则，我们可以利用这点来绕过<code>IDS</code>。</p>
+<p>这一次我们利用的点在于，有的服务只能通过<code>IPv6</code>访问，我们可以发现和扫描<code>IPv6</code>的地址来发现新的服务，从而增加我们发现漏洞的可能性。</p>
 <h2 id="实验">实验</h2>
-<h3 id="目标">目标</h3>
-<p>通过中间人攻击修改目标获取的<code>HTTP</code>响应，添加针对攻击者主机的<code>SMB</code>访问代码，从而可以获取<code>challenge-reponse</code>并利用其他破解工具解密。</p>
+<h3 id="介绍">介绍</h3>
+<p>发现局域网内的<code>IPv6</code>存活主机，并扫描看是否有有漏洞的服务，如果有的话进行漏洞利用。</p>
 <h3 id="步骤">步骤</h3>
-<ol>
-<li>首先在我们的攻击者机器上上线<code>SMB</code>服务从而获取目标的密码哈希。</li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_14-47-08.png" alt=""></p>
-<p>直接使用<code>Metasploit</code>的模块，设置好记录密码哈希的文件（针对不同的哈希格式可以设置不同的文件）。</p>
-<ol start="2">
-<li>编写<code>Ettercap</code>的<code>filter</code></li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_14-49-55.png" alt=""></p>
-<p>我们需要对<code>HTTP</code>请求和响应作出修改：</p>
-<ul>
-<li>将请求头<code>Accept-Encoding</code>修改，避免响应被压缩</li>
-<li>将请求头<code>If-Modified-Since</code>修改，避免浏览器的缓存起作用</li>
-<li>在响应中加上针对攻击者机器的<code>SMB</code>共享的访问代码</li>
-</ul>
-<p>编写完之后，直接编译以待<code>Ettercap</code>使用，它会针对嗅探到的包进行匹配，并根据<code>filter</code>来修改包的内容。</p>
-<ol start="3">
-<li>启动<code>Ettercap</code></li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_14-54-42.png" alt=""></p>
-<p>如图所示，我们选择进行<code>arp spoofing</code>攻击，其中<code>smb.ef</code>为上一步编写的<code>filter</code>。其中我们只对<code>10.10.10.70</code>和<code>10.10.76.99</code>进行欺骗，并针对源地址和目的地址符合这两个IP的包进行匹配和修改。</p>
-<ol start="4">
-<li>访问目标网站</li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_15-00-36.png" alt=""></p>
-<p>查看页面源码应该可以发现插入的共享链接：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_15-02-46.png" alt=""></p>
-<p>浏览器会使用已经登入的用户的密码来验证，如果失败，可能会提示用户输入用户名和密码。</p>
-<ol start="5">
-<li>查看密码哈希准备破解</li>
-</ol>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-09_15-06-38.png" alt=""></p>
-<p>可以发现，我们看到了传递过来的密码哈希，我们可以直接用<code>John the ripper</code>或者<code>hashcat</code>来破解，或者利用彩虹表来寻找密码。</p>
+<p>首先我们可以通过查看主机缓存看看周围有没有<code>IPv6</code>的主机：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-00-47.png" alt=""></p>
+<p>其中我们发现有两种地址，一种是<code>FC00</code>开头，另一种是<code>FE80</code>开头。其中后一种是<code>link local</code>地址，只能在<code>LAN</code>中使用，而第一种是<code>Site local</code>地址，可以在一个组织中跨<code>LAN</code>使用。很明显，如果是针对上线的服务进行攻击的话，我们应该针对第一种地址。其中，有三个主机具有第一种地址开头，我们关注的是第一个地址即<code>fc00:660:0:1::46</code>。另外我们通过前期的扫描知道这台主机的<code>IPv4</code>的地址是<code>10.10.10.70</code>。</p>
+<p>知道地址后，我们针对两个地址进行<code>nmap</code>服务扫描：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-11-08.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-11-40.png" alt=""></p>
+<p>可以发现，有的服务只能在<code>IPv4</code>上发现，而有的只能在<code>IPv6</code>上发现。其中，在<code>IPv6</code>上针对端口<code>110</code>进行监听的服务引起了注意，通过调查扫描得到的服务<code>banner</code>我们可以发现这是一个<code>POP3</code>的服务，服务器是<code>jwpopper</code>，而这个服务器有漏洞，我们可以绕过认证得到用户的邮件。</p>
+<p>前期的<code>recon</code>知道了目标有用户名<code>ejobs</code>，我们可以试试针对此用户绕过验证获取邮件。</p>
+<p>我们直接利用现有的漏洞利用代码，先编译再针对目标进行利用：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-18-20.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-18-54.png" alt=""></p>
+<p>可以看到，工具报错。其实这是因为这个工具只支持<code>IPv4</code>，因此我们需要利用<code>IPv4-to-IPv6</code>隧道。</p>
+<p>原理其实很简单，就是直接在本地设置代理的<code>IPv4</code>的端口监听，然后设置工具的<code>IP</code>和端口，当监听端口收到<code>payload</code>之后，直接由代理工具将此<code>payload</code>转发给目标端口，当然代理工具支持<code>IPv6</code>。</p>
+<p>我们直接利用<code>socat</code>设置本地代理：
+<img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-23-25.png" alt=""></p>
+<p>然后直接设置漏洞利用工具的参数：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_15-24-13.png" alt=""></p>
+<p>可以看到，漏洞利用成功，我们可以获得此用户的邮件了。</p>
 <h2 id="总结">总结</h2>
-<p>在加入到局域网之后，我们就可以考虑通过各种方法实现中间人攻击，从而嗅探或者修改封包，从而间接地获取密码。</p>
+<p><code>IPv6</code>提供了很多新的攻击机会，包括局域网内的中间人攻击，发现绑定<code>IPv6</code>的新服务或者绕过<code>IDS</code>，<code>IPS</code>实现攻击。</p>
 
                         </div>
 
@@ -131,6 +116,8 @@
     <h2>See Also</h2>
     <ul class="listing">
         
+        <li><a href="/post/ettercap/">Ettercap</a></li>
+        
         <li><a href="/post/captive-portal-bypass/">Captive Portal Bypass</a></li>
         
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">红队基本流程(4)</a></li>
@@ -138,8 +125,6 @@
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">红队基本流程(3)</a></li>
         
         <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">红队基本流程(2)</a></li>
-        
-        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/">红队基本流程(1)</a></li>
         
     </ul>
 </div>

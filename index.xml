@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 09 Feb 2021 14:32:30 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 10 Feb 2021 14:41:01 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>IPv6 Attack</title>
+      <link>https://GETC2.github.io/post/ipv6-attack/</link>
+      <pubDate>Wed, 10 Feb 2021 14:41:01 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/ipv6-attack/</guid>
+      <description>针对IPv6服务攻击 IPv6提供了很多攻击机会。比如我们可以利用局域网内的IPv6进行中间人攻击。再比如，有的IDS支持IPv4，但是却没有针对IPv6的规则，我们可以利用这点来绕过IDS。 这一次我们利用的点在于，有的服务只能通过IPv6访问，我们可以发现</description>
+    </item>
+    
     <item>
       <title>Ettercap</title>
       <link>https://GETC2.github.io/post/ettercap/</link>
