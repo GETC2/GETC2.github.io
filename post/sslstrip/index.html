@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Accessing Internal Websites | GET command and control</title>
-    <meta property="og:title" content="Accessing Internal Websites - GET command and control">
+    <title>sslstrip | GET command and control</title>
+    <meta property="og:title" content="sslstrip - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2020-11-08T14:39:50&#43;08:00">
+    <meta property="article:published_time" content="2021-02-10T21:03:12&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2020-11-08T14:39:50&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-10T21:03:12&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Accessing Internal Websites">
+    <meta name="description" content="sslstrip">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/accessing-internal-websites/">
+    <meta property="og:url" content="https://GETC2.github.io/post/sslstrip/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,47 +68,47 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Accessing Internal Websites</h1>
+                            <h1 class="post-title">sslstrip</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2020年11月8日
+                            2021年2月10日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="利用host头部注入访问内网">利用Host头部注入访问内网</h1>
-<p>有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看<code>DNS record</code>的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的<code>DNS record</code>。但是只要知道内部域名对应的IP地址或者域名，攻击者就可以访问。可以通过暴力破解来遍历可能的内部域名或者IP地址。</p>
-<h1 id="基于路由的ssrf">基于路由的SSRF</h1>
-<p>通过Host头部注入可以利用中间节点，比如负载均衡器和反向代理服务器，来实现SSRF。测试方法是在Host头部注入我们自己的服务器域名，如果有来自中间节点对这个域名的DNS查询，说明这个中间节点有可能受到攻击。接下来可以测试是否可以通过这个节点访问内网。</p>
-<h1 id="lab1">lab1</h1>
-<h2 id="lab描述">lab描述</h2>
-<p>通过Host头部注入访问内网的管理员页面。内网段是<code>192.168.0.0/24</code>. 然后删除用户carlos。</p>
-<p>首先修改Host头部看看能否正常访问。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-test-temper.png" alt="routing-SSRF-test-temper"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-tamper-error.png" alt="routing-SSRF-tamper-error"></p>
-<p>可以看到得到超时的错误，说明中间节点没有对Host头部进行验证就开始转发请求。接下来就直接利用burpsuite intruder爆破实验给定的内网网段。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-burst-IP-1.png" alt="routing-SSRF-burst-IP-1"></p>
-<p>我们直接修改Host头部，并对子网网段进行暴力破解，开始攻击。在intruder的攻击结果中发现，当IP为<code>192.168.0.238</code>的时候，服务器返回了这样的响应：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-found-inter.png" alt="routing-SSRF-found-inter"></p>
-<p>接下来直接构造访问内网管理员页面请求。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-req-forge.png" alt="routing-SSRF-req-forge"></p>
-<p>然后得到管理员页面，接着删除用户carlos就完成目标了：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-admin-delete.png" alt="routing-SSRF-admin-delete"></p>
-<h1 id="lab2">lab2</h1>
-<h2 id="lab描述-1">lab描述</h2>
-<p>由于对请求意图的host的不恰当解析，目标应用容易受到基于路由的SSRF攻击。请访问内网管理员页面并删除用户carlos。</p>
-<p>首先还是直接修改Host头部，观察响应。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routed-SSRF-lab2-tamper-host.png" alt="routed-SSRF-lab2-tamper-host"></p>
-<p>我们发现服务器返回<code>Forbidden</code>，这说明服务器对Host头部进行了验证，我们无法随便修改Host头部。</p>
-<p>接下来试着直接爆破内网网段<code>192.168.0.0/24</code>。</p>
-<p>结果发现返回的响应都是<code>Forbidden</code>. 这说明中间节点禁止Host头部是内网IP地址。为了绕过对Host头部的验证同时访问内网，我们可以试着在请求行动手脚，把它改为绝对地址。<img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routed-SSRF-lab2-abso-req.png" alt="routed-SSRF-lab2-abso-req"></p>
-<p>这个时候响应变为超时了，这说明我们可以利用绝对地址来绕过验证并访问内网。接着爆破内网网段。结果发现内网IP<code>192.168.0.127</code>. 于是直接构造访问内网管理员页面请求：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routed-SSRF-lab2-forge-req.png" alt="routed-SSRF-lab2-forge-req"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/routing-SSRF-admin-delete.png" alt="routing-SSRF-admin-delete"></p>
-<p>成功删除用户carlos。</p>
-<h1 id="总结">总结</h1>
-<p>通过中间节点对Host头部不适当的验证，我们可以通过修改Host头部来实现SSRF攻击。</p>
+                            <h1 id="sslstrip">sslstrip</h1>
+<p>之前提到如何利用<code>Ettercap</code>实现中间人攻击，并修改<code>HTTP</code>的响应从而获取密码。如果客户端用<code>HTTP</code>请求服务，而服务器要求客户端使用<code>HTTPS</code>的话，我们就无法修改响应。但是，我们可以利用<code>sslstrip</code>脚本修改服务器的<code>HTTP</code>响应的请求头<code>Location</code>或者<code>html</code>内容，强迫使<code>HTTPS</code>请求转为<code>HTTP</code>请求，从而可以直接得到明文的登录密码。</p>
+<p><code>Ettercap</code>功能很丰富，之前我们利用它进行<code>arp spoofing</code>和修改<code>HTTP</code>响应。这一次我们利用不同的工具分别实现<code>arp spoofing</code>和<code>HTTP</code>响应的修改，其中需要强迫<code>HTTPS</code>请求化为<code>HTTP</code>请求。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目的">目的</h3>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-14-42.png" alt=""></p>
+<p>如图所示，我们需要访问<code>http://kittenwar.sec660.org</code>，当把鼠标悬停在<code>login</code>上面时，可以发现登陆界面是<code>HTTPS</code>，这种情况下，中间人攻击无法看到明文用户名密码，因此我们的目的是修改此链接，让浏览器使用<code>HTTP</code>提交登录凭据。</p>
+<h3 id="步骤">步骤</h3>
+<ol>
+<li><code>ARP spoofing</code></li>
+</ol>
+<p>首先我们需要针对目标客户端和网关进行<code>arp spoofing</code>攻击，这里我们直接使用脚本进行：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-22-36.png" alt=""></p>
+<p>脚本要求输入目标客户端和网关的地址，然后直接进行<code>arp spoofing</code>攻击。其中有一行脚本命令系统将目的端口为80的包转发到8080端口上，我们在这个端口上运行<code>HTTP</code>代理并修改响应。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-25-31.png" alt=""></p>
+<ol start="2">
+<li>启动<code>HTTP</code>代理</li>
+</ol>
+<p>这里我们使用<code>mitmdump</code>，这个工具可以运行代理，默认在8080端口，并且可以针对<code>HTTP</code>请求或者响应的内容进行匹配替换，还可以通过指定脚本对请求或响应进行替换。我们指定使用<code>sslstrip.py</code>脚本来为我们进行内容替换：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-29-49.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-29-57.png" alt=""></p>
+<p>可以发现，这个脚本针对响应的头部和内容进行了替换，将<code>https://</code>替换为<code>http://</code>。</p>
+<p>可以如下使用<code>mitmdump</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-32-06.png" alt=""></p>
+<p>工具会自动启动代理，并利用脚本对响应进行处理。</p>
+<ol start="3">
+<li>模拟客户端访问目标网站</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-10_21-33-52.png" alt=""></p>
+<p>当我们访问此网站后，发现<code>login</code>页面使用的是<code>HTTP</code>协议，这样当用户登陆时，我们就可以看到明文密码。</p>
+<h2 id="结论">结论</h2>
+<p>其实实现中间人攻击之后，除了修改响应获取明文密码之外，我们还可以在用户下载文件时，替换文件为<code>payload</code>，比如<code>meterpreter</code>或者<code>Empire</code>的<code>stager</code>，这样我们就可以直接获取目标主机的控制。</p>
 
                         </div>
 
@@ -121,13 +121,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/access-restricted-func/">Access Restricted Func</a></li>
+        <li><a href="/post/snmp/">SNMP</a></li>
         
-        <li><a href="/post/web-cache-poison/">Web Cache Poisoning</a></li>
+        <li><a href="/post/ipv6-attack/">IPv6 Attack</a></li>
         
-        <li><a href="/post/password-reset-poisoning/">Password Reset Poisoning</a></li>
+        <li><a href="/post/ettercap/">Ettercap</a></li>
         
-        <li><a href="/post/host-head-attack/">Host头部攻击</a></li>
+        <li><a href="/post/captive-portal-bypass/">Captive Portal Bypass</a></li>
+        
+        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">红队基本流程(4)</a></li>
         
     </ul>
 </div>

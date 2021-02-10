@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 10 Feb 2021 19:02:52 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 10 Feb 2021 21:03:12 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>sslstrip</title>
+      <link>https://GETC2.github.io/post/sslstrip/</link>
+      <pubDate>Wed, 10 Feb 2021 21:03:12 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/sslstrip/</guid>
+      <description>sslstrip 之前提到如何利用Ettercap实现中间人攻击，并修改HTTP的响应从而获取密码。如果客户端用HTTP请求服务，而服务器要求客户端使用HTTPS的话，我们就无法修改响应。但是，我们可以利用sslstrip脚本修改服务器的HTTP响应的请求头Locatio</description>
+    </item>
+    
     <item>
       <title>SNMP</title>
       <link>https://GETC2.github.io/post/snmp/</link>
