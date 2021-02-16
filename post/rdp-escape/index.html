@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Escaping Restricted Desktops | GET command and control</title>
+    <meta property="og:title" content="Escaping Restricted Desktops - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-02-16T14:18:05&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-02-16T14:18:05&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="Escaping Restricted Desktops">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/rdp-escape/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">Escaping Restricted Desktops</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年2月16日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="escaping-restricted-desktops">Escaping Restricted Desktops</h1>
+<p>在我们获得对一台主机的访问后，要想进行后渗透活动时可能会遇到一系列障碍。比如这台主机已经被加固过了，我们无法使用已有的工具来实现我们的目的。</p>
+<p>常见的加固措施如下：</p>
+<ol>
+<li><code>GPO</code>或者<code>SRP</code></li>
+</ol>
+<p><code>Group Policy Objects</code>可以用来</p>
+<ul>
+<li>限制<code>Windows</code>的各种部件</li>
+<li>隐藏系统文件</li>
+<li>阻止针对系统设定的访问</li>
+<li>允许或者组织运行特定应用</li>
+</ul>
+<p><code>Software Restriction Policies</code>是通过<code>GPO</code>来设定的，主要有两种安全级别：</p>
+<ul>
+<li><code>Unrestricted</code>：通过用户的权限级别来决定对应用的访问权</li>
+<li><code>Disallowed</code>：任何用户都不允许运行应用</li>
+</ul>
+<p>另外<code>SRP</code>可以通过按照<code>Certificate</code>,<code>Hash</code>,<code>Zone</code>,<code>Path</code>来设定规则。比如我们可以设置在某个<code>Path</code>下的应用可以/不可以运行。</p>
+<p>除了<code>SRP</code>之外，<code>AppLocker</code>也是用来限制应用的运行的。基本的作用都相同，但是<code>AppLocker</code>可以根据特定的用户或者组来设定规则，并且支持审计模式，从而避免设定的规则破坏生产环境。</p>
+<ol start="2">
+<li><code>Virtual application</code></li>
+</ol>
+<p>通过将应用运行在虚拟机中并且隐藏桌面，从而限制用户可以使用的功能。常见的比如:<code>Citrix</code>,<code>VMware</code></p>
+<ol start="3">
+<li>替换应用</li>
+</ol>
+<p>系统内置的应用可能功能太过丰富，为了去除不需要的功能，内置应用有可能被替换为第三方应用，从而减少攻击的机会。比如为了限制桌面，我们可以替换<code>explorer.exe</code>，可供选择的有<code>Ivanti Workspace Control</code>,<code>Secure Desktop</code>,<code>SiteKiosk</code>。替换的原理就是通过改变注册表的值，使之指向第三方应用。</p>
+<h2 id="实验">实验</h2>
+<p>接下来我们做一个实验展示经过加固的主机以及如何绕过限制使用工具来达成目的。</p>
+<p>实验环境是一台运行<code>RDP</code>服务的主机，连接之后只能运行<code>Microsoft Word</code>。此次实验的目标是成功运行<code>command shell</code>,<code>Notepad</code>,<code>Paint</code>。<code>command shell</code>的功能自不用说，<code>Notepad</code>可以用来传输文件和向目标写入脚本，<code>Paint</code>同样可以传输文件和写入二进制文件。</p>
+<h3 id="步骤">步骤</h3>
+<p>首先我们可以直接点击<code>Word</code>的<code>Help</code>，这回弹出一个浏览器窗口。在浏览器窗口中，点击右上方的<code>Tools</code>-&gt;<code>Options</code>选项，然后按照如下的图片点击：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-02-10.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-02-32.png" alt=""></p>
+<p>然后就会打开类似<code>explorer</code>的界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-04-18.png" alt=""></p>
+<p>我们可以选择下拉箭头(1)，然后选择桌面(2)，之后创建新的文件夹：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-04-37.png" alt=""></p>
+<p>在我们打开新创建的文件夹后，就会弹出类似<code>explorer</code>的界面，这是第三方的替代品：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-09-14.png" alt=""></p>
+<p>之前提到，我们把内置应用替换为第三方应用是为了限制功能从而减少攻击机会，但是在本次实验中，这个应用有和内置<code>explorer</code>一样的功能，而且不受<code>GPO</code>控制，我们可以右击。另外只有在打开新创建的文件夹之后才能弹出第三方应用。之后我们就可以用这个第三方应用来浏览文件夹并打开<code>command shell</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-13-01.png" alt=""></p>
+<p>但是如图所示，由于<code>SRP</code>的限制，我们无法打开<code>command shell</code>。一般来说，类似<code>kiosks</code>和嵌入式的设备不需要<code>shell</code>也能正常工作，但是其他的设备在这种情况下可能有供替代的<code>shell</code>。所以这种时候可能就需要我们寻找替代用的<code>shell</code>，或者利用<code>Paint</code>下载我们的<code>shell</code>。幸运的是，本次实验中，<code>SRP</code>仅仅是依靠路径来限制<code>command shell</code>的，因此我们只需要拷贝到其他文件夹中就可以使用了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-18-36.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-18-52.png" alt=""></p>
+<p>有了命令行之后，我们就可以直接在命令行启动<code>Notepad</code>和<code>Paint</code>了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-16_15-20-28.png" alt=""></p>
+<p>这样我们就在经过加固后的主机上成功执行目标程序。利用这些程序我们可以顺利地进行后渗透活动了。</p>
+<h2 id="结论">结论</h2>
+<p>除了之前介绍的各种加固方法，目标主机可能还有各种杀软，我们可以针对性地对<code>payload</code>进行免杀处理：比如生成<code>dll</code>而不是<code>exe</code>文件，然后在目标主机上用<code>rundll32.exe</code>来运行我们的<code>payload</code>。由于<code>rundll32.exe</code>默认不会被<code>SRP</code>限制，所以我们可以成功执行。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/ospf/">OSPF</a></li>
+        
+        <li><a href="/post/sslstrip/">sslstrip</a></li>
+        
+        <li><a href="/post/snmp/">SNMP</a></li>
+        
+        <li><a href="/post/ipv6-attack/">IPv6 Attack</a></li>
+        
+        <li><a href="/post/ettercap/">Ettercap</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/rdp-escape/" title="Escaping Restricted Desktops">Escaping Restricted Desktops</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ospf/" title="OSPF">OSPF</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sslstrip/" title="sslstrip">sslstrip</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/snmp/" title="SNMP">SNMP</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ipv6-attack/" title="IPv6 Attack">IPv6 Attack</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ettercap/" title="Ettercap">Ettercap</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/captive-portal-bypass/" title="Captive Portal Bypass">Captive Portal Bypass</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" title="红队基本流程(4)">红队基本流程(4)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/" title="红队基本流程(3)">红队基本流程(3)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/" title="红队基本流程(2)">红队基本流程(2)</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>
