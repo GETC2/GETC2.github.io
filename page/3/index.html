@@ -64,6 +64,22 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/msf-pivot/" title="Msf Pivot" >Msf Pivot</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年1月28日
+                            </date>
+                            
+                            <div class="post-content">
+                                与metasploit有关的pivoting方法总结 1. metasploit内置的端口转发 首先是最简单的端口转发，命令如下所示： portfwd add -l local_port_num -r ip_addr -p remote_port_num 在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。 2. metasploit内置的ro……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/msf-pivot/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
                                     <a href="https://GETC2.github.io/post/dump-the-hash/" title="Dump the Hash" >Dump the Hash</a>
                                 </h1>
                             </header>
@@ -203,22 +219,6 @@
                                 简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的……
                             </div>
                             <p class="readmore"><a href="https://GETC2.github.io/post/egress-analysis/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/accessing-internal-websites/" title="Accessing Internal Websites" >Accessing Internal Websites</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年11月8日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用Host头部注入访问内网 有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看DNS record的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的DNS record。但是只要知道内……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/accessing-internal-websites/">阅读全文</a></p>
                         </article>
                     
                     

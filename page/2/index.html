@@ -64,6 +64,22 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/" title="红队基本流程(2)" >红队基本流程(2)</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年2月5日
+                            </date>
+                            
+                            <div class="post-content">
+                                红队基本流程之二：Planning 之前介绍过红队基本流程中的Threat Intelligence。其实，它与planning之间是密不可分的。planning中有的决定依靠Threat Inteligence。比如Adversary使用的TTP，最后拟定的A……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
                                     <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/" title="红队基本流程(1)" >红队基本流程(1)</a>
                                 </h1>
                             </header>
@@ -203,22 +219,6 @@
                                 嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd……
                             </div>
                             <p class="readmore"><a href="https://GETC2.github.io/post/sniff-ntlm/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/msf-pivot/" title="Msf Pivot" >Msf Pivot</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月28日
-                            </date>
-                            
-                            <div class="post-content">
-                                与metasploit有关的pivoting方法总结 1. metasploit内置的端口转发 首先是最简单的端口转发，命令如下所示： portfwd add -l local_port_num -r ip_addr -p remote_port_num 在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。 2. metasploit内置的ro……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/msf-pivot/">阅读全文</a></p>
                         </article>
                     
                     

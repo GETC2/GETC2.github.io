@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Sulley Fuzzing | GET command and control</title>
+    <meta property="og:title" content="Sulley Fuzzing - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-02-19T20:18:15&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-02-19T20:18:15&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="Sulley Fuzzing">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/sulley-fuzzing/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">Sulley Fuzzing</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年2月19日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="sulley-fuzzing">Sulley Fuzzing</h1>
+<p><code>Sulley</code>是用于<code>fuzzing</code>的框架。针对使用特定协议运行在特定端口的服务，我们可以使用<code>Sulley</code>来寻找目标的漏洞。常见的比如缓冲区溢出，注入命令，``directory traversal<code>等等。基本原理就是通过研究目标使用的协议，发现可能产生漏洞的点，然后针对这些点使用各种</code>malformed input<code>来测试，如果目标崩溃了，就需要进一步研究是否可以</code>weaponlization`。</p>
+<p><code>Sulley</code>框架主要由以下几部分组成：</p>
+<ol>
+<li><code>Python</code>模块<code>Sulley</code>：通过此模块可以描述协议语法，针对想要<code>fuzzing</code>的点可以通过特定模块函数来指明。</li>
+<li><code>Agent</code>：有两个<code>agent</code>，分别是<code>Netmon</code>和<code>Procmon</code>。<code>Netmon</code>运行在目标主机或者测试主机上用于抓包(包括发出的请求和响应); <code>Procmon</code>运行在目标主机上，用来控制目标服务和转储目标服务崩溃后的信息。</li>
+<li><code>Helper</code>：有两个辅助后续分析用的工具，分别是<code>pcap_cleaner</code>和<code>crashbin_explorer</code>。<code>pcap_cleaner</code>主要用来删除与崩溃无关的<code>pcap</code>。<code>crashbin_explorer</code>主要用来浏览观察崩溃记录。</li>
+</ol>
+<p>接下来就通过测试一个<code>Web</code>服务来说明<code>Sulley</code>的使用流程。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>目标<code>Web</code>服务器是<code>Savant</code>。我们需要针对<code>HEAD</code>请求来寻找可能的注入点，从而使得服务器崩溃：</p>
+<p><code>HEAD /index.html HTTP/1.1\r\n\r\n</code></p>
+<h3 id="步骤">步骤</h3>
+<ol>
+<li>首先利用<code>Sulley</code>模块描述<code>HEAD</code>请求，指明需要处理的点:</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e">#!/usr/bin/env python</span>
+<span style="color:#f92672">from</span> sulley <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+<span style="color:#f92672">import</span> sys
+<span style="color:#f92672">import</span> time
+
+s_initialize(<span style="color:#e6db74">&#34;HTTP&#34;</span>)
+
+<span style="color:#75715e"># Use Sulley syntax to describe the following request:</span>
+<span style="color:#75715e">#  HEAD /index.html HTTP/1.1\r\n\r\n</span>
+<span style="color:#66d9ef">if</span> s_block_start(<span style="color:#e6db74">&#34;main&#34;</span>):
+    s_static(<span style="color:#e6db74">&#34;HEAD&#34;</span>)
+    s_delim(<span style="color:#e6db74">&#34; &#34;</span>)
+    s_static(<span style="color:#e6db74">&#34;/&#34;</span>)
+    s_string(<span style="color:#e6db74">&#34;index.html&#34;</span>)
+    s_delim(<span style="color:#e6db74">&#34; &#34;</span>)
+    s_static(<span style="color:#e6db74">&#34;HTTP&#34;</span>)
+    s_delim(<span style="color:#e6db74">&#34;/&#34;</span>)
+    s_byte(<span style="color:#ae81ff">1</span>, format<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;string&#34;</span>)
+    s_delim(<span style="color:#e6db74">&#34;.&#34;</span>)
+    s_byte(<span style="color:#ae81ff">1</span>, format<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;string&#34;</span>)
+    s_static(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\r\n\r\n</span><span style="color:#e6db74">&#34;</span>)
+s_block_end(<span style="color:#e6db74">&#34;main&#34;</span>)
+
+<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;Mutations: &#34;</span> <span style="color:#f92672">+</span> str(s_num_mutations())
+
+<span style="color:#75715e">#print &#34;ASCII mutation output:&#34;</span>
+<span style="color:#75715e">#i=0</span>
+<span style="color:#75715e">#while s_mutate():</span>
+<span style="color:#75715e">#	print &#34;Case: &#34; + str(i) + &#34;:\n&#34;</span>
+<span style="color:#75715e">#	print s_render()</span>
+<span style="color:#75715e">#	print &#34;\n\n&#34;</span>
+<span style="color:#75715e">#	i=i+1</span>
+<span style="color:#75715e">#sys.exit()</span>
+
+<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;Press CTRL/C to cancel in &#34;</span>,
+<span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">3</span>):
+	<span style="color:#66d9ef">print</span> str(<span style="color:#ae81ff">3</span> <span style="color:#f92672">-</span> i) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span>,
+	sys<span style="color:#f92672">.</span>stdout<span style="color:#f92672">.</span>flush()
+	time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">1</span>)
+
+<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;Instantiating session&#34;</span>
+sess <span style="color:#f92672">=</span> sessions<span style="color:#f92672">.</span>session(session_filename<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;http.session&#34;</span>, sleep_time<span style="color:#f92672">=</span><span style="color:#ae81ff">0.25</span>)
+
+<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;Instantiating target&#34;</span>
+</code></pre></div><p>上面的脚本主要定义了<code>HEAD</code>请求中需要进行处理的点，比如通过<code>s_delim(), s_string(), s_byte()</code>指明的请求中的部分就需要进行处理。不同的函数指明的点所进行的处理不同。我们还指定了目标服务所在的<code>IP</code>和端口。</p>
+<p>在目标服务起来后，我们就可以执行脚本进行<code>fuzzing</code>了。</p>
+<ol start="2">
+<li>启动目标服务和<code>Agents</code></li>
+</ol>
+<p>这一步很简单，直接启动目标服务器和之前提到的两个<code>Agent</code>。</p>
+<p>首先启动目标服务器：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-19_21-15-24.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-19_21-14-07.png" alt=""></p>
+<p>然后启动<code>Agents</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-19_21-16-43.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-19_21-20-48.png" alt=""></p>
+<ol start="3">
+<li>启动<code>fuzzer</code></li>
+</ol>
+<p>直接运行第一步完成的脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-19_21-24-32.png" alt=""></p>
+<p>可以看到，脚本开始进行<code>fuzzing</code>。</p>
+<ol start="4">
+<li>如果出现崩溃，进一步分析崩溃</li>
+</ol>
+<p><code>Sulley</code>框架提供了进行事后分析的脚本，其中一个是<code>crashbin_explorer</code>，利用这个脚本，我们可以分析之前<code>promon</code>收集的崩溃转储信息。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-19_21-27-45.png" alt=""></p>
+<p>如上图所示，通过指定崩溃转储的文件参数，该脚本会输出所有的崩溃信息总结。其中针对各个崩溃都用数字进行了标注，我们同样利用这个脚本，利用<code>-t</code>选项指定特定的崩溃来查看细节，比如寄存器的内容，如果<code>EIP</code>有效，崩溃信息还包括<code>EIP</code>之后的指令的反汇编。</p>
+<h2 id="总结">总结</h2>
+<p>针对某种协议进行特定实现的服务器，我们可以按照以上步骤利用<code>Sulley</code>来对服务器进行<code>fuzzing</code>从而寻找漏洞。这需要我们对目标协议有明确的认识，也需要了解目标服务器针对此协议可能的处理方式，然后我们才能通过<code>Sulley</code>指定需要处理的点，从而有效地进行<code>fuzzing</code>。在发现崩溃后，我们后续还需要利用<code>Debugger</code>进一步地研究，看看能否<code>weaponnization</code>。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/rdp-escape/">Escaping Restricted Desktops</a></li>
+        
+        <li><a href="/post/ospf/">OSPF</a></li>
+        
+        <li><a href="/post/sslstrip/">sslstrip</a></li>
+        
+        <li><a href="/post/snmp/">SNMP</a></li>
+        
+        <li><a href="/post/ipv6-attack/">IPv6 Attack</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/rdp-escape/" title="Escaping Restricted Desktops">Escaping Restricted Desktops</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ospf/" title="OSPF">OSPF</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sslstrip/" title="sslstrip">sslstrip</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/snmp/" title="SNMP">SNMP</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ipv6-attack/" title="IPv6 Attack">IPv6 Attack</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ettercap/" title="Ettercap">Ettercap</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/captive-portal-bypass/" title="Captive Portal Bypass">Captive Portal Bypass</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" title="红队基本流程(4)">红队基本流程(4)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/" title="红队基本流程(3)">红队基本流程(3)</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>
