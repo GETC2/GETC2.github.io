@@ -64,6 +64,22 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title" id="homepage">
+                                    <a href="https://GETC2.github.io/post/sniff-ntlm/" title="Sniff Ntlm" >Sniff Ntlm</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2021年1月28日
+                            </date>
+                            
+                            <div class="post-content">
+                                嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd……
+                            </div>
+                            <p class="readmore"><a href="https://GETC2.github.io/post/sniff-ntlm/">阅读全文</a></p>
+                        </article>
+                    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title" id="homepage">
                                     <a href="https://GETC2.github.io/post/msf-pivot/" title="Msf Pivot" >Msf Pivot</a>
                                 </h1>
                             </header>
@@ -203,22 +219,6 @@
                                 文件元数据收集 （Recon） 通过这个博客来展示在recon的过程中，如何从文件元数据中获得有用的信息。 实验设置 现在我们手头上有三个文件： WidgetStatisticalAnalysis.xls WidgetStatisticalWhitepaper.doc WidgetStatisticalWhitepaper.pdf 目标是利用exiftool和strings来收集关于目标的信息。 Exiftool 首先用exiftool来看看doc文件有什么元数……
                             </div>
                             <p class="readmore"><a href="https://GETC2.github.io/post/metadata-threasure-hunt/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/egress-analysis/" title="Egress Analysis" >Egress Analysis</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年12月30日
-                            </date>
-                            
-                            <div class="post-content">
-                                简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/egress-analysis/">阅读全文</a></p>
                         </article>
                     
                     

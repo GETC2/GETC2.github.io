@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>AFL Fuzzing | GET command and control</title>
+    <meta property="og:title" content="AFL Fuzzing - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-02-20T09:38:43&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-02-20T09:38:43&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="AFL Fuzzing">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/afl-fuzzing/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">AFL Fuzzing</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年2月20日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="american-fuzzy-lop-afl">American Fuzzy Lop (AFL)</h1>
+<p>之前介绍过<code>Sulley</code>这个框架，马上要介绍的<code>AFL</code>与<code>Sulley</code>有两个不同：</p>
+<ol>
+<li><code>Sulley</code>用来测试使用协议的服务端应用；而<code>AFL</code>用来测试本地接受输入的应用</li>
+<li><code>AFL</code>具有一定的<code>intelligence</code>。它可以记录特定输入和与之对应的应用执行路径。根据这些记录，<code>AFL</code>可以调整<code>fuzzing</code>的策略，如果某种输入可以使得应用执行新的路径，后续的输入会偏向这种有效输入。背后的考虑是，如果<code>fuzzing</code>构造的输入无法使得应用执行新的路径，那么就无法发现可能的漏洞。通过调整构造输入的策略从而尽可能多地覆盖应用的执行路径，这就是<code>AFL</code>地智能所在。<code>Sulley</code>本身无法根据执行路径调整输入，但是我们可以借助其他工具手动调查执行路径，从而修改<code>Sulley</code>针对协议语法地描述进而改变输入到达新的执行路径。</li>
+</ol>
+<p>要想利用<code>AFL</code>的这种特性，我们需要被测试应用的源码。<code>AFL</code>通过对<code>gcc</code>,<code>g++</code>编译器添加<code>wrapper</code>，从而在针对源码编译时，可以在每一行源码加入回调函数，其结果就是通过这些回调函数，<code>AFL</code>可以知道针对特定输入，应用地执行路径。</p>
+<p>所以<code>AFL</code>的应用场景就是测试带有源码且在本地执行的应用。接下来就通过实验来介绍<code>AFL</code>的基本使用流程。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>针对开源的<code>Ipdecap</code>程序，利用<code>AFL</code>进行测试：针对<code>malformed</code>输入，看看<code>Ipdecap</code>是否会崩溃，从而可以进一步研究<code>weaponization</code>的可能性。（<code>Ipdecap</code>的输入是<code>pcap</code>文件）</p>
+<h3 id="步骤">步骤</h3>
+<ol>
+<li>利用<code>AFL</code>编译器编译目标源程序</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-00-46.png" alt=""></p>
+<p>如图所示，先解压目标源码，然后通过指定<code>./configure</code>脚本的参数<code>CC=&quot;afl-gcc&quot; CXX=&quot;afl-g++&quot;</code>来编译目标程序。</p>
+<ol start="2">
+<li>为<code>AFL</code>创建输入输出文件夹</li>
+</ol>
+<p><code>AFL</code>进行<code>fuzzing</code>时，需要指定输入输出文件夹，输入文件夹中是目标程序的输入样例文件，本例中就是<code>pcap</code>文件，而输出文件夹用来输出造成崩溃的输入。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-06-05.png" alt=""></p>
+<ol start="3">
+<li>利用<code>AFL</code>对编译好的程序进行<code>fuzzing</code></li>
+</ol>
+<p>由于利用<code>AFL</code>进行<code>fuzzing</code>时需要指定目标程序的命令行参数，我们需要先搞清楚<code>Ipdecap</code>的命令格式：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-09-29.png" alt=""></p>
+<p>可以看到，必要的参数是输入输出文件。</p>
+<p>然后运行<code>AFL</code>进行<code>fuzzing</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-13-42.png" alt=""></p>
+<p>命令行中的<code>@@</code>告诉<code>afl-fuzz</code>使用之前创建的文件夹<code>in</code>中的文件。</p>
+<p><code>afl-fuzz</code>会实时显示<code>fuzzing</code>的进程：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-16-28.png" alt=""></p>
+<p>可以看到，已经有两个不同的崩溃了，我们可以直接退出<code>fuzzing</code>，研究造成这两个崩溃的输入。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-18-52.png" alt=""></p>
+<p>如上图所示，造成崩溃的输入在上述创建的输出文件夹中，而且文件的命名显示了<code>AFL</code>针对样本输入文件做出了什么样的改动，而该改动造成了目标程序的崩溃。</p>
+<ol start="4">
+<li>重新编译目标源码以便<code>debug</code></li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-22-30.png" alt=""></p>
+<p>如图所示，重新编译目标源码，关闭优化并指明包括<code>debugging symbols</code>。</p>
+<ol start="5">
+<li>利用<code>gdb</code>研究崩溃</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-24-50.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-25-53.png" alt=""></p>
+<p>如图所示，利用<code>gdb</code>重新运行使得目标崩溃的输入文件，利用<code>bt</code>命令跟踪错误：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-28-27.png" alt=""></p>
+<p>通过后续研究发现，<code>remove-ieee8021q_header</code>函数调用了<code>memcpy</code>函数，具体调用如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-20_10-33-57.png" alt=""></p>
+<p>最后发现，其实<code>AFL</code>通过改变包的长度信息，即<code>in_payload_len</code>，使得最后的参数变为负数，而最后的参数其实是无符号数，这也就造成了最后的崩溃。</p>
+<p>这之后我们可以进一步研究是否可以利用这个崩溃来<code>weaponization</code>。</p>
+<h2 id="总结">总结</h2>
+<p>以上就是利用<code>AFL</code>进行<code>fuzzing</code>的步骤。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/sulley-fuzzing/">Sulley Fuzzing</a></li>
+        
+        <li><a href="/post/rdp-escape/">Escaping Restricted Desktops</a></li>
+        
+        <li><a href="/post/ospf/">OSPF</a></li>
+        
+        <li><a href="/post/sslstrip/">sslstrip</a></li>
+        
+        <li><a href="/post/snmp/">SNMP</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/rdp-escape/" title="Escaping Restricted Desktops">Escaping Restricted Desktops</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ospf/" title="OSPF">OSPF</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sslstrip/" title="sslstrip">sslstrip</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/snmp/" title="SNMP">SNMP</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ipv6-attack/" title="IPv6 Attack">IPv6 Attack</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ettercap/" title="Ettercap">Ettercap</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/captive-portal-bypass/" title="Captive Portal Bypass">Captive Portal Bypass</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" title="红队基本流程(4)">红队基本流程(4)</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>

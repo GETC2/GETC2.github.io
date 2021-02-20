@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 19 Feb 2021 20:18:15 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 20 Feb 2021 09:38:43 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AFL Fuzzing</title>
+      <link>https://GETC2.github.io/post/afl-fuzzing/</link>
+      <pubDate>Sat, 20 Feb 2021 09:38:43 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/afl-fuzzing/</guid>
+      <description>American Fuzzy Lop (AFL) 之前介绍过Sulley这个框架，马上要介绍的AFL与Sulley有两个不同： Sulley用来测试使用协议的服务端应用；而AFL用来测试本地接受输入的应用 AFL具有一定的intelligence。它可以记录特定输入和与之对应的应用执行路径。根据这些记</description>
+    </item>
+    
     <item>
       <title>Sulley Fuzzing</title>
       <link>https://GETC2.github.io/post/sulley-fuzzing/</link>
