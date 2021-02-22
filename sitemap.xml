@@ -3,17 +3,27 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://GETC2.github.io/post/afl-fuzzing/</loc>
-    <lastmod>2021-02-20T09:38:43+08:00</lastmod>
+    <loc>https://GETC2.github.io/post/buffer-overflow2/</loc>
+    <lastmod>2021-02-22T09:29:38+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://GETC2.github.io/</loc>
-    <lastmod>2021-02-20T09:38:43+08:00</lastmod>
+    <lastmod>2021-02-22T09:29:38+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://GETC2.github.io/post/</loc>
+    <lastmod>2021-02-22T09:29:38+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://GETC2.github.io/post/buffer-overflow/</loc>
+    <lastmod>2021-02-21T20:56:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://GETC2.github.io/post/afl-fuzzing/</loc>
     <lastmod>2021-02-20T09:38:43+08:00</lastmod>
   </url>
   
