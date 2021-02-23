@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Recon-ng | GET command and control</title>
-    <meta property="og:title" content="Recon-ng - GET command and control">
+    <title>Buffer Overflow(5) | GET command and control</title>
+    <meta property="og:title" content="Buffer Overflow(5) - GET command and control">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2021-01-18T21:00:11&#43;08:00">
+    <meta property="article:published_time" content="2021-02-23T19:39:16&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2021-01-18T21:00:11&#43;08:00">
+    <meta property="article:modified_time" content="2021-02-23T19:39:16&#43;08:00">
         
     <meta name="Keywords" content="penetration">
-    <meta name="description" content="Recon-ng">
+    <meta name="description" content="Buffer Overflow(5)">
         
     <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/recon-ng/">
+    <meta property="og:url" content="https://GETC2.github.io/post/buffer-overflow5/">
     <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -68,60 +68,46 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Recon-ng</h1>
+                            <h1 class="post-title">Buffer Overflow(5)</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2021年1月18日
+                            2021年2月23日
                         </date>
                         
                         
                         
                         <div class="post-content">
-                            <h1 id="利用recon-ng收集信息">利用Recon-ng收集信息</h1>
-<p><code>Recon-ng</code>是一个用来收集目标的框架。通过这篇博客来记录<code>Recon-ng</code>的基本使用。</p>
-<h1 id="实验设置">实验设置</h1>
-<p>目标的DNS服务器地址是<code>10.10.10.60</code>.</p>
-<ul>
-<li>利用已有的目标IP地址块来进行反向DNS查询确定域名。</li>
-<li>利用DNS cache snooping来确定目标使用的杀毒软件，为后期免杀做准备。</li>
-</ul>
-<h1 id="实验步骤">实验步骤</h1>
-<h2 id="dns反向查询">DNS反向查询</h2>
-<p>首先启动<code>Recon-ng</code>：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-19-05.png" alt=""></p>
-<p>查看参数设置：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-21-10.png" alt=""></p>
-<p>DNS服务器是默认的谷歌服务器，修改为目标DNS服务器：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-13-04.png" alt=""></p>
-<p><code>Recon-ng</code>和<code>metasploit</code>一样，功能是按模块划分的，我们可以方便地通过内置<code>search</code>命令寻找我们需要用的模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-25-22.png" alt=""></p>
-<p>由于输入是地址块而不是单个地址，因此选择第三个模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-27-40.png" alt=""></p>
-<p>从模块的描述信息可以看出，模块的输入参数默认为内置的<code>netblocks</code>表，我们可以查看<code>netblocks</code>表的内容：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-31-15.png" alt=""></p>
-<p>可以看到，内置的netblocks表没有内容，我们可以通过内置命令add添加记录：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-32-23.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-32-32.png" alt=""></p>
-<p>最后就是直接运行模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-34-42.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-35-35.png" alt=""></p>
-<p>可以看到，地址块中只有一部分地址有反向解析结果。一般不是所有的地址都有对应的<code>PTR</code>记录，<code>DMZ</code>内的服务器很多有对应的记录。</p>
-<p><code>Recon-ng</code>会自动将搜集到的信息填充到内置的表中，比如<code>hosts</code>, <code>domanins</code>&hellip;&hellip;</p>
-<p>我们可以查看此次查询的结果：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-39-28.png" alt=""></p>
-<h2 id="dns-cache-snooping">DNS cache snooping</h2>
-<p>这次我们通过<code>DNS cache snooping</code>来了解目标使用的杀毒软件。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-41-40.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-41-49.png" alt=""></p>
-<p>可以发现，<code>cache_snoop</code>模块的一个输入是内置的文件：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-41-59.png" alt=""></p>
-<p>这些就是杀毒软件更新signature时访问的域名。通过向参数<code>NAMESERVER</code>指明的DNS服务器询问这些域名，可以知道目标有没有使用对应的杀软。</p>
-<p>这个模块的<code>NAMESERVER</code>参数无法由<code>Recon-ng</code>的全局参数填充，此处需要额外设置：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-46-43.png" alt=""></p>
-<p>最后直接运行模块：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-46-55.png" alt=""></p>
-<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-18_21-47-05.png" alt=""></p>
-<p>可以看到，目标有可能使用了<code>symantec</code>和<code>avg</code>两种杀软，在后面对工具进行免杀测试是很有用的。</p>
+                            <h1 id="栈溢出5">栈溢出（5）</h1>
+<p>之前介绍过如何通过静态代码段寻找有用的指令来绕过<code>ASLR</code>，之前是通过<code>linux-gate.so.1</code>这一共享库中的<code>jmp %esp</code>指令完成的。这个办法在<code>linux 2.6.17</code>内核版本是可行的，但是之后的内核版本要么就是去除了<code>jmp %esp</code>指令，要么就是将此共享库的载入地址也随机化了。因此如果遇到以上版本之外的<code>linux</code>，我们该如何绕过<code>ASLR</code>呢？最终的方法就是暴力枚举了。这种方法只能作为最后手段，因为会在目标系统上留下大量<code>log</code>。但同时这个方法只要多试就一定会成功。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>目标程序<code>aslr_brute</code>有缓冲区漏洞，且目标主机启动了<code>ASLR</code>保护，我们需要用暴力枚举方法利用此漏洞获得<code>shell</code>。</p>
+<h3 id="步骤">步骤</h3>
+<p>首先观察目标程序：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_19-47-47.png" alt=""></p>
+<p>可以看出目标程序的确有缓冲区漏洞。</p>
+<p>进一步观察缓冲区的大小以及由于<code>ASLR</code>栈的变动范围：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_19-50-03.png" alt=""></p>
+<p><code>main</code>函数中并没有特别的函数调用，我们接着看<code>copyFunction</code>，可能这个函数里面产生了漏洞：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_19-51-52.png" alt=""></p>
+<p>的确是从这个函数里面调用了<code>strcpy</code>从而导致了缓冲区漏洞，而且可以从上面的指令看出，缓冲区距离返回指针的大小为612个字节。</p>
+<p>然后观察栈的变化范围，看看地址的哪些位是不确定的：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_19-56-55.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_19-57-24.png" alt=""></p>
+<p>可以看到返回指针对应的地址有20位是不确定的，我们只要枚举这20位就行了。所以紧跟在返回指针后面的<code>sledding</code>的第一个指令地址范围是<code>0xbf000000</code>~<code>0xbffffff0</code>，即<code>0xbf*****0</code>。</p>
+<p>现在的方案就是，构造输入覆盖缓冲区，首先是612字节的任意字符，然后是四字节的返回指针，之后是<code>NOP sledding</code>，最后是<code>shellcode</code>。我们需要把返回指针指向<code>NOP sledding</code>中的指令。为了提高成功率，<code>sledding</code>中的指令需要尽量长，而且返回指针的猜测值要选在<code>sledding</code>可能范围的中间，比如<code>0xbf800110</code>，低字节不为0是为了防止<code>null byte</code>。</p>
+<p>现在我们选取选择<code>sledding</code>中<code>NOP</code>指令的数目为5000，这就确定了输入。然后我们只要不断执行程序，直到返回指针成功落到<code>sledding</code>中。由于不确定位数为20，且<code>sledding</code>长度为2000，极端情况是返回指针落在<code>sledding</code>的开头或者末尾，所以成功率是<code>5000/2^20=0.048</code>。大概运行20次成功一次。</p>
+<p>我们先构造输入：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_20-13-40.png" alt=""></p>
+<p>然后循环执行目标程序1000次直到返回指针成功落到<code>sledding</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_20-14-56.png" alt=""></p>
+<p>一段时间过后，目标程序挂起：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_20-15-33.png" alt=""></p>
+<p>应该是成功触发<code>shellcode</code>执行，直接用<code>nc</code>连接试试：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-23_20-16-07.png" alt=""></p>
+<p>成功利用漏洞。</p>
+<h2 id="总结">总结</h2>
+<p>暴力枚举可以看作是最后手段来绕过ASLR<code>，但是要删除消除</code>log`。</p>
 
                         </div>
 
@@ -134,15 +120,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/metadata-threasure-hunt/">Metadata Treasure Hunt</a></li>
+        <li><a href="/post/buffer-overflow4/">Buffer Overflow(4)</a></li>
         
-        <li><a href="/post/egress-analysis/">Egress Analysis</a></li>
+        <li><a href="/post/buffer-overflow3/">Buffer Overflow(3)</a></li>
         
-        <li><a href="/post/accessing-internal-websites/">Accessing Internal Websites</a></li>
+        <li><a href="/post/buffer-overflow2/">Buffer Overflow(2)</a></li>
         
-        <li><a href="/post/access-restricted-func/">Access Restricted Func</a></li>
+        <li><a href="/post/buffer-overflow/">Buffer Overflow</a></li>
         
-        <li><a href="/post/web-cache-poison/">Web Cache Poisoning</a></li>
+        <li><a href="/post/afl-fuzzing/">AFL Fuzzing</a></li>
         
     </ul>
 </div>

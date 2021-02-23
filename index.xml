@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 23 Feb 2021 09:49:37 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 23 Feb 2021 19:39:16 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Buffer Overflow(5)</title>
+      <link>https://GETC2.github.io/post/buffer-overflow5/</link>
+      <pubDate>Tue, 23 Feb 2021 19:39:16 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/buffer-overflow5/</guid>
+      <description>栈溢出（5） 之前介绍过如何通过静态代码段寻找有用的指令来绕过ASLR，之前是通过linux-gate.so.1这一共享库中的jmp %esp指令完成的。这个办法在linux 2.6.17内核版本是可行的，但是之后的内核版本要么就是去除了jmp %esp指令，要么</description>
+    </item>
+    
     <item>
       <title>Buffer Overflow(4)</title>
       <link>https://GETC2.github.io/post/buffer-overflow4/</link>
