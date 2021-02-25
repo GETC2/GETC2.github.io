@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Windows Buffer Overflow | GET command and control</title>
+    <meta property="og:title" content="Windows Buffer Overflow - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-02-25T14:15:00&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-02-25T14:15:00&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="Windows Buffer Overflow">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/windows-buffer-overflow/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">Windows Buffer Overflow</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年2月25日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="windows栈溢出">Windows栈溢出</h1>
+<p>之前的栈溢出都是关于<code>Linux</code>下面的程序，而<code>Windows</code>上面的栈溢出漏洞虽然和<code>Linux</code>原理相同，但是由于针对栈溢出的保护措施的实现不同，所以绕过这些措施的技术也就不同。比如<code>Windows</code>上面的<code>DEP</code>,<code>ASLR</code>,<code>canary</code>的实现就不尽相同，而且<code>Windows</code>由于操作系统底层的实现区别，还有额外的保护措施，比如<code>safeSEH</code>,<code>SEHOP</code>,<code>CFG</code>等等。</p>
+<p>我们就从这里开始记录一下如何绕过<code>Windows</code>上面针对栈溢出的保护措施。这一篇关注的保护措施是<code>ASLR</code>和<code>safeSEH</code>。由于<code>ASLR</code>的原理和<code>Linux</code>上相同就不赘述了。而<code>safeSEH</code>是针对<code>Windows</code>上的<code>SEH</code>，即<code>Structured Exception Handling</code>, 所添加的额外的保护措施。这个保护措施是在编译时期加上的。</p>
+<p><code>safeSEH</code>简单来说就是为了防止通过栈溢出覆盖栈上指向<code>Exception Handler</code>的指针。在编译时通过指定<code>safeSEH</code>，可以生成<code>table</code>，在其中记录真实的指向<code>Exception Handler</code>的指针。当程序执行过程中出现<code>Exception</code>而要调用指向<code>Exception Handler</code>的指针时，可以对照这个表，如果指针遭到篡改就可以拒绝执行，从而避免漏洞利用。</p>
+<p>但是由于有的第三方<code>dll</code>在编译时没有指定<code>safeSEH</code>，所以可以通过将指针指向这些<code>dll</code>中的指令从而绕过<code>safeSEH</code>。</p>
+<p>另外需要说明的是，虽然我们可以通过栈溢出覆盖返回指针，但是在调用漏洞函数和函数返回之间，可能会有指令解引用我们所覆盖的值，导致段错误，从而在函数返回之前就终止。因此这里所介绍的覆盖<code>SEH</code>就有了用处：即使函数返回之前产生<code>Exception</code>，最终还是要执行被我们覆盖的<code>SEH</code>，从而执行<code>shellcode</code>。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p><code>BlazeVideo HDTV Player 6.6 Pro</code>有缓冲区漏洞，目标主机默认开启<code>ASLR</code>。我们需要通过覆盖<code>SEH</code>的指针来执行<code>shellcode</code>。</p>
+<h3 id="步骤">步骤</h3>
+<p>同样的我们需要搞清楚目标程序的缓冲区距离<code>SEH</code>的长度，我们可以用<code>Immunity</code>中的<code>mona</code>来实现这个目的。<code>mona</code>是用<code>python</code>写的脚本，它可以用来帮助我们分析漏洞，编写<code>exploit</code>。比如帮助我们确定缓冲区长度，在<code>dll</code>中寻找有用的指令。我们可以在<code>Immunity</code>这款<code>debugger</code>中调用<code>mona</code>的命令。</p>
+<p>具体命令如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-32-20.png" alt=""></p>
+<p>通过这个命令，我们可以生成长度为700字节的字符串。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-34-40.png" alt=""></p>
+<p>我们将此字符串拷贝，然后通过<code>python</code>脚本将此字符串写入目标程序的读取输入文件中：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-38-00.png" alt=""></p>
+<p>如上图所示，目标程序可以读取播放列表文件，后缀名为<code>plf</code>，将生成的字符串写如此文件中，然后让目标程序打开。</p>
+<p>接下来打开目标程序读取刚刚生成的播放列表文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-40-57.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-41-12.png" alt=""></p>
+<p>如图所示，通过文件夹图标准备打开播放列表文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-44-13.png" alt=""></p>
+<p>选择好后不要带开，因为我们需要<code>Immunity</code>来调试，打开<code>Immunity</code>并<code>Attach</code>目标程序：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-46-33.png" alt=""></p>
+<p>进入<code>Immunity</code>之后，点击<code>F9</code>让目标程序继续执行：我们让目标程序打开刚刚生成的播放列表。</p>
+<p>一旦打开后，就会由于我们覆盖了缓冲区之后的返回指针从而产生<code>Exception</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-50-36.png" alt=""></p>
+<p>而此时寄存器和堆栈的信息如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-49-30.png" alt=""></p>
+<p>可以看到<code>%eip</code>的值为<code>0x37694136</code>,而<code>%esp</code>所指向的位置是我们之前生成的字符串的一部分:<code>j3Aj4A.....</code>。</p>
+<p>继续观察堆栈的后面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-11-05.png" alt=""></p>
+<p>可以发现，生成的字符串一直覆盖到了<code>SEH</code>的指针部分。</p>
+<p>但是我们的目标是搞清楚缓冲区距离<code>SEH</code>的距离，所以需要点击<code>Shift+F9</code>将控制转向<code>Exception Handler</code>, 从而搞清楚被覆盖的<code>SEH</code>指针中的值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-55-22.png" alt=""></p>
+<p>可以看到，当控制转向<code>Exception Handler</code>时，又出现了<code>Access violation</code>。这是由于我们覆盖了<code>SEH</code>的指针。</p>
+<p>以下是此时的寄存器和堆栈信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-55-13.png" alt=""></p>
+<p><code>%eip</code>此时的值是<code>0x41347541</code>，这就是被覆盖的<code>SEH</code>指针的值。通过这个值我们可以知道缓冲区和<code>SEH</code>的距离为612字节：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_21-59-09.png" alt=""></p>
+<p>从返回指针被覆盖产生<code>Access violation</code>到<code>SEH</code>指向的<code>Exception Handler</code>被调用之间的过程我们暂时不需要细究。需要注意的就是当<code>Exception Handler</code>被调用时堆栈的<code>layout</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-04-15.png" alt=""></p>
+<p>可以发现<code>%esp+8</code>的位置是一个指针，该指针指向一个字符串：<code>2Au3Au4A...</code>。而这刚好就是我们生成的字符串。为了确认，右击该指针，然后选择<code>Follow in Stack</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-05-51.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-06-48.png" alt=""></p>
+<p>可以发现该指针的确指向我们刚才覆盖的<code>SEH</code>部分的地址。</p>
+<p>而我们的漏洞利用就是根据<code>Exception Handler</code>开始执行时的堆栈<code>layout</code>来进行的。此时<code>%eip</code>的值为我们覆盖，可以被我们控制；而<code>%esp+8</code>所指向的位置是一个指针，该指针指向被我们所覆盖的<code>SEH</code>。因此如果我们能找到这样的指令：</p>
+<pre><code>pop &lt;register&gt;
+pop &lt;register&gt;
+ret
+</code></pre><p>以第一个指令的地址覆盖<code>SEH</code>中指向<code>Exception Handler</code>的指针，当这三个指令开始执行时，通过前两个指令的<code>pop</code>操作，可以让<code>%esp</code>指向一个指针，该指针指向被我们覆盖的<code>SEH</code>。最后的<code>ret</code>指令则使得<code>%eip</code>的值为该指针，即<code>%eip</code>指向被我们覆盖的<code>SEH</code>部分。如果在该部分是我们的<code>shellcode</code>的话，我们就能顺利利用漏洞。</p>
+<p>但是还有一个问题。首先<code>SEH</code>中指向<code>Exception Handler</code>的指针需要为以上<code>pop-pop-ret</code>指令的地址，当由于<code>ret</code>指令执行而导致<code>%eip</code>重新指向<code>SEH</code>时，<code>SEH</code>中的指针也会被解读为指令，而该指针有可能为非法指令，这就意味着后面的<code>shellcode</code>无法执行。因此我们需要跳过<code>SEH</code>中的指针。我们可以这样解决这个问题：在<code>SEH</code>的一开始设置指令<code>jmp short &lt;n&gt;</code>，直接跳转到后面的<code>shellcode</code>，避免将<code>SEH</code>中的指针解读为指令。</p>
+<p>因此总体的<code>exploit+payload</code>就是：</p>
+<ol>
+<li>608字节任意字符</li>
+<li>为了跳过<code>SEH</code>中的指针的<code>jmp short &lt;n&gt;</code>指令，这部分需要2字节，比如：<code>jmp short 6</code>, 即<code>EB 06</code>。</li>
+<li>为了补足<code>SEH</code>前半部分的2字节，可以为任意字符</li>
+<li><code>SEH</code>中的指针部分，该指针指向<code>pop-pop-ret</code>指令</li>
+<li><code>sledding</code>，可以为任意字节数</li>
+<li><code>shellcode</code></li>
+</ol>
+<p>目前我们缺少的信息就是<code>pop-pop-ret</code>指令的地址。由于<code>ASLR</code>和<code>safeSEH</code>的关系，我们需要寻找这样的<code>dll</code>：没有开启<code>ASLR</code>和<code>safeSEH</code>保护，并且含有<code>pop-pop-ret</code>指令序列。我们可以通过<code>mona</code>来寻找这样的模块和指令：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-35-14.png" alt=""></p>
+<p>如上所示，我们通过<code>!mona modules -o</code>指令查询<code>dll</code>的信息，可以发现<code>configuration.dll</code>没有开启<code>Rebase</code>,<code>ASLR</code>,<code>safeSEH</code>的保护。然后我们试着在该模块中寻找上述指令序列：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-40-38.png" alt=""></p>
+<p>可以发现有多个指令序列可供选择，我们选择地址为<code>0x603156e4</code>的指令序列。</p>
+<p>然后修改一开始创建播放列表的<code>python</code>脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-45-32.png" alt=""></p>
+<p>用此脚本生成播放列表文件后，重复之前的步骤，用<code>Immunity</code>调试目标程序，另外在<code>0x603156e4</code>处设置断点：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-48-29.png" alt=""></p>
+<p>然后直接打开生成的播放列表，继续点击<code>Shift+F9</code>转移控制到<code>Exception Handler</code>，由于<code>SEH</code>中指向此<code>Handler</code>的指针已被覆盖为<code>pop-pop-ret</code>的地址，所以程序直接在我们设置的断点处暂停。我们继续单步执行，知道最后一个指令<code>ret</code>使得<code>%eip</code>指向堆栈上<code>SEH</code>部分，而一开始的指令就是<code>jmp short 6</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-53-36.png" alt=""></p>
+<p>继续单步执行，跨过<code>SEH</code>中的指针部分，即<code>0x603156e4</code>，直接执行<code>sledding</code>，然后是<code>shellcode</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-25_22-54-02.png" alt=""></p>
+<h2 id="总结">总结</h2>
+<p>通过栈溢出覆盖<code>SEH</code>中指向<code>Exception Handler</code>有它的必要性。为此我们需要绕过针对<code>SEH</code>的保护措施，这里我们主要展示了如何通过栈溢出覆盖<code>SEH</code>并绕过<code>safeSEH</code>和<code>ASLR</code>从而执行<code>shellcode</code>。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/buffer-overflow5/">Buffer Overflow(5)</a></li>
+        
+        <li><a href="/post/buffer-overflow4/">Buffer Overflow(4)</a></li>
+        
+        <li><a href="/post/buffer-overflow3/">Buffer Overflow(3)</a></li>
+        
+        <li><a href="/post/buffer-overflow2/">Buffer Overflow(2)</a></li>
+        
+        <li><a href="/post/buffer-overflow/">Buffer Overflow</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/windows-buffer-overflow/" title="Windows Buffer Overflow">Windows Buffer Overflow</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow5/" title="Buffer Overflow(5)">Buffer Overflow(5)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow4/" title="Buffer Overflow(4)">Buffer Overflow(4)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow3/" title="Buffer Overflow(3)">Buffer Overflow(3)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow2/" title="Buffer Overflow(2)">Buffer Overflow(2)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow/" title="Buffer Overflow">Buffer Overflow</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/rdp-escape/" title="Escaping Restricted Desktops">Escaping Restricted Desktops</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/ospf/" title="OSPF">OSPF</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>
