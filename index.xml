@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 25 Feb 2021 14:15:00 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 27 Feb 2021 09:12:35 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Windows Buffer Overflow(2)</title>
+      <link>https://GETC2.github.io/post/windows-buffer-overflow2/</link>
+      <pubDate>Sat, 27 Feb 2021 09:12:35 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/windows-buffer-overflow2/</guid>
+      <description>Windows栈溢出（2） 之前介绍过如何绕过ASLR和safeSEH并利用栈溢出；在Linux上面也介绍了如何利用ret2libc来绕过DEP。这里来介绍一下在Windows上如何绕过DEP。 主要的思路是通过调用Windows的函数来关闭DEP，然后让控制</description>
+    </item>
+    
     <item>
       <title>Windows Buffer Overflow</title>
       <link>https://GETC2.github.io/post/windows-buffer-overflow/</link>
