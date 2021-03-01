@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.78.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>File Inclusion | GET command and control</title>
+    <meta property="og:title" content="File Inclusion - GET command and control">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2021-03-01T10:23:59&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2021-03-01T10:23:59&#43;08:00">
+        
+    <meta name="Keywords" content="penetration">
+    <meta name="description" content="File Inclusion">
+        
+    <meta name="author" content="KUHAKU">
+    <meta property="og:url" content="https://GETC2.github.io/post/file-inclusion/">
+    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://GETC2.github.io/">
+                        GET command and control
+                    </a>
+                
+                <p class="description">Stay hungry. Stay foolish.</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://GETC2.github.io/">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">File Inclusion</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2021年3月1日
+                        </date>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h1 id="文件包含">文件包含</h1>
+<p>要想高效地利用文件包含漏洞，我们可以遵循以下的方法：</p>
+<ol>
+<li>
+<p>搞清楚该漏洞针对文件路径的限制。比如</p>
+<ul>
+<li>用户控制的文件名是否有前缀和后缀</li>
+<li>是否允许根目录之外的文件路径</li>
+<li>是否允许绝对路径或者<code>URL</code></li>
+</ul>
+</li>
+<li>
+<p>利用漏洞获取本地文件。</p>
+<ul>
+<li>特定于操作系统的文件，比如<code>Linux</code>的<code>/etc/passwd</code></li>
+<li>应用的源代码文件，此时要注意避免源代码文件被执行</li>
+</ul>
+</li>
+<li>
+<p>利用漏洞执行代码</p>
+<ul>
+<li>通过<code>RFI</code>执行代码</li>
+<li>通过<code>session/log poisoning</code>执行代码</li>
+<li>通过<code>SMB</code>包含文件执行代码</li>
+</ul>
+</li>
+</ol>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>针对目标域名：<code>blog.sec642.org</code>，利用文件包含漏洞，获取连接数据库的用户名密码并执行代码。</p>
+<h3 id="步骤">步骤</h3>
+<p>下图就是目标域名默认界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-16-03.png" alt=""></p>
+<p>可以看到这是博客发布界面，我们随意点击一篇博客：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-20-38.png" alt=""></p>
+<p>可以发现，<code>URL</code>格式为<code>?page=11_11_2011.html</code>。这表明目标可能有文件包含漏洞。</p>
+<p>按照之前的方法，我们先测试一下该处文件包含是否有限制。我们首先测试包含本地文件<code>/etc/passwd</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-23-42.png" alt=""></p>
+<p>可以看到，该处漏洞没有前缀或者后缀添加的限制，也没有根目录的限制。下一步测试该处是否可以进行<code>RFI</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-25-54.png" alt=""></p>
+<p>这里我们直接用本地地址，是为了防止防火墙阻止服务器通过<code>HTTP</code>请求外部资源，从而误判。结果是：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-27-55.png" alt=""></p>
+<p>可以发现，该处漏洞无法进行<code>RFI</code>。</p>
+<p>搞清楚限制后，我们可以通过本地文件包含获取源码文件。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-29-41.png" alt=""></p>
+<p>原博客界面有登陆界面，这个界面的源码应该会用到数据库连接的用户名和密码，我们试着查看该页面的源码。但是要注意的是，由于目标文件是<code>php</code>文件，我们需要通过<code>PHP</code>的<code>filter stream</code>来对该文件进行处理，防止它在服务器端执行后，将输出返回给我们：<code>php://filter/read=convert.base64-encode/resource=login.php</code></p>
+<p>所以具体的<code>URL</code>为下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-34-08.png" alt=""></p>
+<p>可以看到，服务器先将文件<code>base64</code>编码后再包含到请求页面中。我们直接将其解码得到以下源码片段：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-37-24.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-37-33.png" alt=""></p>
+<p>其中，<code>include(&quot;config.php&quot;)</code>说明数据库的用户名密码可能再在文件中；而<code>$_SESSION[&quot;saved_username&quot;]=$_POST[&quot;username&quot;]</code>说明用户输入的用户名被保存到<code>session</code>中了。需要注意的是，<code>php</code>会为每个<code>session</code>创建暂时的文件，用以保存<code>session</code>的数据，而该文件被命名为：<code>session_[session_id]</code>。我们可以控制<code>username</code>输入并保存到该文件中，然后通过文件包含这个文件执行代码。</p>
+<p>首先是获取<code>config.php</code>源码：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-42-47.png" alt=""></p>
+<p>然后解码：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-43-25.png" alt=""></p>
+<p>可以发现用户名和密码。</p>
+<p>然后是代码执行，按照之前的思路，我们在登录界面控制用户名，比如<code>&lt;?php phpinfo()&gt;</code>，然后观察我们的<code>session id</code>，再猜测输出的文件夹，就可以构造<code>session</code>文件的绝对路径了。</p>
+<p>第一步，我们先控制用户名，插入执行代码：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-49-17.png" alt=""></p>
+<p>然后观察<code>session id</code>构造文件绝对路径:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-51-41.png" alt=""></p>
+<p>然后看到命令成功执行：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-01_14-53-54.png" alt=""></p>
+<h2 id="总结">总结</h2>
+<p>通过文件包含来执行代码的方法有很多，除了<code>RFI</code>，本地文件包含也可以实现，只要我们可以控制一些文件的输入，比如<code>log</code>，<code>session</code>文件或者应用相关的文件，比如博客之类的。</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/windows-buffer-overflow2/">Windows Buffer Overflow(2)</a></li>
+        
+        <li><a href="/post/windows-buffer-overflow/">Windows Buffer Overflow</a></li>
+        
+        <li><a href="/post/buffer-overflow5/">Buffer Overflow(5)</a></li>
+        
+        <li><a href="/post/buffer-overflow4/">Buffer Overflow(4)</a></li>
+        
+        <li><a href="/post/buffer-overflow3/">Buffer Overflow(3)</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            没有标签
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">订阅</h3>
+        <ul class="widget-list">
+            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
+        </ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://GETC2.github.io/post/file-inclusion/" title="File Inclusion">File Inclusion</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/windows-buffer-overflow2/" title="Windows Buffer Overflow(2)">Windows Buffer Overflow(2)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/windows-buffer-overflow/" title="Windows Buffer Overflow">Windows Buffer Overflow</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow5/" title="Buffer Overflow(5)">Buffer Overflow(5)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow4/" title="Buffer Overflow(4)">Buffer Overflow(4)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow3/" title="Buffer Overflow(3)">Buffer Overflow(3)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow2/" title="Buffer Overflow(2)">Buffer Overflow(2)</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/buffer-overflow/" title="Buffer Overflow">Buffer Overflow</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
+    </li>
+    
+    <li>
+        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
+    </li>
+    
+</ul>
+
+    </section>
+    
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+
+    </div>
+
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    
+    (function(){
+        $("pre code").parent().addClass("line-numbers")
+    }())
+
+    window.MathJax = {
+        tex2jax: {
+            inlineMath: [ ['$','$'] ],
+            processEscapes: true
+        }
+    };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+
+</body>
+</html>
