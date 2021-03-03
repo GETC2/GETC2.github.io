@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://GETC2.github.io/categories/</loc>
+    <lastmod>2021-03-01T10:23:59+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://GETC2.github.io/post/file-inclusion/</loc>
     <lastmod>2021-03-01T10:23:59+08:00</lastmod>
   </url>
@@ -14,6 +19,11 @@
   
   <url>
     <loc>https://GETC2.github.io/post/</loc>
+    <lastmod>2021-03-01T10:23:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://GETC2.github.io/categories/web-pentesting/</loc>
     <lastmod>2021-03-01T10:23:59+08:00</lastmod>
   </url>
   
@@ -49,6 +59,11 @@
   
   <url>
     <loc>https://GETC2.github.io/post/buffer-overflow/</loc>
+    <lastmod>2021-02-21T20:56:12+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://GETC2.github.io/categories/reverse-engineering/</loc>
     <lastmod>2021-02-21T20:56:12+08:00</lastmod>
   </url>
   
@@ -230,10 +245,6 @@
   <url>
     <loc>https://GETC2.github.io/post/host-head-attack/</loc>
     <lastmod>2020-11-05T16:02:41+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://GETC2.github.io/categories/</loc>
   </url>
   
   <url>

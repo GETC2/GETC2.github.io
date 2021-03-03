@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Reverse Engineering on GET command and control</title>
+    <link>https://GETC2.github.io/categories/reverse-engineering/</link>
+    <description>Recent content in Reverse Engineering on GET command and control</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 21 Feb 2021 20:56:12 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/reverse-engineering/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Buffer Overflow</title>
+      <link>https://GETC2.github.io/post/buffer-overflow/</link>
+      <pubDate>Sun, 21 Feb 2021 20:56:12 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/buffer-overflow/</guid>
+      <description>栈溢出(1) 说到漏洞很容易让人联想到栈溢出，这也说明了栈溢出的普遍性。正因为如此，针对栈溢出的mitigation也很多： 编译时的ASLR, DEP, LFH 操作系统的Canaries, SafeSEH 针对这些措施，也有相应的办法绕过。这里纯粹记录一下从最基本的栈溢出到如何绕过带保护</description>
+    </item>
+    
+  </channel>
+</rss>

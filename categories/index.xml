@@ -5,6 +5,25 @@
     <link>https://GETC2.github.io/categories/</link>
     <description>Recent content in Categories on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-cn</language><atom:link href="https://GETC2.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 01 Mar 2021 10:23:59 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Web Pentesting</title>
+      <link>https://GETC2.github.io/categories/web-pentesting/</link>
+      <pubDate>Mon, 01 Mar 2021 10:23:59 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/categories/web-pentesting/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Reverse Engineering</title>
+      <link>https://GETC2.github.io/categories/reverse-engineering/</link>
+      <pubDate>Sun, 21 Feb 2021 20:56:12 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/categories/reverse-engineering/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>
