@@ -1,83 +1,111 @@
-<!doctype html>
-<html lang="zh-cn">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-    <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.78.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
-    <title>Password Reset Poisoning | GET command and control</title>
-    <meta property="og:title" content="Password Reset Poisoning - GET command and control">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content="2020-11-07T10:28:48&#43;08:00">
-        
-        
-    <meta property="article:modified_time" content="2020-11-07T10:28:48&#43;08:00">
-        
-    <meta name="Keywords" content="penetration">
-    <meta name="description" content="Password Reset Poisoning">
-        
-    <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/password-reset-poisoning/">
-    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
-
-    <link rel="stylesheet" href="/css/normalize.css">
-    
-        <link rel="stylesheet" href="/css/prism.css">
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-
-    
-
-
+  
     
     
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Password Reset Poisoning</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
 </head>
-
 <body>
-<header id="header" class="clearfix">
-    <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://GETC2.github.io/">
-                        GET command and control
-                    </a>
-                
-                <p class="description">Stay hungry. Stay foolish.</p>
-            </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://GETC2.github.io/">首页</a>
-                    
-                </nav>
-            </div>
-        </div>
-    </div>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Nov 7, 2020
+     - 4 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+     Password Reset Poisoning 
+  </h1>
 </header>
 
 
-<div id="body">
-    <div class="container">
-        <div class="col-group">
-
-            <div class="col-8" id="main">
-                <div class="res-cons">
-                    <article class="post">
-                        <header>
-                            <h1 class="post-title">Password Reset Poisoning</h1>
-                        </header>
-                        <date class="post-meta meta-date">
-                            2020年11月7日
-                        </date>
-                        
-                        
-                        
-                        <div class="post-content">
-                            <h1 id="host头部注入攻击">Host头部注入攻击</h1>
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="host头部注入攻击">Host头部注入攻击</h1>
 <p>上一篇博客讲的是Host头部注入攻击。这种攻击可以用来实现多种其他种类的攻击。其中一种就是<code>password reset poisoning</code> . 下面通过两个<code>lab</code>来具体看看这种攻击是如何重置其他用户的密码的。</p>
 <h1 id="password-reset-poisoning">Password Reset Poisoning</h1>
 <p>一般的网站都有密码重置功能。其中一种实现方法是提供需要重置密码的用户名，然后网站会给用户关联邮箱发送包含重置密码链接的邮件。这个链接有一个与用户关联的token参数，通过填写新设置的密码并将它与token一起发送到服务器，服务器会验证token的有效性并修改相关用户的密码。</p>
@@ -138,160 +166,93 @@
 <h1 id="总结">总结</h1>
 <p>通过以上两个lab我们可以发现通过Host头部注入可以实现<code>password-reset-poisoning</code>.</p>
 
-                        </div>
-
-                        
-
-
-                        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="/post/host-head-attack/">Host头部攻击</a></li>
-        
-    </ul>
-</div>
-
-
-                        <div class="post-meta meta-tags">
-                            
-                            没有标签
-                            
-                        </div>
-                    </article>
-                    
-    
-
-    
-    
-                </div>
-            </div>
-            <div id="secondary">
-    <section class="widget">
-        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">订阅</h3>
-        <ul class="widget-list">
-            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
-        </ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">分类</h3>
-<ul class="widget-list">
-    
-</ul>
-    </section>
-
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://GETC2.github.io/post/file-inclusion/" title="File Inclusion">File Inclusion</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/windows-buffer-overflow2/" title="Windows Buffer Overflow(2)">Windows Buffer Overflow(2)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/windows-buffer-overflow/" title="Windows Buffer Overflow">Windows Buffer Overflow</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow5/" title="Buffer Overflow(5)">Buffer Overflow(5)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow4/" title="Buffer Overflow(4)">Buffer Overflow(4)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow3/" title="Buffer Overflow(3)">Buffer Overflow(3)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow2/" title="Buffer Overflow(2)">Buffer Overflow(2)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow/" title="Buffer Overflow">Buffer Overflow</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
-    </li>
-    
-</ul>
-
-    </section>
-    
-
-    <section class="widget">
-        <h3 class="widget-title">标签</h3>
-<div class="tagcloud">
-    
-</div>
-    </section>
-
-    
-
-    </div>
-
         </div>
-    </div>
-</div>
-<footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
         
-    </div>
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Nov 7, 2020</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/host-head-attack/" title="Host头部攻击">Host头部攻击</a>
+    
+
+    
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/web-cache-poison/" title="Web Cache Poisoning">Web Cache Poisoning</a>
+    
+  </p>
+  
 </footer>
 
-
-    <script type="text/javascript">
+      </article>
+    </div>
     
-    (function(){
-        $("pre code").parent().addClass("line-numbers")
-    }())
 
-    window.MathJax = {
-        tex2jax: {
-            inlineMath: [ ['$','$'] ],
-            processEscapes: true
-        }
-    };
-    </script>
-    <script type="text/javascript" src="/js/prism.js" async="true"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+<aside class="sidebar thirds">
+  <section class="first odd">
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+    
+
+    <p>
+      
+    </p>
+  </section>
 
 
 
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
 
+    
+    
+    </li>
+  </ul>
 
+  
 
+  
 
-</body>
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
 </html>
+

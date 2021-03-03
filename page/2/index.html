@@ -1,332 +1,461 @@
-<!doctype html>
-<html lang="zh-cn">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-    <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.78.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
-    <title>GET command and control | Stay hungry. Stay foolish.</title>
-    <meta property="og:title" content="GET command and control | Stay hungry. Stay foolish.">
-    <meta property="og:type" content="website">
-    <meta name="Keywords" content="penetration">
-    <meta name="description" content="">
-    <meta property="og:url" content="https://GETC2.github.io/">
-    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
-
-    <link rel="stylesheet" href="/css/normalize.css">
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="alternate" type="application/rss+xml+xml" href="https://GETC2.github.io/index.xml" title="GET command and control" />
-    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-
-    
-
-
+  
     
     
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GET command and control</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  <link href="/index.xml" rel="alternate" type="application/rss+xml" title="GET command and control" />
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
 </head>
-
-
 <body>
-<header id="header" class="clearfix">
-    <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <h1>
-                        <a id="logo" href="https://GETC2.github.io/">
-                            GET command and control
-                        </a>
-                    </h1>
-                
-                <p class="description">Stay hungry. Stay foolish.</p>
-            </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://GETC2.github.io/">首页</a>
-                    
-                </nav>
-            </div>
-        </div>
-    </div>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+
+
+  
+
+<div id="main">
+  <div id="content">
+    <div class="blog-index">
+      
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 16, 2021
+     - 4 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/rdp-escape/">Escaping Restricted Desktops</a>
+  </h1>
 </header>
 
-
-<div id="body">
-    <div class="container">
-        <div class="col-group">
-
-            <div class="col-8" id="main">
-                <div class="res-cons">
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/rdp-escape/" title="Escaping Restricted Desktops" >Escaping Restricted Desktops</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月16日
-                            </date>
-                            
-                            <div class="post-content">
-                                Escaping Restricted Desktops 在我们获得对一台主机的访问后，要想进行后渗透活动时可能会遇到一系列障碍。比如这台主机已经被加固过了，我们无法使用已有的工具来实现我们的目的。 常见的加固措施如下： GPO或者SRP Group Policy Objects可以用来 限制Windows的各种部件 隐藏系统文件 阻止针对……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/rdp-escape/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/ospf/" title="OSPF" >OSPF</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月10日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用OSPF实现中间人攻击 之前提到在IPv4环境下可以用arp spoofing实现中间人攻击；在IPv6的环境下可以利用arp的对等协议实现中间人攻击。除了这些，我们还可以直接利用路由协议实现中间人攻击。 这里我们以OSPF为例，展示如何实现中间人攻击。 路由……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/ospf/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/sslstrip/" title="sslstrip" >sslstrip</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月10日
-                            </date>
-                            
-                            <div class="post-content">
-                                sslstrip 之前提到如何利用Ettercap实现中间人攻击，并修改HTTP的响应从而获取密码。如果客户端用HTTP请求服务，而服务器要求客户端使用HTTPS的话，我们就无法修改响应。但是，我们可以利用sslstrip脚本修改服务器的HTTP响应的请求头Locatio……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/sslstrip/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/snmp/" title="SNMP" >SNMP</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月10日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用SNMP攻击路由器 Simple Network Management Protocal(SNMP)顾名思义就是用来管理网络设备的。在SNMP的框架中，有四个组成部分： 被管理的设备：这种设备允许通过SNMP协议读或者写SNMP变量 Agent: 运行在被管理设备上的服务 NMS: 一种管理控制台，过与agent交互，Net……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/snmp/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/ipv6-attack/" title="IPv6 Attack" >IPv6 Attack</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月10日
-                            </date>
-                            
-                            <div class="post-content">
-                                针对IPv6服务攻击 IPv6提供了很多攻击机会。比如我们可以利用局域网内的IPv6进行中间人攻击。再比如，有的IDS支持IPv4，但是却没有针对IPv6的规则，我们可以利用这点来绕过IDS。 这一次我们利用的点在于，有的服务只能通过IPv6访问，我们可以发现……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/ipv6-attack/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/ettercap/" title="Ettercap" >Ettercap</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月9日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用Ettercap实现中间人攻击 在实现了Network Access Control的局域网上，无论是之前介绍的Captive Portal认证，还是802.1X认证，抑或是实现了VLAN的交换机，我们都可以通过某种形式的攻击绕过这种限制从而获得局域网络的访问权。在获得……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/ettercap/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/captive-portal-bypass/" title="Captive Portal Bypass" >Captive Portal Bypass</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月8日
-                            </date>
-                            
-                            <div class="post-content">
-                                Captive Portal Bypass Captive Portal就是所谓的强制门户认证系统。当我们在公共场所连接WIFI的时候，比如大学，机场，酒店，经常会有一个认证界面自动跳出来，只有经过某种形式的认证（比如用户名加密码，或者手机号加验证码）才能访问网络。这其实就是Network Access Control（……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/captive-portal-bypass/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" title="红队基本流程(4)" >红队基本流程(4)</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月7日
-                            </date>
-                            
-                            <div class="post-content">
-                                红队基本流程之四：Closure 在实现了模拟Adversary的目标后，最后就是收尾了。 在这个步骤，红队的主要责任就是介绍整个行动的流程，从一开始的发信到之后的最终目标，所有的操作以及时间节点，还有结果都要进行记录并展示。这主要是为了和蓝队的响应做对照，看……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/" title="红队基本流程(3)" >红队基本流程(3)</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月7日
-                            </date>
-                            
-                            <div class="post-content">
-                                红队基本流程之三：Testing 在完成Planning之后，红队就可以开始针对目标行动了。而这又分为许多步骤，比较典型的就是以下步骤： 基础设施建设 侦察（Recon） 社会工程 Weaponization Initial Access Network Propagation Action on Objectives 基础设施建设 这一步一般就是选择在云端部署必要的设施，有的时候这一步需……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/" title="红队基本流程(2)" >红队基本流程(2)</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年2月5日
-                            </date>
-                            
-                            <div class="post-content">
-                                红队基本流程之二：Planning 之前介绍过红队基本流程中的Threat Intelligence。其实，它与planning之间是密不可分的。planning中有的决定依靠Threat Inteligence。比如Adversary使用的TTP，最后拟定的A……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">阅读全文</a></p>
-                        </article>
-                    
-                    
-
-
-
-<ol class="page-navigator">
-    
-    <li class="prev">
-        <a href="https://GETC2.github.io/">上一页</a>
-    </li>
-    
-
-    
-    <li >
-        <a href="https://GETC2.github.io/">1</a>
-    </li>
-    
-    <li  class="current">
-        <a href="https://GETC2.github.io/page/2/">2</a>
-    </li>
-    
-    <li >
-        <a href="https://GETC2.github.io/page/3/">3</a>
-    </li>
-    
-    <li >
-        <a href="https://GETC2.github.io/page/4/">4</a>
-    </li>
-    
-    <li >
-        <a href="https://GETC2.github.io/page/5/">5</a>
-    </li>
-    
-
-    
-    <li class="next">
-        <a href="https://GETC2.github.io/page/3/">下一页</a>
-    </li>
-    
-</ol>
-
-
-
-                </div>
-            </div>
-
-            <div id="secondary">
-    <section class="widget">
-        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">订阅</h3>
-        <ul class="widget-list">
-            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
-        </ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">分类</h3>
-<ul class="widget-list">
-    
-</ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">标签</h3>
-<div class="tagcloud">
-    
-</div>
-    </section>
-
-    
-
-    </div>
-
-        </div>
-    </div>
-</div>
-<footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
         
+          <p>Escaping Restricted Desktops 在我们获得对一台主机的访问后，要想进行后渗透活动时可能会遇到一系列障碍。比如这台主机已经被加固过了，我们无法使用已有的工具来实现我们的目的。 常见的加固措施如下： GPO或者SRP Group Policy Objects可以用来 限制Windows的各种部件 隐藏系统文件 阻止针对</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/rdp-escape/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 10, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/ospf/">OSPF</a>
+  </h1>
+</header>
+
+        
+          <p>利用OSPF实现中间人攻击 之前提到在IPv4环境下可以用arp spoofing实现中间人攻击；在IPv6的环境下可以利用arp的对等协议实现中间人攻击。除了这些，我们还可以直接利用路由协议实现中间人攻击。 这里我们以OSPF为例，展示如何实现中间人攻击。 路由</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/ospf/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 10, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/sslstrip/">sslstrip</a>
+  </h1>
+</header>
+
+        
+          <p>sslstrip 之前提到如何利用Ettercap实现中间人攻击，并修改HTTP的响应从而获取密码。如果客户端用HTTP请求服务，而服务器要求客户端使用HTTPS的话，我们就无法修改响应。但是，我们可以利用sslstrip脚本修改服务器的HTTP响应的请求头Locatio</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/sslstrip/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 10, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/snmp/">SNMP</a>
+  </h1>
+</header>
+
+        
+          <p>利用SNMP攻击路由器 Simple Network Management Protocal(SNMP)顾名思义就是用来管理网络设备的。在SNMP的框架中，有四个组成部分： 被管理的设备：这种设备允许通过SNMP协议读或者写SNMP变量 Agent: 运行在被管理设备上的服务 NMS: 一种管理控制台，过与agent交互，Net</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/snmp/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 10, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/ipv6-attack/">IPv6 Attack</a>
+  </h1>
+</header>
+
+        
+          <p>针对IPv6服务攻击 IPv6提供了很多攻击机会。比如我们可以利用局域网内的IPv6进行中间人攻击。再比如，有的IDS支持IPv4，但是却没有针对IPv6的规则，我们可以利用这点来绕过IDS。 这一次我们利用的点在于，有的服务只能通过IPv6访问，我们可以发现</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/ipv6-attack/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 9, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/ettercap/">Ettercap</a>
+  </h1>
+</header>
+
+        
+          <p>利用Ettercap实现中间人攻击 在实现了Network Access Control的局域网上，无论是之前介绍的Captive Portal认证，还是802.1X认证，抑或是实现了VLAN的交换机，我们都可以通过某种形式的攻击绕过这种限制从而获得局域网络的访问权。在获得</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/ettercap/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 8, 2021
+     - 3 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/captive-portal-bypass/">Captive Portal Bypass</a>
+  </h1>
+</header>
+
+        
+          <p>Captive Portal Bypass Captive Portal就是所谓的强制门户认证系统。当我们在公共场所连接WIFI的时候，比如大学，机场，酒店，经常会有一个认证界面自动跳出来，只有经过某种形式的认证（比如用户名加密码，或者手机号加验证码）才能访问网络。这其实就是Network Access Control（</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/captive-portal-bypass/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 7, 2021
+     - 1 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">红队基本流程(4)</a>
+  </h1>
+</header>
+
+        
+          <p>红队基本流程之四：Closure 在实现了模拟Adversary的目标后，最后就是收尾了。 在这个步骤，红队的主要责任就是介绍整个行动的流程，从一开始的发信到之后的最终目标，所有的操作以及时间节点，还有结果都要进行记录并展示。这主要是为了和蓝队的响应做对照，看</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 7, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">红队基本流程(3)</a>
+  </h1>
+</header>
+
+        
+          <p>红队基本流程之三：Testing 在完成Planning之后，红队就可以开始针对目标行动了。而这又分为许多步骤，比较典型的就是以下步骤： 基础设施建设 侦察（Recon） 社会工程 Weaponization Initial Access Network Propagation Action on Objectives 基础设施建设 这一步一般就是选择在云端部署必要的设施，有的时候这一步需</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Feb 5, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">红队基本流程(2)</a>
+  </h1>
+</header>
+
+        
+          <p>红队基本流程之二：Planning 之前介绍过红队基本流程中的Threat Intelligence。其实，它与planning之间是密不可分的。planning中有的决定依靠Threat Inteligence。比如Adversary使用的TTP，最后拟定的A</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      
+      
+
+
+
+
+
+
+<div class="pagination">
+
+    
+        
+        
+        
+        <a href="/" aria-label="First" class="label-pagination"><i class="fa fa-angle-double-left fa-lg"></i></a>
+    
+
+    
+    
+        <a href="/" aria-label="Previous" class="label-pagination"><i class="fa fa-angle-left fa-lg"></i></a>
+    
+
+    
+        <a href="/" class="label-pagination">1</a>
+    
+        <a href="/page/2/" class="label-pagination">2</a>
+    
+        <a href="/page/3/" class="label-pagination">3</a>
+    
+        <a href="/page/4/" class="label-pagination">4</a>
+    
+        <a href="/page/5/" class="label-pagination">5</a>
+    
+
+    
+    
+        <a href="/page/3/" aria-label="Next" class="label-pagination"><i class="fa fa-angle-right fa-lg"></i></a>
+    
+
+    
+    
+        <a href="/page/5/" aria-label="Last"><i class="fa fa-angle-double-right fa-lg"></i></a>
+    
+
+</div>
+
+  
     </div>
-</footer>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
 
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
 
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
 
+    
+    
+    </li>
+  </ul>
 
+  
 
+  
 
+  
+  
+  
+</aside>
+    
+  </div>
+</div>
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
 
+    
+    
+    
 
-
-</body>
+    
+  </body>
 </html>
+   
+

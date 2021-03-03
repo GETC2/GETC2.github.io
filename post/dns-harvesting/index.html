@@ -1,83 +1,111 @@
-<!doctype html>
-<html lang="zh-cn">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-    <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.78.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
-    <title>DNS Harvesting | GET command and control</title>
-    <meta property="og:title" content="DNS Harvesting - GET command and control">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content="2021-01-30T15:08:37&#43;08:00">
-        
-        
-    <meta property="article:modified_time" content="2021-01-30T15:08:37&#43;08:00">
-        
-    <meta name="Keywords" content="penetration">
-    <meta name="description" content="DNS Harvesting">
-        
-    <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/dns-harvesting/">
-    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
-
-    <link rel="stylesheet" href="/css/normalize.css">
-    
-        <link rel="stylesheet" href="/css/prism.css">
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-
-    
-
-
+  
     
     
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>DNS Harvesting</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
 </head>
-
 <body>
-<header id="header" class="clearfix">
-    <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://GETC2.github.io/">
-                        GET command and control
-                    </a>
-                
-                <p class="description">Stay hungry. Stay foolish.</p>
-            </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://GETC2.github.io/">首页</a>
-                    
-                </nav>
-            </div>
-        </div>
-    </div>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Jan 30, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+     DNS Harvesting 
+  </h1>
 </header>
 
 
-<div id="body">
-    <div class="container">
-        <div class="col-group">
-
-            <div class="col-8" id="main">
-                <div class="res-cons">
-                    <article class="post">
-                        <header>
-                            <h1 class="post-title">DNS Harvesting</h1>
-                        </header>
-                        <date class="post-meta meta-date">
-                            2021年1月30日
-                        </date>
-                        
-                        
-                        
-                        <div class="post-content">
-                            <h1 id="dns-harvesting">DNS Harvesting</h1>
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="dns-harvesting">DNS Harvesting</h1>
 <p>在针对<code>Web</code>进行渗透时，我们需要尽可能地掌握目标的所有可访问域名。有的域名并没有被目标的其他的页面<code>reference</code>到的情况下，我们可以利用<code>DNS</code>来获取隐藏域名。</p>
 <p>通过<code>DNS</code>的话一般有以下几个方法：</p>
 <ul>
@@ -118,168 +146,93 @@
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-01-30_15-41-35.png" alt=""></p>
 <p><code>nmap</code>默认会对目标主机进行解析，利用这个特性我们就可以实现反向查找。</p>
 
-                        </div>
-
-                        
-
-
-                        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="/post/golden-ticket/">Golden Ticket</a></li>
-        
-        <li><a href="/post/responder/">Responder</a></li>
-        
-        <li><a href="/post/kerberoasting/">Kerberoasting</a></li>
-        
-        <li><a href="/post/sniff-ntlm/">Sniff Ntlm</a></li>
-        
-        <li><a href="/post/msf-pivot/">Msf Pivot</a></li>
-        
-    </ul>
-</div>
-
-
-                        <div class="post-meta meta-tags">
-                            
-                            没有标签
-                            
-                        </div>
-                    </article>
-                    
-    
-
-    
-    
-                </div>
-            </div>
-            <div id="secondary">
-    <section class="widget">
-        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">订阅</h3>
-        <ul class="widget-list">
-            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
-        </ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">分类</h3>
-<ul class="widget-list">
-    
-</ul>
-    </section>
-
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://GETC2.github.io/post/file-inclusion/" title="File Inclusion">File Inclusion</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/windows-buffer-overflow2/" title="Windows Buffer Overflow(2)">Windows Buffer Overflow(2)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/windows-buffer-overflow/" title="Windows Buffer Overflow">Windows Buffer Overflow</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow5/" title="Buffer Overflow(5)">Buffer Overflow(5)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow4/" title="Buffer Overflow(4)">Buffer Overflow(4)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow3/" title="Buffer Overflow(3)">Buffer Overflow(3)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow2/" title="Buffer Overflow(2)">Buffer Overflow(2)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow/" title="Buffer Overflow">Buffer Overflow</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
-    </li>
-    
-</ul>
-
-    </section>
-    
-
-    <section class="widget">
-        <h3 class="widget-title">标签</h3>
-<div class="tagcloud">
-    
-</div>
-    </section>
-
-    
-
-    </div>
-
         </div>
-    </div>
-</div>
-<footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
         
-    </div>
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Jan 30, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/golden-ticket/" title="Golden Ticket">Golden Ticket</a>
+    
+
+    
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/virtual-host-discovery/" title="Virtual Host Discovery">Virtual Host Discovery</a>
+    
+  </p>
+  
 </footer>
 
-
-    <script type="text/javascript">
+      </article>
+    </div>
     
-    (function(){
-        $("pre code").parent().addClass("line-numbers")
-    }())
 
-    window.MathJax = {
-        tex2jax: {
-            inlineMath: [ ['$','$'] ],
-            processEscapes: true
-        }
-    };
-    </script>
-    <script type="text/javascript" src="/js/prism.js" async="true"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+<aside class="sidebar thirds">
+  <section class="first odd">
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+    
+
+    <p>
+      
+    </p>
+  </section>
 
 
 
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
 
+    
+    
+    </li>
+  </ul>
 
+  
 
+  
 
-</body>
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
 </html>
+

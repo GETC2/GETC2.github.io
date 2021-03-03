@@ -1,332 +1,461 @@
-<!doctype html>
-<html lang="zh-cn">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-    <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.78.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
-    <title>GET command and control | Stay hungry. Stay foolish.</title>
-    <meta property="og:title" content="GET command and control | Stay hungry. Stay foolish.">
-    <meta property="og:type" content="website">
-    <meta name="Keywords" content="penetration">
-    <meta name="description" content="">
-    <meta property="og:url" content="https://GETC2.github.io/">
-    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
-
-    <link rel="stylesheet" href="/css/normalize.css">
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="alternate" type="application/rss+xml+xml" href="https://GETC2.github.io/index.xml" title="GET command and control" />
-    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-
-    
-
-
+  
     
     
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>GET command and control</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  <link href="/index.xml" rel="alternate" type="application/rss+xml" title="GET command and control" />
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
 </head>
-
-
 <body>
-<header id="header" class="clearfix">
-    <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <h1>
-                        <a id="logo" href="https://GETC2.github.io/">
-                            GET command and control
-                        </a>
-                    </h1>
-                
-                <p class="description">Stay hungry. Stay foolish.</p>
-            </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://GETC2.github.io/">首页</a>
-                    
-                </nav>
-            </div>
-        </div>
-    </div>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+
+
+  
+
+<div id="main">
+  <div id="content">
+    <div class="blog-index">
+      
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 28, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/dump-the-hash/">Dump the Hash</a>
+  </h1>
 </header>
 
-
-<div id="body">
-    <div class="container">
-        <div class="col-group">
-
-            <div class="col-8" id="main">
-                <div class="res-cons">
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/dump-the-hash/" title="Dump the Hash" >Dump the Hash</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月28日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用meterpreter获取目标机器的hash 在后渗透的阶段，很重要的一项任务就是获取目标机器上的hash，当然不论是windows还是linux都需要有相应的权限才有可能获取到hash。 在这里，我们演示如何通过meterpreter的后渗透模块来获取h……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/dump-the-hash/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/hydra/" title="Hydra" >Hydra</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月28日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用Hydra进行password guessing 在对密码进行猜测时，Hydra很灵活。它可以针对单个或者多个目标进行密码猜测，同时支持单个用户，密码或者用户列表，密码列表来进行密码猜测。 完善字典 由于目标可能存在lockout，我们需要尽可能完善字典，删除不必要的密码。……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/hydra/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/empire/" title="Empire" >Empire</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月27日
-                            </date>
-                            
-                            <div class="post-content">
-                                Empire的基本使用流程 Empire是用于后渗透阶段的框架，里面整合了用于各种后渗透阶段活动的powershell脚本。这里记录一下empire的基本使用流程。 实验环境 实验由两台主机组成，一个是攻击者主机，另一台是目标主机。 实验步骤 1 启动Empire 首先……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/empire/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/netcat_port_forward/" title="Netcat port forward" >Netcat port forward</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月27日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用netcat实现端口转发 实验环境 现有两台主机，一台是攻击者主机（windows），另一台是目标主机（Linux）。目标是通过攻击者主机成功登录目标主机ssh服务。 实验步骤 首先利用Putty登录目标主机： 可以看到成功登录ssh服务。 然后我们在目标主机的防……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/netcat_port_forward/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/veil/" title="Veil" >Veil</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月26日
-                            </date>
-                            
-                            <div class="post-content">
-                                Veil的一般使用流程 veil框架主要用来生成payload并对payload进行免杀。下面我们来看一下veil的基本使用步骤。 veil主要由两个工具组成，我们主要关注如何通过Evasion来对payload免杀。可以看到，初始界面会提示veil支持的命令……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/veil/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/nmap/" title="Nmap" >Nmap</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月21日
-                            </date>
-                            
-                            <div class="post-content">
-                                Nmap完整使用流程 Host discovery 第一步是发现上线机器，由于nmap默认端口扫描之前会进行机器上线确定，如果单纯为了扫描机器而不需要扫描端口的话，可以直接指定·-sP选项： 由于指定了--packet-trace选项，nmap会显示具体的发包。可以看出，由于目标地址块……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/nmap/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/recon-ng/" title="Recon-ng" >Recon-ng</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月18日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用Recon-ng收集信息 Recon-ng是一个用来收集目标的框架。通过这篇博客来记录Recon-ng的基本使用。 实验设置 目标的DNS服务器地址是10.10.10.60. 利用已有的目标IP地址块来进行反向DNS查询确定域名。 利用DNS cache snooping来……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/recon-ng/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/metadata-threasure-hunt/" title="Metadata Treasure Hunt" >Metadata Treasure Hunt</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2021年1月18日
-                            </date>
-                            
-                            <div class="post-content">
-                                文件元数据收集 （Recon） 通过这个博客来展示在recon的过程中，如何从文件元数据中获得有用的信息。 实验设置 现在我们手头上有三个文件： WidgetStatisticalAnalysis.xls WidgetStatisticalWhitepaper.doc WidgetStatisticalWhitepaper.pdf 目标是利用exiftool和strings来收集关于目标的信息。 Exiftool 首先用exiftool来看看doc文件有什么元数……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/metadata-threasure-hunt/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/egress-analysis/" title="Egress Analysis" >Egress Analysis</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年12月30日
-                            </date>
-                            
-                            <div class="post-content">
-                                简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/egress-analysis/">阅读全文</a></p>
-                        </article>
-                    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title" id="homepage">
-                                    <a href="https://GETC2.github.io/post/accessing-internal-websites/" title="Accessing Internal Websites" >Accessing Internal Websites</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年11月8日
-                            </date>
-                            
-                            <div class="post-content">
-                                利用Host头部注入访问内网 有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看DNS record的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的DNS record。但是只要知道内……
-                            </div>
-                            <p class="readmore"><a href="https://GETC2.github.io/post/accessing-internal-websites/">阅读全文</a></p>
-                        </article>
-                    
-                    
-
-
-
-<ol class="page-navigator">
-    
-    <li class="prev">
-        <a href="https://GETC2.github.io/page/3/">上一页</a>
-    </li>
-    
-
-    
-    <li >
-        <a href="https://GETC2.github.io/">1</a>
-    </li>
-    
-    <li >
-        <a href="https://GETC2.github.io/page/2/">2</a>
-    </li>
-    
-    <li >
-        <a href="https://GETC2.github.io/page/3/">3</a>
-    </li>
-    
-    <li  class="current">
-        <a href="https://GETC2.github.io/page/4/">4</a>
-    </li>
-    
-    <li >
-        <a href="https://GETC2.github.io/page/5/">5</a>
-    </li>
-    
-
-    
-    <li class="next">
-        <a href="https://GETC2.github.io/page/5/">下一页</a>
-    </li>
-    
-</ol>
-
-
-
-                </div>
-            </div>
-
-            <div id="secondary">
-    <section class="widget">
-        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">订阅</h3>
-        <ul class="widget-list">
-            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
-        </ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">分类</h3>
-<ul class="widget-list">
-    
-</ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">标签</h3>
-<div class="tagcloud">
-    
-</div>
-    </section>
-
-    
-
-    </div>
-
-        </div>
-    </div>
-</div>
-<footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
         
+          <p>利用meterpreter获取目标机器的hash 在后渗透的阶段，很重要的一项任务就是获取目标机器上的hash，当然不论是windows还是linux都需要有相应的权限才有可能获取到hash。 在这里，我们演示如何通过meterpreter的后渗透模块来获取h</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/dump-the-hash/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 28, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/hydra/">Hydra</a>
+  </h1>
+</header>
+
+        
+          <p>利用Hydra进行password guessing 在对密码进行猜测时，Hydra很灵活。它可以针对单个或者多个目标进行密码猜测，同时支持单个用户，密码或者用户列表，密码列表来进行密码猜测。 完善字典 由于目标可能存在lockout，我们需要尽可能完善字典，删除不必要的密码。</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/hydra/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 27, 2021
+     - 4 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/empire/">Empire</a>
+  </h1>
+</header>
+
+        
+          <p>Empire的基本使用流程 Empire是用于后渗透阶段的框架，里面整合了用于各种后渗透阶段活动的powershell脚本。这里记录一下empire的基本使用流程。 实验环境 实验由两台主机组成，一个是攻击者主机，另一台是目标主机。 实验步骤 1 启动Empire 首先</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/empire/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 27, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/netcat_port_forward/">Netcat port forward</a>
+  </h1>
+</header>
+
+        
+          <p>利用netcat实现端口转发 实验环境 现有两台主机，一台是攻击者主机（windows），另一台是目标主机（Linux）。目标是通过攻击者主机成功登录目标主机ssh服务。 实验步骤 首先利用Putty登录目标主机： 可以看到成功登录ssh服务。 然后我们在目标主机的防</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/netcat_port_forward/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 26, 2021
+     - 3 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/veil/">Veil</a>
+  </h1>
+</header>
+
+        
+          <p>Veil的一般使用流程 veil框架主要用来生成payload并对payload进行免杀。下面我们来看一下veil的基本使用步骤。 veil主要由两个工具组成，我们主要关注如何通过Evasion来对payload免杀。可以看到，初始界面会提示veil支持的命令</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/veil/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 21, 2021
+     - 4 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/nmap/">Nmap</a>
+  </h1>
+</header>
+
+        
+          <p>Nmap完整使用流程 Host discovery 第一步是发现上线机器，由于nmap默认端口扫描之前会进行机器上线确定，如果单纯为了扫描机器而不需要扫描端口的话，可以直接指定·-sP选项： 由于指定了--packet-trace选项，nmap会显示具体的发包。可以看出，由于目标地址块</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/nmap/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 18, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/recon-ng/">Recon-ng</a>
+  </h1>
+</header>
+
+        
+          <p>利用Recon-ng收集信息 Recon-ng是一个用来收集目标的框架。通过这篇博客来记录Recon-ng的基本使用。 实验设置 目标的DNS服务器地址是10.10.10.60. 利用已有的目标IP地址块来进行反向DNS查询确定域名。 利用DNS cache snooping来</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/recon-ng/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 18, 2021
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/metadata-threasure-hunt/">Metadata Treasure Hunt</a>
+  </h1>
+</header>
+
+        
+          <p>文件元数据收集 （Recon） 通过这个博客来展示在recon的过程中，如何从文件元数据中获得有用的信息。 实验设置 现在我们手头上有三个文件： WidgetStatisticalAnalysis.xls WidgetStatisticalWhitepaper.doc WidgetStatisticalWhitepaper.pdf 目标是利用exiftool和strings来收集关于目标的信息。 Exiftool 首先用exiftool来看看doc文件有什么元数</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/metadata-threasure-hunt/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Dec 30, 2020
+     - 3 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/egress-analysis/">Egress Analysis</a>
+  </h1>
+</header>
+
+        
+          <p>简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/egress-analysis/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Nov 8, 2020
+     - 2 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/accessing-internal-websites/">Accessing Internal Websites</a>
+  </h1>
+</header>
+
+        
+          <p>利用Host头部注入访问内网 有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看DNS record的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的DNS record。但是只要知道内</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/accessing-internal-websites/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      
+      
+
+
+
+
+
+
+<div class="pagination">
+
+    
+        
+        
+        
+        <a href="/" aria-label="First" class="label-pagination"><i class="fa fa-angle-double-left fa-lg"></i></a>
+    
+
+    
+    
+        <a href="/page/3/" aria-label="Previous" class="label-pagination"><i class="fa fa-angle-left fa-lg"></i></a>
+    
+
+    
+        <a href="/" class="label-pagination">1</a>
+    
+        <a href="/page/2/" class="label-pagination">2</a>
+    
+        <a href="/page/3/" class="label-pagination">3</a>
+    
+        <a href="/page/4/" class="label-pagination">4</a>
+    
+        <a href="/page/5/" class="label-pagination">5</a>
+    
+
+    
+    
+        <a href="/page/5/" aria-label="Next" class="label-pagination"><i class="fa fa-angle-right fa-lg"></i></a>
+    
+
+    
+    
+        <a href="/page/5/" aria-label="Last"><i class="fa fa-angle-double-right fa-lg"></i></a>
+    
+
+</div>
+
+  
     </div>
-</footer>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
 
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
 
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
 
+    
+    
+    </li>
+  </ul>
 
+  
 
+  
 
+  
+  
+  
+</aside>
+    
+  </div>
+</div>
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
 
+    
+    
+    
 
-
-</body>
+    
+  </body>
 </html>
+   
+

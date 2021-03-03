@@ -1,83 +1,111 @@
-<!doctype html>
-<html lang="zh-cn">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-    <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.78.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
 
-    <title>Captive Portal Bypass | GET command and control</title>
-    <meta property="og:title" content="Captive Portal Bypass - GET command and control">
-    <meta property="og:type" content="article">
-        
-    <meta property="article:published_time" content="2021-02-08T16:27:23&#43;08:00">
-        
-        
-    <meta property="article:modified_time" content="2021-02-08T16:27:23&#43;08:00">
-        
-    <meta name="Keywords" content="penetration">
-    <meta name="description" content="Captive Portal Bypass">
-        
-    <meta name="author" content="KUHAKU">
-    <meta property="og:url" content="https://GETC2.github.io/post/captive-portal-bypass/">
-    <link rel="shortcut icon" href="/favicon-bug.ico" type="image/x-icon">
-
-    <link rel="stylesheet" href="/css/normalize.css">
-    
-        <link rel="stylesheet" href="/css/prism.css">
-    
-    <link rel="stylesheet" href="/css/style.css">
-    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-
-    
-
-
+  
     
     
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Captive Portal Bypass</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
 </head>
-
 <body>
-<header id="header" class="clearfix">
-    <div class="container">
-        <div class="col-group">
-            <div class="site-name ">
-                
-                    <a id="logo" href="https://GETC2.github.io/">
-                        GET command and control
-                    </a>
-                
-                <p class="description">Stay hungry. Stay foolish.</p>
-            </div>
-            <div>
-                <nav id="nav-menu" class="clearfix">
-                    <a class="current" href="https://GETC2.github.io/">首页</a>
-                    
-                </nav>
-            </div>
-        </div>
-    </div>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Feb 8, 2021
+     - 3 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+     Captive Portal Bypass 
+  </h1>
 </header>
 
 
-<div id="body">
-    <div class="container">
-        <div class="col-group">
-
-            <div class="col-8" id="main">
-                <div class="res-cons">
-                    <article class="post">
-                        <header>
-                            <h1 class="post-title">Captive Portal Bypass</h1>
-                        </header>
-                        <date class="post-meta meta-date">
-                            2021年2月8日
-                        </date>
-                        
-                        
-                        
-                        <div class="post-content">
-                            <h1 id="captive-portal-bypass">Captive Portal Bypass</h1>
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="captive-portal-bypass">Captive Portal Bypass</h1>
 <p><code>Captive Portal</code>就是所谓的强制门户认证系统。当我们在公共场所连接WIFI的时候，比如大学，机场，酒店，经常会有一个认证界面自动跳出来，只有经过某种形式的认证（比如用户名加密码，或者手机号加验证码）才能访问网络。这其实就是<code>Network Access Control</code>（NAC）的一种简单形式。由于用户的设备具有多样性特点，无法统一进行管理（比如安装客户端），所以只能进行简单的认证。</p>
 <p>这种认证通常是通过<code>IP</code>和<code>MAC</code>地址进行的。要想绕过认证，一般有三种思路：</p>
 <ol>
@@ -118,168 +146,93 @@
 <h2 id="结论">结论</h2>
 <p>这个实验展示了如何绕过<code>Captive Portal</code>认证。考虑到访问设备的多样性，为了便于部署，这种认证系统很薄弱。有多种方法可以绕过认证，最简单的就是假冒<code>MAC</code>地址。</p>
 
-                        </div>
-
-                        
-
-
-                        
-
-<div class="post-archive">
-    <h2>See Also</h2>
-    <ul class="listing">
-        
-        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/">红队基本流程(4)</a></li>
-        
-        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/">红队基本流程(3)</a></li>
-        
-        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/">红队基本流程(2)</a></li>
-        
-        <li><a href="/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/">红队基本流程(1)</a></li>
-        
-        <li><a href="/post/xss/">XSS</a></li>
-        
-    </ul>
-</div>
-
-
-                        <div class="post-meta meta-tags">
-                            
-                            没有标签
-                            
-                        </div>
-                    </article>
-                    
-    
-
-    
-    
-                </div>
-            </div>
-            <div id="secondary">
-    <section class="widget">
-        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
-      
-      <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://GETC2.github.io/">
-      <button type="submit" class="submit icon-search"></button>
-</form>
-    </section>
-    
-    <section class="widget">
-        <h3 class="widget-title">订阅</h3>
-        <ul class="widget-list">
-            <li><a href="https://GETC2.github.io/index.xml">RSS</a></li>
-        </ul>
-    </section>
-
-    
-
-    <section class="widget">
-        <h3 class="widget-title">分类</h3>
-<ul class="widget-list">
-    
-</ul>
-    </section>
-
-    
-    <section class="widget">
-        <h3 class="widget-title">最近文章</h3>
-<ul class="widget-list">
-    
-    <li>
-        <a href="https://GETC2.github.io/post/file-inclusion/" title="File Inclusion">File Inclusion</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/windows-buffer-overflow2/" title="Windows Buffer Overflow(2)">Windows Buffer Overflow(2)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/windows-buffer-overflow/" title="Windows Buffer Overflow">Windows Buffer Overflow</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow5/" title="Buffer Overflow(5)">Buffer Overflow(5)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow4/" title="Buffer Overflow(4)">Buffer Overflow(4)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow3/" title="Buffer Overflow(3)">Buffer Overflow(3)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow2/" title="Buffer Overflow(2)">Buffer Overflow(2)</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/buffer-overflow/" title="Buffer Overflow">Buffer Overflow</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/afl-fuzzing/" title="AFL Fuzzing">AFL Fuzzing</a>
-    </li>
-    
-    <li>
-        <a href="https://GETC2.github.io/post/sulley-fuzzing/" title="Sulley Fuzzing">Sulley Fuzzing</a>
-    </li>
-    
-</ul>
-
-    </section>
-    
-
-    <section class="widget">
-        <h3 class="widget-title">标签</h3>
-<div class="tagcloud">
-    
-</div>
-    </section>
-
-    
-
-    </div>
-
         </div>
-    </div>
-</div>
-<footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://GETC2.github.io/">GET command and control</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/skydamon/maupassant-hugo" target="_blank">maupassant</a>.
         
-    </div>
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Feb 8, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/" title="红队基本流程(4)">红队基本流程(4)</a>
+    
+
+    
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/ettercap/" title="Ettercap">Ettercap</a>
+    
+  </p>
+  
 </footer>
 
-
-    <script type="text/javascript">
+      </article>
+    </div>
     
-    (function(){
-        $("pre code").parent().addClass("line-numbers")
-    }())
 
-    window.MathJax = {
-        tex2jax: {
-            inlineMath: [ ['$','$'] ],
-            processEscapes: true
-        }
-    };
-    </script>
-    <script type="text/javascript" src="/js/prism.js" async="true"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+<aside class="sidebar thirds">
+  <section class="first odd">
 
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+    
+
+    <p>
+      
+    </p>
+  </section>
 
 
 
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
 
+    
+    
+    </li>
+  </ul>
 
+  
 
+  
 
-</body>
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
 </html>
+
