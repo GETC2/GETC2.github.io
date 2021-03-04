@@ -106,7 +106,7 @@
           
           
           <h1 id="sulley-fuzzing">Sulley Fuzzing</h1>
-<p><code>Sulley</code>是用于<code>fuzzing</code>的框架。针对使用特定协议运行在特定端口的服务，我们可以使用<code>Sulley</code>来寻找目标的漏洞。常见的比如缓冲区溢出，注入命令，``directory traversal<code>等等。基本原理就是通过研究目标使用的协议，发现可能产生漏洞的点，然后针对这些点使用各种</code>malformed input<code>来测试，如果目标崩溃了，就需要进一步研究是否可以</code>weaponlization`。</p>
+<p><code>Sulley</code>是用于<code>fuzzing</code>的框架。针对使用特定协议运行在特定端口的服务，我们可以使用<code>Sulley</code>来寻找目标的漏洞。常见的比如缓冲区溢出，注入命令，<code>directory traversal</code>等等。基本原理就是通过研究目标使用的协议，发现可能产生漏洞的点，然后针对这些点使用各种<code>malformed input</code>来测试，如果目标崩溃了，就需要进一步研究是否可以<code>weaponlization</code>。</p>
 <p><code>Sulley</code>框架主要由以下几部分组成：</p>
 <ol>
 <li><code>Python</code>模块<code>Sulley</code>：通过此模块可以描述协议语法，针对想要<code>fuzzing</code>的点可以通过特定模块函数来指明。</li>

