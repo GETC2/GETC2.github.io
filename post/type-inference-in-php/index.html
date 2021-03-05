@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Type Inference in PHP</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 5, 2021
+     - 4 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a><a class="label" href="https://GETC2.github.io/categories/php/">PHP </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Type Inference in PHP 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="type-inference-in-php">Type Inference in PHP</h1>
+<p><code>PHP</code>是动态类型语言。当定义变量时，我们不需要指定变量类型，<code>PHP</code>会根据赋值推断变量的类型。另外，在进行数学运算或<code>loose comparison</code>的时候，如果操作数类型不一致或者不与运算符相符，那么<code>PHP</code>会自动进行类型转换。它会根据操作数和操作符来推断合适的转换类型。</p>
+<p>比如，当我们进行以下运算时：、</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+$foo <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0&#34;</span>; <span style="color:#75715e">// $foo是字符串
+</span><span style="color:#75715e"></span>$foo <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;10 Little Piggies&#34;</span>; <span style="color:#75715e">// $foo是整数15
+</span><span style="color:#75715e"></span>$bar <span style="color:#f92672">=</span> <span style="color:#ae81ff">0123</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">0124</span>; <span style="color:#75715e">// $foo是整数167
+</span></code></pre></div><p>第一个赋值的结果显而易见。第二个赋值的结果是15，这是由于<code>PHP</code>将第二个操作数从字符串转换为整数。第三个赋值的结果是由于<code>PHP</code>将前缀为0的整数当作八进制。</p>
+<p><code>PHP</code>存在两种比较运算符，一种称为<code>loose comparison</code>；另一种称为<code>strict comparison</code>。其中<code>loose comparison</code>在有必要的时候会进行类型转换；而后一种则不会，如果两个操作数类型不同，那么直接得出比较结果。<code>!=,==</code>都是<code>loose comparison</code>；而<code>===</code>属于<code>strict comparison</code>。</p>
+<p>在<code>loose comparison</code>的情况下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+<span style="color:#e6db74">&#34;php&#34;</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>;  <span style="color:#75715e">// True
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">NULL</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">// True
+</span><span style="color:#75715e"></span>$a <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0&#34;</span>;
+$b <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0e1234&#34;</span>;
+<span style="color:#a6e22e">var_dump</span>($a <span style="color:#f92672">==</span> $b); <span style="color:#75715e">// True
+</span></code></pre></div><p>可以看到，前两个比较的结果都是<code>True</code>，这和其它语言不同。而最后一个比较运算的操作数是两个字符串，结果也是<code>True</code>。这是由于针对第二个操作数<code>&quot;0e1234&quot;</code>，<code>PHP</code>将其转换为整数，且0是底数，后面的1234是指数。第一个操作数自然被转换为0，所以比较结果相等。</p>
+<p>在现实中，我们可以利用<code>PHP</code>的这些特性来实现攻击，比如绕过验证。</p>
+<h3 id="案例1">案例1</h3>
+<p>比如服务端有以下验证代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">empty</span>($_POST[<span style="color:#e6db74">&#39;code&#39;</span>]) <span style="color:#f92672">||</span> <span style="color:#a6e22e">substr</span>($realcode, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10</span>) <span style="color:#f92672">!=</span> <span style="color:#a6e22e">substr</span>(<span style="color:#a6e22e">md5</span>($_POST[<span style="color:#e6db74">&#39;code&#39;</span>]), <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">10</span>))
+</code></pre></div><p>我们传递参数<code>code</code>，然后验证<code>code</code>的哈希值是否等于服务端的真实值（每次请求都会变化），如果不等于，则验证失败。</p>
+<p>由于比较运算符是<code>!=</code>，这是<code>loose comparison</code>，且两个操作数都是字符串，如果第一个操作数是0e开头的字符串，且第二个操作数是0，那么该比较的结果就是<code>False</code>，从而就可以绕过验证。我们可以固定传递参数为0，不停地发送请求，知道第一个操作数为0e开头。</p>
+<h2 id="案例2">案例2</h2>
+<p>服务端有以下代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">strcmp</span>($password, $_POST[<span style="color:#e6db74">&#34;pass&#34;</span>]) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) 
+</code></pre></div><p>我们传递参数<code>pass</code>，如果该参数与服务端<code>password</code>经字符串比较后结果等于0，那么就可以通过验证。同样的，这里使用了<code>loose comparison</code>比较运算符。</p>
+<p>我们可以通过之前介绍的<code>NULL == 0</code>来绕过验证。那么如何使<code>strcmp</code>函数返回<code>NULL</code>？针对<code>PHP</code>中的字符串比较函数<code>strcmp</code>，当两个参数为数组和整数，或者数组和字符串时，函数的返回值为<code>NULL</code>。我们可以利用这一点来产生<code>NULL</code>。</p>
+<p>在这里我们可以控制的输入为<code>pass</code>参数，那么如何使得该参数成为数组呢？当后端语言为<code>PHP</code>时，我们可以这样传递参数：<code>?pass[]=test</code>，这样的话，使用<code>$_GET[&quot;pass&quot;]</code>得到的变量就是数组了。使用<code>POST</code>传递参数也是同理。</p>
+<p>因此我们可以这样构造输入:<code>pass[]=test</code>，这样字符串比较函数就会返回<code>NULL</code>，同时比较运算结果也为<code>True</code>。</p>
+<h2 id="案例3">案例3</h2>
+<p><code>C99</code>是用<code>PHP</code>写的后门，其中的验证代码如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$login <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C99&#34;</span>; <span style="color:#75715e">// default username
+</span><span style="color:#75715e"></span>$pass <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C99&#34;</span>; <span style="color:#75715e">// default password
+</span><span style="color:#75715e">// $login = false Comment it out for authentication
+</span><span style="color:#75715e"></span><span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+<span style="color:#66d9ef">if</span> ($login) {
+    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">empty</span>($md5_pass)) {
+        $md5_pass <span style="color:#f92672">=</span> <span style="color:#a6e22e">md5</span>($pass);
+    }
+    <span style="color:#66d9ef">if</span> (($_SERVER[<span style="color:#e6db74">&#34;PHP_AUTH_USER&#34;</span>] <span style="color:#f92672">!=</span> $login) <span style="color:#66d9ef">or</span> (<span style="color:#a6e22e">md5</span>($_SERVER[<span style="color:#e6db74">&#34;PHP_AUTH_PW&#34;</span>]) <span style="color:#f92672">!=</span> $md5_pass)) {
+         <span style="color:#66d9ef">if</span> ($login_txt <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>) {
+            $login_txt <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+        } <span style="color:#66d9ef">elseif</span> (<span style="color:#66d9ef">empty</span>($login_txt)) {
+            $login_txt <span style="color:#f92672">=</span> <span style="color:#a6e22e">strip_tags</span>(<span style="color:#a6e22e">ereg_replace</span>(<span style="color:#e6db74">&#34;&amp;amp;nbsp;|&amp;lt;br&amp;gt;&#34;</span>, <span style="color:#e6db74">&#34; &#34;</span>, $donated_html));
+         }
+        <span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;WWW-Authenticate: Basic realm=</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">c99shell &#34;</span> <span style="color:#f92672">.</span> $shver <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">.</span> $login_txt <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>);
+         <span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#34;HTTP/1.0 401 Unauthorized&#34;</span>);
+        <span style="color:#66d9ef">exit</span>($accessdeniedmess);
+    }
+}
+</code></pre></div><p>可以看到，默认的用户名密码都是<code>C99</code>。初始请求时，<code>$_SERVER[&quot;PHP_AUTH_USER&quot;]</code>和<code>$_SERVER[&quot;PHP_AUTH_PW&quot;]</code>都是<code>NULL</code>，因此响应码为401。然后用户输入用户名和密码，如果正确，则顺利登入。当<code>login</code>变量设为<code>false</code>的时候，由于<code>$_SERVER[&quot;PHP_AUTH_USER&quot;] != $login</code>使用的是<code>loose comparison</code>，因此初始请求的情况下，该比较运算结果为<code>false</code>，从而可以不用验证。所以将<code>$login = false</code>这一行注释掉可以免于验证。</p>
+<p>在正常开启登陆验证的情况下，我们如何绕过验证呢？如果我们可以使得<code>login</code>变量的值为0或者<code>false</code>的话，上述第一个比较运算符在初始请求的情况下就为<code>false</code>，从而绕过认证。</p>
+<p>在该后门的前面部分有这样的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$login <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C99&#34;</span>; <span style="color:#75715e">// default username
+</span><span style="color:#75715e"></span>$pass <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;C99&#34;</span>; <span style="color:#75715e">// default password
+</span><span style="color:#75715e">// $login = false Comment it out for authentication
+</span><span style="color:#75715e"></span><span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">@</span><span style="color:#a6e22e">extract</span>($_REQUEST[<span style="color:#e6db74">&#34;c99shcook&#34;</span>]);
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+<span style="color:#66d9ef">if</span> ($login) {
+<span style="color:#f92672">...</span>
+<span style="color:#f92672">...</span>
+</code></pre></div><p>其中<code>extract</code>函数的参数是一个数组，该函数从数组中将变量导入到当前的符号表。其中数组键名为变量名，数组键值为变量值。所以我们可以构造这样的参数输入：<code>c99shcook[login]=0</code>。这样的话就可以顺利覆盖变量<code>login</code>的值，从而绕过验证。</p>
+<p>这个可以称为后门的后门。</p>
+<h2 id="总结">总结</h2>
+<p>这里总结了如何利用<code>PHP</code>中的类型推断特点来绕过各种后端验证。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 5, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/templet-injection/" title="Templet Injection">Templet Injection</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
