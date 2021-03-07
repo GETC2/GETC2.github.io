@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Steam Cipher IV Collision</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 7, 2021
+     - 3 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a><a class="label" href="https://GETC2.github.io/categories/cryptography/">Cryptography </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Steam Cipher IV Collision 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="stream-cipher-iv-collision">Stream Cipher IV Collision</h1>
+<p>首先用一张图表示流密码的加密解密过程：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-45-32.png" alt=""></p>
+<p>流密码的特点是：</p>
+<ul>
+<li>密文和明文的长度相同</li>
+<li>改变明文的一部分，密文的相应部分也会改变，其余部分不变</li>
+<li>密文长度没有必要是8字节或者16字节的整数倍，这是和块密码的区别</li>
+</ul>
+<p>需要注意的是，如果使用流密码加密，那么需要在加密不同信息时使用不同的初始化向量(<code>IV</code>)。不然相同的明文产生的密文相同。如果<code>IV</code>选择空间耗尽，需要进行<code>key</code>的轮转。</p>
+<p>下面就介绍以下当<code>IV</code>和<code>key</code>都固定时，我们如何攻击流密码来获取明文。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目的">目的</h3>
+<p>目标域名为<code>http://fileboss.sec642.org</code>。该应用的作用是上传文件，后端会对文件进行加密；我们还可以下载加密后的文件。我们需要攻击该应用的加密算法，从而获得<code>message.txt</code>文件的明文。</p>
+<h3 id="步骤">步骤</h3>
+<p>首先观察目标页面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-55-42.png" alt=""></p>
+<p>如上所述，通过该页面，我们可以上传文件来加密，并下载被加密的文件。</p>
+<p>为了测试后台使用的加密算法，我们首先生成三个文件用以加密：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-59-05.png" alt=""></p>
+<p>这三个文件的内容如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-00-07.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-00-07.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-58-40.png" alt=""></p>
+<p>通过这些文件，我们可以测试后台的加密算法。比如，如果这三个文件加密后的长度和原始文件长度相同，或者加密后的长度增量相同，且原始文件的长度不为8或者16字节的整数倍，则后台加密应该是流密码。如果文件1和文件2的加密内容相同，则说明流密码的<code>IV</code>和<code>key</code>都不变。</p>
+<p>我们直接观察这三个文件的加密后版本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-06-32.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-06-44.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-06-55.png" alt=""></p>
+<p>从这三个文件的加密内容可以推断出，这应该是流密码，因为第三个文件的加密内容比其他两个文件多9个字节，正好与明文长度增量相同。且第一第二个文件的加密内容相同，说明<code>IV</code>和<code>key</code>相同。</p>
+<p>我们可以利用这一点来获取<code>message.txt</code>文件的明文。原理如下，从流密码的加密解密过程可以知道以下公式成立：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-12-04.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-12-22.png" alt=""></p>
+<p>由于异或的特性，我们还可以得到以下公式：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-14-40.png" alt=""></p>
+<p>在以上目标应用中，我们可以生成任意文件并加密，然后获取相应加密后的内容，所以我们可以获得此时的<code>keystream</code>。又由于<code>IV</code>和<code>key</code>不变，所以针对不同文件的<code>keystream</code>相同。所以我们可以利用此<code>keystream</code>解密其他文件。</p>
+<p>更简单地，由于我们可以下载<code>message.txt</code>文件的加密版本，我们可以再次上传该加密版本，由于<code>IV</code>和<code>key</code>不变，所以后台为了再次加密该加密文件所生成的<code>keystream</code>与之前加密时生成的相同，所以我们可以直接下载经过两次加密后的<code>message.txt</code>文件，而此时的文件内容就是明文。</p>
+<h2 id="总结">总结</h2>
+<p>这里只是简单的介绍了如何利用流密码的<code>IV collison</code>来获取未知密文的明文。现实中的问题会更加复杂。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 7, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/attacking-encryption-key/" title="Attacking Encryption Key">Attacking Encryption Key</a>
+    
+
+    
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/block-cipher-ecb-shuffling/" title="Block Cipher ECB Shuffling">Block Cipher ECB Shuffling</a>
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptograpy" >Cryptograpy</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+

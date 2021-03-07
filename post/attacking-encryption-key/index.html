@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Attacking Encryption Key</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 7, 2021
+     - 4 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/cryptography/">Cryptography </a><a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Attacking Encryption Key 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="attacking-encryption-key">Attacking Encryption key</h1>
+<p>我们经常可以看到加密被应用在<code>Web</code>的以下方面：</p>
+<ul>
+<li><code>Session tokens</code></li>
+<li>密码哈希</li>
+<li>加密<code>CAPTCHAs</code></li>
+<li>服务器文件名</li>
+<li><code>Cookie</code></li>
+<li><code>Hidden fields</code></li>
+<li>数据库数据</li>
+</ul>
+<p>在针对<code>Web</code>进行渗透时，我们可能需要针对这些加密进行攻击。比如如果服务器存在<code>LFI</code>漏洞，但是由于文件名进行了加密或者哈希处理，那么我们就需要搞清楚后端是如何对文件名进行处理的，从而可以利用<code>LFI</code>漏洞；再或者如果服务器将经过认证的用户的信息加密后存储在客户端，那么我们可以通过攻击加密来绕过认证或者进行权限提升。</p>
+<p>从这里我们开始介绍在进行<code>Web</code>渗透是如何攻击加密。首先介绍如何攻击加密的<code>key</code>。</p>
+<ol>
+<li>
+<p>暴力破解长度不够的<code>key</code></p>
+<p>如果目标加密使用的是<code>DES</code>，此时由于<code>key</code>的长度为56位，我们可以通过暴力破解来获得<code>key</code>。</p>
+</li>
+<li>
+<p>攻击生成<code>key</code>的算法</p>
+<p>有的时候目标选择的加密算法的<code>key</code>的长度是足够的，但是在生成<code>key</code>的算法上出现错误。比如生成<code>key</code>的算法的输入有限，导致生成的<code>key</code>限制在一定空间，完全可以猜测到<code>key</code>。</p>
+<p><code>TYPO3</code>是一个开源的<code>CMS</code>，下面是该应用生成<code>key</code>的算法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">script</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text/javascript&#34;</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;../md5.js&#34;</span><span style="color:#f92672">&gt;</span>
+<span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
+<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">script</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text/javascript&#34;</span><span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">generateEncryptionKey</span>(<span style="color:#a6e22e">key</span>)
+{
+<span style="color:#a6e22e">time</span><span style="color:#f92672">=</span><span style="color:#66d9ef">new</span> Date();
+<span style="color:#a6e22e">key</span><span style="color:#f92672">=</span><span style="color:#a6e22e">MD5</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">getMilliseconds</span>().<span style="color:#a6e22e">toString</span>());
+<span style="color:#66d9ef">while</span>(<span style="color:#a6e22e">key</span>.<span style="color:#a6e22e">length</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">66</span>){
+<span style="color:#a6e22e">key</span><span style="color:#f92672">=</span><span style="color:#a6e22e">key</span><span style="color:#f92672">+</span><span style="color:#a6e22e">MD5</span>(<span style="color:#a6e22e">key</span>);
+}
+<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">key</span>;
+}
+<span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
+</code></pre></div><p>可以看到，生成<code>key</code>的算法的输入范围为毫秒的可能值：0-999。如果有明文和用该算法生成的<code>key</code>所加密的密文，则我们可以遍历0-999生成<code>key</code>，并加密明文，然后比对正确的密文，从而猜测出<code>key</code>。</p>
+</li>
+</ol>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>目标域名为<code>http://failpics.sec642.org</code>。目标域名在<code>url</code>上有一个参数是<code>sql</code>查询语句，为了防止该参数被篡改，目标对此查询进行了加密或者哈希处理，生成的密文也作为参数。后端在响应请求时会检查查询语句是否被篡改。我们的目标是修改查询语句并成功执行。</p>
+<h3 id="步骤">步骤</h3>
+<p>其实该目标是开源程序，通过<code>recon</code>我们发现目标后端针对<code>url</code>参数进行验证的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;NEWINSTALL&#39;</span>])) {
+<span style="color:#75715e">/* First run, we need to setup some system settings */</span>
+$settings[<span style="color:#e6db74">&#39;database&#39;</span>]<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;cust&#34;</span>;
+$settings[<span style="color:#e6db74">&#39;user&#39;</span>]<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;custdbuser&#34;</span>;
+$settings[<span style="color:#e6db74">&#39;password&#39;</span>]<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;custdbpass&#34;</span>;
+$settings[<span style="color:#e6db74">&#39;key&#39;</span>]<span style="color:#f92672">=</span><span style="color:#a6e22e">md5</span>(<span style="color:#a6e22e">date</span>(<span style="color:#e6db74">&#34;Ymd&#34;</span>));
+<span style="color:#a6e22e">register_settings</span>($settings)<span style="color:#f92672">:</span>
+} <span style="color:#66d9ef">else</span> {
+$settings <span style="color:#f92672">=</span> <span style="color:#a6e22e">retrieve_settings</span>();
+} <span style="color:#75715e">/* Check the parameter validity before processing */</span>
+<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;q&#39;</span>]) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;md5&#39;</span>])) {
+$parameter <span style="color:#f92672">=</span> $_GET[<span style="color:#e6db74">&#39;q&#39;</span>];
+$hash <span style="color:#f92672">=</span> $_GET[<span style="color:#e6db74">&#39;md5&#39;</span>];
+<span style="color:#75715e"># Create a hash of the query, combining it with the key
+</span><span style="color:#75715e"></span>$qhash <span style="color:#f92672">=</span> <span style="color:#a6e22e">md5</span>($parameter<span style="color:#f92672">.</span>$settings[<span style="color:#e6db74">&#39;key&#39;</span>]);
+<span style="color:#66d9ef">if</span> ($qhash <span style="color:#f92672">!=</span> $hash) {
+<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#39;Content‐Type: text/html&#39;</span>);
+<span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;Bad content.&#34;</span>;
+<span style="color:#66d9ef">exit</span>;
+</code></pre></div><p>可以看到，目标的<code>key</code>是应用安装时的日期的<code>md5</code>哈希。而针对<code>sql</code>查询语句的处理其实是哈希，只不过将<code>key</code>与查询语句拼接后再进行了<code>md5</code>哈希处理。</p>
+<p>然后我们直接观察目标：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-09-43.png" alt=""></p>
+<p>可以看到，只有一个按钮供点击，点击之后<code>url</code>和页面如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-11-28.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-11-35.png" alt=""></p>
+<p>可以看到<code>url</code>的参数是一个查询语句和<code>md5</code>哈希。</p>
+<p>由于我们已经知道了后台<code>key</code>的生成算法和哈希算法，我们可以直接猜测<code>key</code>。</p>
+<p>生成<code>key</code>的是这一句：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$settings[<span style="color:#e6db74">&#39;key&#39;</span>]<span style="color:#f92672">=</span><span style="color:#a6e22e">md5</span>(<span style="color:#a6e22e">date</span>(<span style="color:#e6db74">&#34;Ymd&#34;</span>));
+</code></pre></div><p>即输入是由年月日构成的。其中月的范围为01-12，日的范围为01-31。但是年的范围应该是应用安装时的年份。我们再次观察目标域名页面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-16-44.png" alt=""></p>
+<p>可以看到，该应用应该是2011年上线的。所以年应该是确定的，这样<code>key</code>的生成算法的输入范围就被限制了。由于有明文和对应的密文，且哈希方法也清楚，我们直接利用脚本来猜测<code>key</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#!/bin/bash
+</span><span style="color:#75715e"></span>PARAM<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;SELECT image from failpics order by rand() limit 1&#34;</span>
+<span style="color:#66d9ef">for</span> year in <span style="color:#e6db74">&#34;2011&#34;</span>; <span style="color:#66d9ef">do</span>
+    <span style="color:#66d9ef">for</span> month in <span style="color:#e6db74">`</span>seq ‐w <span style="color:#ae81ff">01</span> 12<span style="color:#e6db74">`</span>; <span style="color:#66d9ef">do</span> <span style="color:#75715e"># seq ‐w produces 01 02 03 ... 12</span>
+        <span style="color:#66d9ef">for</span> day in <span style="color:#e6db74">`</span>seq ‐w <span style="color:#ae81ff">01</span> 31<span style="color:#e6db74">`</span>; <span style="color:#66d9ef">do</span> <span style="color:#75715e"># seq ‐w produces 01 02 03 ... 31</span>
+            keyguess<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>echo ‐n <span style="color:#e6db74">&#34;</span>$year$month$day<span style="color:#e6db74">&#34;</span>| md5sum | sed <span style="color:#e6db74">&#39;s/ ‐//&#39;</span><span style="color:#e6db74">`</span>
+            hashguess<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>echo ‐n $PARAM$keyguess | md5sum<span style="color:#e6db74">`</span>
+            echo <span style="color:#e6db74">&#34;Key Guess: </span>$keyguess<span style="color:#e6db74"> (</span>$year$month$day<span style="color:#e6db74">) Hash Guess: </span>$hashguess<span style="color:#e6db74">&#34;</span>
+        <span style="color:#66d9ef">done</span>
+    <span style="color:#66d9ef">done</span>
+<span style="color:#66d9ef">done</span>
+</code></pre></div><p>然后我们运行该脚本，其输出重定向到文件中，最后利用<code>grep</code>从该文件中查找已知的密文来得到<code>key</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-24-45.png" alt=""></p>
+<p>最后我们就可以用该<code>key</code>来为我们构造的查询语句生成哈希了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-27-26.png" alt=""></p>
+<p>然后直接修改目标<code>url</code>观察结果：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-29-46.png" alt=""></p>
+<p>可以看到，并没有看到构造的查询语句的输出。这是因为我们的查询语句的输出是字符串，而服务器返回的响应中有这样一个头部：<code>Content-Type: image/jpeg</code>，所以浏览器显示错误。我们直接从<code> burpsuite</code>的历史记录中观察响应：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_15-31-51.png" alt=""></p>
+<p>可以看到成功执行。</p>
+<h2 id="总结">总结</h2>
+<p>针对加密或者哈希的<code>key</code>的攻击，需要满足以下条件：</p>
+<ul>
+<li>加密或者哈希算法已知</li>
+<li>明文和密文已知</li>
+</ul>
+<p>以上条件不满足，我们无法验证猜测的<code>key</code>的正确性。另外针对<code>key</code>的攻击，一个是暴力破解长度不足的<code>key</code>；另一个角度是生成<code>key</code>算法的输入不足；再或者如果目标<code>key</code>的存储不当，我们就不用猜测了。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 7, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/sql-injection/" title="Sql Injection">Sql Injection</a>
+    
+
+    
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/steam-cipher-iv-collision/" title="Steam Cipher IV Collision">Steam Cipher IV Collision</a>
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptograpy" >Cryptograpy</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+

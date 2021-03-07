@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Block Cipher ECB Shuffling</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 7, 2021
+     - 4 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a><a class="label" href="https://GETC2.github.io/categories/cryptography/">Cryptography </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Block Cipher ECB Shuffling 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="block-cipher-ecb-shuffling">Block Cipher ECB Shuffling</h1>
+<p>这里我们介绍针对块密码的<code>ECB shuffling</code>攻击。首先还是回顾一下块密码的<code>Electronic Code Book(ECB)</code>模式：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_16-26-51.png" alt=""></p>
+<p>可以看到，明文被分块，每个分块被分别加密。分块大小根据选择的算法不同而不同。比如<code>DES,3DES</code>为8；而<code>AES</code>为16字节。由于没有<code>IV</code>，如果加密<code>key</code> 不变的话，那么同样的明文被加密的结果相同。</p>
+<p>针对<code>ECB</code>模式的块加密算法，由于每一个分块是独立加密的，因此我们可以将密文分块打乱顺序，经过解密后还是原来的明文，只不过明文的分块的顺序不一样了。</p>
+<p>比如下面的明文-密文对：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_18-40-37.png" alt=""></p>
+<p>左边的是初始的通过<code>ECB</code>进行加密的明文和密文，由于分块大小为8字节，我们把明文和密文都分为每一行8字节。然后我们将第四行密文分块复制到第三行密文分块，形成右边的明文密文对。可以看到，初始的明文代表着用户名，用户<code>id</code>，组<code>id</code>和<code>role</code>，经过<code>shuffling</code>之后，用户的<code>id</code>从101变为200，101；如果处理明文的代码将用户<code>id</code>解读为200，那么这就可以看成是一种权限提升。</p>
+<p>利用<code>ECB shuffling</code>除了可以权限提升，还可以根据应用的环境实现其他目的。下面就通过一个实验来展示如何在<code>burpsuite</code>的帮助下更有效率地进行此种攻击。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目的">目的</h3>
+<p>目标域名为<code>http://crazycars.sec642.org</code>。这是一个购物网站，我们需要通过<code>ECB shuffling</code>攻击来以更低地价格购买<code>AMC Gremlin</code>。</p>
+<h3 id="步骤">步骤</h3>
+<p>首先观察目标页面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_18-53-21.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_18-53-29.png" alt=""></p>
+<p>我们首先将<code>Gremlin</code>加入到购物车：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-01-54.png" alt=""></p>
+<p>加入之后可以看到当前购物车的内容和价格：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-03-12.png" alt=""></p>
+<p>然后我们直接结账：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-05-00.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-05-44.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-06-10.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-07-08.png" alt=""></p>
+<p>下一步应该就是付款，因为我们想利用<code>ECB shuffling</code>变更购买物品价格，所以就不接着请求了。我们直接观察此时<code>burpsuite</code>的代理请求历史：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-09-16.png" alt=""></p>
+<p>然后查看最后一个请求：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-11-16.png" alt=""></p>
+<p>可以看到，请求中<code>cookie</code>里面除了<code>PHPSESSID</code>还有一大串好像经过加密的内容。其实这就是通过<code>ECB</code>模式的块密码将购物车里面的物品和价格加密后的内容。我们可以利用<code>intruder</code>的<code>ECB shuffling payload</code>来攻击此加密内容，希望能改变购物车内物品的价格。</p>
+<p>在<code>intruder</code>中，我们首先选择要攻击的位置：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-19-58.png" alt=""></p>
+<p>然后选择<code>payload</code>类型：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-22-02.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-21-41.png" alt=""></p>
+<p>我们暂时无法确定块大小是8还是16，我们先假定是8。</p>
+<p>由于经过<code>ECB shuffling</code>之后，原有的加密信息可能被破坏，导致后端不接受特定请求，从而返回无效响应。为了后续方便辨别哪些攻击产生的响应是有效地，我们需要针对无效响应特有的字符串来标记无效响应。这是通过<code>intruder</code>的<code>grep-match</code>选项来完成的：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-24-56.png" alt=""></p>
+<p>无效响应包含<code>Rejecting</code>字符串，所以我们将包含此字符串的响应标记出来。</p>
+<p>另外我们还想直观的看到每个响应中的购物车物品和总价格，这样便于我们判断对应这次响应的攻击有没有成功削减购物车物品的价格。这可以通过<code>intruder</code>的<code>grep-extract</code>选项完成：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-31-22.png" alt=""></p>
+<p>我们点击添加，然后在响应中选择相应的想看到的信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-33-47.png" alt=""></p>
+<p>可以看到，我们选择的是响应中对应着购物车总价格的信息。</p>
+<p>然后我们直接开始攻击：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-34-47.png" alt=""></p>
+<p>执行攻击之后，我们发现低于原本价格的响应都是无效响应，即后端认为攻击后解密的信息无效：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-39-16.png" alt=""></p>
+<p>这可能是由于<code>ECB shuffling</code>攻击是基于原有的<code>stat</code>加密信息分块来调换顺序，复制，如果不存在<code>shuffling</code>后使得后端解密之后可以接受并且价格低于原有价格的分块，那么我们自然无法实现目的。一种解决方法是，寻找另外的利用同一个<code>key</code>加密的分块，然后提供给<code>intruder</code>，说不定这些额外的加密分块含有有效信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_19-43-13.png" alt=""></p>
+<p>如图所示，我们可以给<code>intruder</code>提供额外的加密信息，这样就能提高成功的几率。</p>
+<h2 id="总结">总结</h2>
+<p>通过<code>ECB shuffing</code>，我们可以根据加密信息的用途实现不同的目的，包括但不限于权限提升，绕过认证或者以低价购买物品。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 7, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/steam-cipher-iv-collision/" title="Steam Cipher IV Collision">Steam Cipher IV Collision</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptograpy" >Cryptograpy</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
