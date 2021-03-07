@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Padding Oracle</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 7, 2021
+     - 5 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/cryptography/">Cryptography </a><a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Padding Oracle 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="padding-oracle-attack">Padding Oracle Attack</h1>
+<p>这里介绍如何借助块密码的<code>padding</code>来进行攻击并获取明文。首先介绍适用于这种攻击的一种<code>padding</code>。</p>
+<h2 id="pksc7-padding">PKSC#7 Padding</h2>
+<p>众所周知，块密码需要将明文分块然后加密。对于不满足分块大小的部分需要<code>padding</code>后才能加密。<code>padding</code>有不同的方法，有的直接在后面补<code>\x00</code>字节，有的根据下面这种思路来进行<code>padding</code> :</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_21-18-43.png" alt=""></p>
+<p>如上图所示，假定分块大小为8字节。当最后一个分块还差四个字节时，补四个字节的<code>\x04</code>，依此类推。如果明文最后一个分块本身就是8个字节，也要补上8个字节的<code>\x08</code>。为什么要多此一举呢？这是为了添加一个简单的<code>integrity</code>验证。如果接收方收到密文，揭秘之后发现最后一个分块不满足这种<code>padding</code>的规律的话，就认为密文遭到了破坏。而块密码本身是没有<code>Integrity</code>验证的机制的。这种<code>padding</code>就被称为<code>PKSC#7 Padding</code>。</p>
+<p>特别地，如果服务器接受，解密之后发现<code>padding</code>不满足要求的话，有的情况下会发送状态码500。这里介绍的<code>Padding Oracle</code>攻击就是利用服务器的这种行为。下面我们我们详细介绍供给的思路。</p>
+<h2 id="攻击思路">攻击思路</h2>
+<p>首先<code>Padding Oracle</code>中的<code>Oracle</code>意指给与答案的事物，在这里指的就是服务器，因为服务器会根据<code>padding</code>的有效与否从而给出不同响应。根据这些响应的不同，我们可以利用一种手段推断出明文。</p>
+<p>接着我们来具体说明攻击思路，如果存在这样的<code>url</code>：</p>
+<pre><code>http://target/index.jsp?e=3536373864656667132516a7bd7867a0
+</code></pre><p>该<code>url</code>参数是由8字节的<code>IV</code>和8字节密文构成的，密文通过<code>CBC</code>模式的块密码加密。下图是服务端针对此参数的解密过程：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_21-35-30.png" alt=""></p>
+<p>如上图所示，如果我们使得<code>IV</code>变为全0，那么服务器解密时很有可能会发现最后的<code>padding</code>不合法，如果此时服务器返回500错误，而且正常情况下不反悔错误的话，我们就可以利用下面的步骤来推断<code>keystream</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_21-39-19.png" alt=""></p>
+<p>如上图所示，我们保持<code>IV</code>为0，只改变最后一个字节，该字节每次增加一，直至服务器不返回错误。那么这时我们可以推断出第一个密文分块解密后最后一个字节应该为<code>\x01</code>。由于我们知道了<code>IV</code>的最后一个字节的值，所以可以根据异或的性质得到<code>keystream</code>的最后一个字节的值。</p>
+<p>这里需要注意的是，如果<code>keystream</code>倒数第二个字节本身为<code>\x02</code>，那么其实上述操作推断出的<code>keystream</code>最后一个字节值应该是错误的。因为此时解密后，明文的最后一个字节应该是<code>\x02</code>。当然也有可能<code>keystream</code>倒数第二和第三个字节本身都为<code>\x03</code>等等。但是这里我们只先考虑最普遍的情况。</p>
+<p>依照上述这种方法，我们可以继续按照下面的步骤推断<code>keystream</code>倒数第二个字节的值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_21-46-56.png" alt=""></p>
+<p>我们根据<code>keystream</code>最后一个字节的值，调整<code>IV</code>，使得明文的最后一个字节的值为<code>\x02</code>，然后接着增加<code>IV</code>倒数第二个字节的值，知道服务器没有返回错误。然后就可以推断出<code>keystream</code>倒数第二个字节的值。</p>
+<p>我们按照这种思路，知道推断出第一个密文分块对应的<code>keystream</code>。如果存在第二个密文分块，我们可以按照同样的思路，使第一个密文分块全为0，然后从最后一个字节开始增加，推测第二个密文分块的<code>keystream</code>。</p>
+<p>推断出所有的<code>keystream</code>后，我们还有对应的<code>IV</code>，那么就可以直接进行异或运算得到明文。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目标">目标</h3>
+<p>目标域名为<code>http://evilbank.sec642.org/</code>。该站点有<code>CAPTCHA</code></p>
+<h3 id="步骤">步骤</h3>
+<p>首先观察目标站点：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_21-55-33.png" alt=""></p>
+<p>可以看到，目标站点有<code>CAPTCHA</code>人机认证保护，且<code>url</code>中有类似加密的参数存在。其实这是将<code>CAPTCHA</code>的答案进行加密后的内容。如果我们能解密此加密参数，我们就可以绕过<code>CAPTCHA</code>认证了。</p>
+<p>该加密参数长度为16字节，我们如何知道该参数使用什么算法加密的呢？答案是不知道，因为这有可能是<code>ECB,CBC</code>模式的块密码。但是我们知道，如果这是<code>CBC</code>模式的块密码，那么<code>IV</code>和密文应该都在该参数中。而且，如果利用<code>padding oracle</code>方法的话，服务器可能会返回大量500错误。根据这个我们就可以确定加密算法了。</p>
+<p>这里我们直接利用针对<code>padding oracle</code>的工具：<code>padBuster</code>。我们以如下方式调用该工具：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_22-01-18.png" alt=""></p>
+<p>如图所示，直接指定<code>url</code>和疑似通过<code>CBC</code>加密的<code>IV</code>和密文，以及分块大小。最后还有一个选项指定密文的编码方法。很明显，这里密文是通过<code>lowercase hex</code>来编码的。</p>
+<p>调用之后，该工具会修改<code>IV</code>值为0，并从最后一个字节开始增加，然后发送大量请求。根据响应的不同进行分类，如果其中一个种类的响应很多，这说明这种响应对应着<code>padding</code>无效的错误响应：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_22-08-56.png" alt=""></p>
+<p>可以看到，只有两种响应，且第二种响应频率要高，响应长度更小。这说明这些响应应该对应着<code>padding</code>无效的错误响应。同时工具让我们提供对应错误响应的<code>ID</code>，这里直接选2。</p>
+<p>然后可以看到，该工具成功推断出每一个字节的明文：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_22-14-16.png" alt=""></p>
+<p>需要注意的是，针对最后一个字节，该工具试了两次，这正是由于上面提到的特殊情况。即<code>keystream</code>倒数第二个字节为<code>\x02</code>。</p>
+<p>最后运行结果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_22-16-47.png" alt=""></p>
+<p>可以看到，目标的确用了<code>CBC</code>模式的块密码，而且<code>padding</code>错误和正确时返回的响应不一致。工具成功利用<code>padding oracle</code>获取了<code>CAPTCHA</code>的明文。</p>
+<h2 id="总结">总结</h2>
+<p>由于有现成的工具，因此利用<code>padding oracle</code>并不复杂。但我们需要确定目标满足以下条件才能进行此攻击：</p>
+<ul>
+<li><code>CBC</code>模式的块密码</li>
+<li>当<code>padding</code>错误和正确是返回的响应不一致。</li>
+</ul>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 7, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/cbc-bit-flipping/" title="CBC Bit Flipping">CBC Bit Flipping</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
