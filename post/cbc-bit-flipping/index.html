@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>CBC Bit Flipping</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 7, 2021
+     - 3 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/cryptography/">Cryptography </a><a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a>
+    
+  </p>
+  <h1 class="entry-title">
+     CBC Bit Flipping 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="cbc-bit-flipping">CBC Bit Flipping</h1>
+<p>这里介绍一下如何针对<code>CBC</code>模式的块密码进行攻击。首先还是回顾一下该模式下加密的过程：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-05-32.png" alt=""></p>
+<p>如上所示，明文首先分块，然后和<code>IV</code>或者前一个加密分块异或，最后经由<code>key</code>加密。</p>
+<p>针对这种模式的块密码，我们可以这样处理：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-16-36.png" alt=""></p>
+<p>如上图所示，如果我们只有密文和<code>IV</code>，那么我们可以任意地更改<code>IV</code>或密文块的位。比如我们更该<code>IV</code>的其中一位，那么后端解密时第一块明文相应的位置就会被破坏；同样的，如果我们改变第二块密文中的一位，那么第三块明文解密时相应的位也会受到影响，而且第二块明文解密时所有的位都会被破坏。</p>
+<p>利用这种方法，我们可以实现权限提升。我们以下面的实验来举例说明。</p>
+<h2 id="实验">实验</h2>
+<h3 id="目的">目的</h3>
+<p>目标域名是<code>http://crazycars.sec642.org/admin</code>。我们可以以用户名<code>intern</code>和密码<code>sec642</code>来登录。我们需要利用<code>CBC bit flipping</code>来提升权限。</p>
+<h3 id="步骤">步骤</h3>
+<p>首先利用已有用户名登陆目标：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-21-38.png" alt=""></p>
+<p>然后观察<code>burpsuite</code>代理的请求历史：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-35-18.png" alt=""></p>
+<p>可以看到，<code>cookie</code>中有<code>iv</code>和<code>uid</code>，这有可能是将用户身份加密后设置为<code>cookie</code>。当然，这些值应该是之前登录后设置的，我们需要观察这次利用现有用户名登陆后，服务器给我们设置了什么<code>cookie</code>，因此我们直接观察响应中的<code>cookie</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-37-37.png" alt=""></p>
+<p>可以看到，针对使用的用户名和密码，服务器返回的<code>iv</code>和<code>uid</code>如上所示。</p>
+<p>然后我们观察登录之后的页面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-43-55.png" alt=""></p>
+<p>可以发现，我们的<code>UID</code>为100，且页面包含<code>logout</code>选项。</p>
+<p>接下来我们来推测后台针对<code>cookie</code>加密使用的算法。由于<code>iv</code>和加密后的<code>uid</code>都为16字节，所以这应该是块密码，且肯定不是<code>ECB</code>模式。又由于<code>iv</code>的长度和<code>uid</code>相同都是16字节，所以这因该也不是<code>CTR</code>模式，应该可以肯定地说这是<code>CBC</code>模式的块密码。</p>
+<p>接着我们使用之前介绍的<code>CBC bit flipping</code>，看看这对后台解密以及返回的响应的影响：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-49-54.png" alt=""></p>
+<p>如上图所示，我们首先修改<code>iv</code>的第一个字节为<code>FF</code>，然后观察响应，但是响应没有什么变化。我们接着修改后面的字节：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-51-55.png" alt=""></p>
+<p>我们发现，当修改第十个字节为<code>FF</code>的时候，响应中的<code>UID</code>变化了，后边的数字消失了。这说明<code>uid</code>确实是用户身份的加密内容。但是第十个字节并没有改变<code>UID</code>后面的数字，而是直接使得数字消失了。如果我们要通过这个方法进行权限提升的话，那么就需要改变数字而不是是数字消失。因此我们接着试试第十一个字节：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-07_20-59-21.png" alt=""></p>
+<p>可以发现，<code>UID</code>后面数字的第一个字节变化了，这暗示着<code>iv</code>中第十一到第十三个字节影响着<code>UID</code>后面的数字。</p>
+<p>确定影响<code>UID</code>的字节位置后，我们利用<code>intruder</code>来枚举这三个字节的所有可能值，然后观察特殊的响应，比如长度较长的响应，或者利用<code>grep-extract</code>截取响应中代表<code>UID</code>的信息。</p>
+<h2 id="总结">总结</h2>
+<p>这里展示了如何通过<code>CBC bit flipping</code>来修改用户身份<code>id</code>从而实现权限提升。根据加密内容不同，我们可以影响的内容就不同，从而可以实现不同的目的。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 7, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/block-cipher-ecb-shuffling/" title="Block Cipher ECB Shuffling">Block Cipher ECB Shuffling</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptograpy" >Cryptograpy</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+

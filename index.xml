@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 07 Mar 2021 16:25:29 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Mar 2021 19:49:08 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CBC Bit Flipping</title>
+      <link>https://GETC2.github.io/post/cbc-bit-flipping/</link>
+      <pubDate>Sun, 07 Mar 2021 19:49:08 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/cbc-bit-flipping/</guid>
+      <description>CBC Bit Flipping 这里介绍一下如何针对CBC模式的块密码进行攻击。首先还是回顾一下该模式下加密的过程： 如上所示，明文首先分块，然后和IV或者前一个加密分块异或，最后经由key加密。 针对这种模式的块密码，我们可以这样处理： 如上图所示，如果我们只有密文和IV，那么我们可以</description>
+    </item>
+    
     <item>
       <title>Block Cipher ECB Shuffling</title>
       <link>https://GETC2.github.io/post/block-cipher-ecb-shuffling/</link>
