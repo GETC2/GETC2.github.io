@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 07 Mar 2021 21:09:29 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 11 Mar 2021 09:05:17 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>WAF and Filter Bypass</title>
+      <link>https://GETC2.github.io/post/waf-and-filter-bypass/</link>
+      <pubDate>Thu, 11 Mar 2021 09:05:17 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/waf-and-filter-bypass/</guid>
+      <description>WAF and Filter Bypass 针对Web攻击的防御主要分以下三种类型： 开发人员在应用内部自己写的filter 框架自带的filter inline security devices比如Web Application Firewall（WAF) 在进行渗透测试时，我们需要搞清楚目标有没有部署这些防御。否则可能会出现false negati</description>
+    </item>
+    
     <item>
       <title>Padding Oracle</title>
       <link>https://GETC2.github.io/post/padding-oracle/</link>
