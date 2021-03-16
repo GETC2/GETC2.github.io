@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Purple Team Hindering Payload Delivery</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 16, 2021
+     - 5 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/purple-team/">Purple Team </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Purple Team Hindering Payload Delivery 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <h1 id="purple-team-hindering-payload-delivery">Purple Team: Hindering Payload Delivery</h1>
+<p>这里记录一下常见的<code>payload delivery</code>的方法以及针对这些方法的防御措施。</p>
+<h2 id="delivery-mechanisms">Delivery Mechanisms</h2>
+<p>常见的方法包括但不限于：</p>
+<ul>
+<li>U盘</li>
+<li><code>Physical Access</code></li>
+<li>邮件</li>
+<li>水坑攻击</li>
+<li>服务漏洞的利用（这里暂且不讨论此种方法）</li>
+</ul>
+<p>下面分别针对这些方法和防御措施进行介绍。</p>
+<h2 id="u盘">U盘</h2>
+<p>我们可以通过邮寄，社会工程将带有<code>payload</code> 的U盘送进目标。另外我们可以利用U盘来模拟不同的设备类型，不同的设备类型通过不同的方法来执行<code>payload</code>。</p>
+<h3 id="1-可移除存储设备">1. 可移除存储设备</h3>
+<p>我们可以将U盘作为可存储设备，此时<code>payload</code>就是各种执行文件。为了提高成功率，我们还可以利用<code>Windows</code>的<code>AutoRun</code>和<code>AutoPlay</code>功能。但是<code>AutoRun</code>从<code>Windows 7</code>之后就被关闭了；而<code>AutoRun</code>还可以发挥作用。</p>
+<p><code>AutoRun</code>就是通过<code>.ini</code>文件指定一个可执行文件，当U盘插入时直接执行。<code>AutoPlay</code>会在U盘插入时显示通知，提示用户选择需要对此U盘进行的操作。这两个功能的图示如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_08-39-37.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_08-40-05.png" alt=""></p>
+<p>由于<code>AutoRun</code>被默认禁止，如果<code>payload</code>的后缀是<code>exe</code>或者<code>vbs</code>之类的脚本文件后缀名，为了通过社会工程诱使用户点击，我们可以使用以下的方法提高成功率：比如<code>payload</code>后缀名是<code>exe</code>的时候，我们可以将其文件名修改为<code>***.pdf.exe</code>，并将文件图标修改为<code>pdf</code>文件的图标。由于<code>Windows</code>默认是不显示后缀的，所以我们的<code>payload</code>就会显示成普通的<code>pdf</code>文件。</p>
+<h3 id="2-键盘">2. 键盘</h3>
+<p><code>Rubber Ducky</code>是一个利用U盘来模拟键盘的框架，它可以利用系统内置的功能来下载和执行<code>payload</code>。由于大多操作系统信任键盘，所以我们可以利用<code>Rubber Ducky</code>来<code>deliver payload</code>。</p>
+<h3 id="3-网卡">3. 网卡</h3>
+<p>我们还可以通过修改U盘的固件来模拟网卡。此时我们可以通过U盘修改<code>DNS</code>设置或者路由流量。<code>BadUSB</code>和<code>USBHarpoon</code>通过U盘和<code>USB</code>线来实现这种攻击。</p>
+<h3 id="mitigations">Mitigations</h3>
+<p>针对通过U盘来<code>deliver payload</code>的攻击，我们可以通过<code>GPO</code>来禁止使用可移除存储设备；或者通过应用程序白名单来禁止此类设备中的程序执行，比如<code>AppLocker</code>。但是这种方法无法阻止利用U盘模拟其他设备的攻击，比如键盘和网卡。</p>
+<h2 id="physical-access">Physical Access</h2>
+<p>当然我们还可以利用社会工程直接进入目标。之后就是直接寻找网络端口，如果成功的话就直接拥有了<code>foothold</code>了。</p>
+<h3 id="mitigations-1">Mitigations</h3>
+<p>我们可以通过<code>NAC</code>来阻止这种攻击。之前介绍过的<code>Captive Portal</code>也属于<code>NAC</code>。常见的<code>NAC</code>就是经过标准化的<code>port-based Network Access Control</code>了，即<code>802.1X</code>。<code>802.1X</code>使用<code>Extensible Authentication Protocal (EAP)</code>来对设备进行认证，只有认证通过之后才可以访问网络。当然<code>EAP</code>并没有规定具体的认证协议，我们可以使用密码，证书配合<code>EAP</code>来进行认证。</p>
+<h3 id="bypass">Bypass</h3>
+<p>作为攻击方，我们可以利用以下方法来绕过<code>NAC</code>的控制：</p>
+<ul>
+<li>当环境中存在<code>legacy</code>设备的时候，由于这些设备不支持<code>NAC</code>，所以有可能目标是通过<code>MAC</code>来这些设备进行认证的。我们可以通过<code>MAC spoofing</code>来假冒这些设备并访问网络。</li>
+<li>我们还可以通过已认证的设备来访问网络。具体地说，我们可以将自己的设备置于已认证设备和网口之间，并通过一些工具来获取网络的访问，比如<code>FENRIR</code>。通过它，我们可以在不影响已认证设备的情况下，通过修改我们的封包的<code>IP</code>和<code>MAC</code>来访问网络。具体原理很简单，<code>FENRIR</code>通过记录<code>IP</code>和端口来分辨发往我们的设备的已认证设备的封包。</li>
+</ul>
+<h2 id="邮件">邮件</h2>
+<p>当然，最典型的<code>payload delivery</code>方法莫过于邮件。我们可以在邮件中添加附件，比如脚本或者带有宏的<code>office</code>文件；还可以添加链接诱使用户点击，从而下载<code>payload</code>或者利用浏览器的漏洞。</p>
+<p>攻击者可能会通过伪造的发信地址来提高成功率，但是由于<code>SPF,DKIM,DMARC</code>这些新增的记录，伪造发信地址也没什么用处了。现在一般的做法是通过注册和目标或者和目标有关系的实体相似的域名，并将该域名最为发信地址来提高成功率。关于<code>SPF,DKIM,DMARC</code>的简单科普可以看这一篇文章[1]。</p>
+<h3 id="mitigations-2">Mitigations</h3>
+<h4 id="1-动态分析">1. 动态分析</h4>
+<p>针对通过邮件发送<code>payload</code>的攻击，我们可以通过邮件网关和<code>sandbox</code>来阻止。针对<code>sandbox</code>如何阻止<code>payload</code>的投递，我们以<code>Cuckoo</code>为例进行说明：</p>
+<ul>
+<li>跟踪<code>API</code>调用</li>
+<li>分析网络流量</li>
+<li>监视文件系统</li>
+<li>监视进程的创建</li>
+<li>内存分析</li>
+</ul>
+<p><code>Cuckoo</code>不仅支持可执行文件，还支持其他文件类型，比如<code>office</code>文件：只需要在虚拟机中安装<code>MS office</code>就可以了。在对邮件的附件进行分析之后，<code>Cuckoo</code>会对文件打分，分数越高说明风险越高。</p>
+<h4 id="2-静态分析">2. 静态分析</h4>
+<p>基于<code>sandbox</code>的动态分析还不够，因为有的时候<code>malware</code>可以通过检测执行环境而避免执行恶意代码。所以我们还需要静态分析。比较典型的方法就是通过<code>YARA</code>来分析。<code>YARA</code>通过规则来指定存在于已知的恶意代码的字符串，然后通过扫描文件或者内存空间来做<code>pattern matching</code>。如果文件或者内存中存在匹配规则的字符串，就可以阻止文件的执行或者加以<code>log</code>。</p>
+<p><code>YARA</code>可以和<code>sandbox</code>结合起来，同时进行动态和静态分析，这样可以提高准确率。之前介绍的<code>Cuckoo</code>就支持<code>YARA</code>。</p>
+<h3 id="bypass-1">Bypass</h3>
+<p>攻击者可以通过分析<code>sandbox</code>的特征来停止<code>payload</code>的执行，或者只会在特定情况下才执行。当然，<code>sandbox</code>也可以针对<code>malware</code>的这些特定检测手段来识别<code>malware</code>。</p>
+<h2 id="水坑攻击">水坑攻击</h2>
+<p>攻击者还可以通过<code>compromise</code>目标常用的网站，并通过在此网站插入的代码来<code>fingerprint</code>目标的浏览器和插件，如果存在漏洞，就可以将目标重定向到攻击者的服务器来<code>deliver payload</code>。有现成的<code>exploit kit</code>可以直接检测目标浏览器和利用已知的漏洞。</p>
+<h3 id="mitigations-3">Mitigations</h3>
+<p>针对这种攻击，我们可以通过<code>Web</code>网关和<code>sandbox</code>来进行阻止。通过对域名<code>reputation</code>的查询或者直接利用<code>sandbox</code>来对响应进行检测。另外还需要加固用户的浏览器。</p>
+<h2 id="参考文章">参考文章</h2>
+<p>[1] <a href="https://learnku.com/articles/54156">https://learnku.com/articles/54156</a></p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 16, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/waf-and-filter-bypass/" title="WAF and Filter Bypass">WAF and Filter Bypass</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
