@@ -6,7 +6,16 @@
     <description>Recent content in Posts on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 16 Mar 2021 08:32:41 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 16 Mar 2021 08:32:56 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Purple Team: Preventing Payload Execution</title>
+      <link>https://GETC2.github.io/post/purple-team-preventing-payload-execution/</link>
+      <pubDate>Tue, 16 Mar 2021 08:32:56 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/purple-team-preventing-payload-execution/</guid>
+      <description>之前介绍过如何阻止payload delivery。但是如果那些安全措施没能奏效的话，作为防守方需要的是defense in depth，我们可以阻止payload的执行。下面就记录一下关于攻击方如何执行payload以及相对应的防御措施。 应用白名单 防守方可以利用</description>
+    </item>
+    
     <item>
       <title>Purple Team: Hindering Payload Delivery</title>
       <link>https://GETC2.github.io/post/purple-team-hindering-payload-delivery/</link>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Purple Team: Preventing Payload Execution</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 16, 2021
+     - 7 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/purple-team/">Purple Team </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Purple Team: Preventing Payload Execution 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <p>之前介绍过如何阻止<code>payload delivery</code>。但是如果那些安全措施没能奏效的话，作为防守方需要的是<code>defense in depth</code>，我们可以阻止<code>payload</code>的执行。下面就记录一下关于攻击方如何执行<code>payload</code>以及相对应的防御措施。</p>
+<h2 id="应用白名单">应用白名单</h2>
+<p>防守方可以利用白名单来指定可以运行的程序。传统的白名单是靠指定应用的列表来进行的，但是这种方式难以管理；而更可行的方法是通过建立规则来指定可与运行的程序。这些规则的基准包括但不限于：应用的路径，<code>publisher</code>，哈希。</p>
+<p><code>Windows</code>内置了三种可以实现白名单的机制：</p>
+<ul>
+<li><code>Software Restriction Policies（SRP）</code></li>
+<li><code>AppLocker</code></li>
+<li><code>Windows Defender Application Control (WDAC)</code></li>
+</ul>
+<p>之前介绍过如何绕过<code>SRP</code>，其实<code>SRP</code>的实现有一部分代码运行在用户空间，所以不太推荐这种白名单机制；而<code>AppLocker</code>完全是在内核空间实现的。另外，<code>WDAC</code>只在<code>Windows10/Server 2016</code>上有。</p>
+<p><code>AppLocker</code>的规则分为四个类别：</p>
+<ul>
+<li><code>Executable Rules</code></li>
+<li><code>Windows Installer Rules</code></li>
+<li><code>Script Rules</code></li>
+<li><code>Packaged app Rules</code></li>
+</ul>
+<p><code>Executable Rules</code>类别下默认的规则如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_14-49-05.png" alt=""></p>
+<p>可以看到，普通用户默认只允许执行<code>Programs</code>和<code>Windows</code>文件夹中的程序。</p>
+<p>关于如何绕过<code>AppLocker</code>可以参考这个列表[1]。</p>
+<h2 id="利用脚本执行payload">利用脚本执行<code>payload</code></h2>
+<p>之前介绍的<code>AppLocker</code>主要用来针对可执行文件，所以攻击方一般都是通过脚本来执行<code>payload</code>。可供选择的脚本包括：<code>js,vbs,vbe,hta,vba,powershell</code>。</p>
+<h3 id="1-vbs">(1) vbs</h3>
+<p>我们可以利用<code>vbs</code>下载<code>payload</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_15-40-25.png" alt=""></p>
+<p>当然，为了免杀，可以进行<code>obfuscation</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_15-40-46.png" alt=""></p>
+<p>如上所示，<code>obfuscation</code>基本是靠添加无意义的注释和针对变量名进行编码进行的。</p>
+<h3 id="2-js">(2) js</h3>
+<p><code>js</code>脚本和<code>vbs</code>脚本相同，可以作为<code>downloader</code>或者<code>dropper</code>来执行<code>payload</code>。作为一个<code>dropper</code>的例子，<code>StarFighter</code>是一个生成<code>js</code>和<code>vbs</code>脚本的工具。具体的使用方法是通过<code>Empire</code>生成<code>powershell</code>的<code>payload</code>，然后将该<code>payload</code>粘贴到<code>StarFighter</code>生成的脚本中：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_16-26-29.png" alt=""></p>
+<p><code>StarFighter</code>脚本中已经实现了内置的<code>powershell Host</code>，所以当目标禁止了<code>powershell.exe</code>的时候，该脚本也可以顺利执行<code>payload</code>。</p>
+<h3 id="3-hta">(3) hta</h3>
+<p><code>hta</code>全称是<code>HTML Application</code>，它是由<code>HTML</code>和其他脚本语言，比如<code>js,vbs</code>组成的。作为攻击方，一般就是通过<code>hta</code> 调用<code>Wscript.Shell</code>这个<code>ActiveXObject</code>来执行<code>powershell</code>。所以，即使禁止了<code>Windows Script Host</code>或者<code>wscript.exe,cscirpt.exe</code>也无法阻止这种<code>payload</code>的执行。但是由于<code>hta</code>是通过<code>mshta.exe</code>执行的，所以可以通过白名单禁止执行该应用。</p>
+<h3 id="4-vba">(4) vba</h3>
+<p><code>vba</code>的全称是<code>Visual Basic for Application</code>。<code>vba</code>是嵌入<code>office</code>文件的脚本语言。相比于<code>js,vbs</code>，<code>vba</code>的功能更加强大：它不仅能调用<code>ActiveXObject</code>，还能调用<code>WinAPI</code>。所以，<code>vba</code>的脚本可以是<code>downloader</code>或者<code>dropper</code>，就像前面介绍的<code>js,vbs</code>一样。由于<code>vba</code>可以调用<code>WinAPI</code>，攻击方还可以这样使用<code>vba</code>脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_16-48-25.png" alt=""></p>
+<p>如上所示，<code>vba</code>可以通过<code>Declare</code>关键字定义要调用的<code>WinAPI</code>函数。利用这个功能，上述脚本将<code>shellcode</code>注入到当前进程中并执行。这样就不需要像之前那样将<code>payload</code>写入文件系统并执行了，这也就降低了被发现的可能性。</p>
+<p>由于<code>vba</code>是嵌入到<code>office</code>文件中的，而<code>office</code>文件在日常的业务中很常见。为了阻止利用<code>vba</code>脚本进行攻击，防守方可以通过<code>MS office</code>内置的<code>Trust Center</code>来限制<code>vba</code>脚本，即宏的使用。<code>Trust Center</code>的设置界面如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_17-57-37.png" alt=""></p>
+<p>从上图可以看到，<code>office</code>文件针对<code>vba</code>的默认设置是禁止。当带有宏的文件打开时，顶部会出现提示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_18-00-45.png" alt=""></p>
+<p>当然作为攻击方通常会利用如上图所示的社会工程来诱使目标允许宏的执行。</p>
+<p>除了这个设定，还可以通过以下设定来禁止宏：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_17-58-10.png" alt=""></p>
+<p>所谓的<code>Protected View</code>是为了防止<code>office</code>应用的漏洞被利用，主要的原理就是通过降低线程的执行权限来防止漏洞被利用后访问系统资源。而这一设置的副作用就是宏也会被禁止运行：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_18-05-08.png" alt=""></p>
+<p>同样的，可以通过社会工程来诱使用户关闭<code>Protected View</code>模式。</p>
+<p>需要注意的是，如果通过<code>Publishers,Locations</code>设置了信任的文件，那么之前提到的针对宏的限制就不起作用了。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_17-56-05.png" alt=""></p>
+<h3 id="5-powershell">(5) powershell</h3>
+<p>相比于<code>vba</code>，<code>powershell</code>的功能又更加强大了：它不仅可以调用<code>WinAPI,ActiveX</code>，还可以利用<code>.Net</code>。</p>
+<p>针对<code>powershell</code>，<code>Windows</code>默认开启了以下限制：</p>
+<ul>
+<li>当双击<code>powershell</code>脚本文件（后缀名为<code>ps1</code>），默认由<code>notepad</code>打开该文件。</li>
+<li>当在命令行中直接调用<code>powershell</code>脚本文件时，<code>Execution Policy</code>默认为<code>Restricted</code>，所以也不会执行。但是可以通过提供参数<code>-ExecutionPolicy Bypass</code>来绕过该限制。</li>
+</ul>
+<p>由于这些限制的存在，所以初始的<code>payload delivery</code>不会通过<code>powershell</code>脚本来实现，而是通过<code>js,vbs,vba</code>这些脚本文件来间接调用<code>powershell</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-16_18-24-59.png" alt=""></p>
+<p>上图就是通过<code>vba</code>来调用<code>powershell</code>的例子。需要注意的是，<code>payload</code>是通过<code>-Command</code>参数提供的，而此时<code>Execution Policy</code>不会影响到<code>payload</code>的执行，只有通过<code>ps1</code>脚本文件执行<code>payload</code>才会受到限制。</p>
+<p>作为防守方，我们可以利用以下方式来限制<code>powershell</code>的执行：</p>
+<ul>
+<li><code>Constrained Language Mode</code>: 当<code>powershell</code>处于这种模式时，<code>payload</code>无法利用<code>.Net,WinAPI,COM</code></li>
+<li><code>AntiMalware Scan Interface</code></li>
+</ul>
+<p>当然攻击方可以通过特定方法绕过以上两种限制。</p>
+<h2 id="如何检测payload执行">如何检测<code>payload</code>执行</h2>
+<p>以上分别介绍了如何执行<code>payload</code>和一些相应的<code>prevention</code>。但是作为防守方，总是要假设攻击方可以绕过这些限制并成功执行<code>payload</code>，这种时候就需要一定的<code>detection</code>手段。下面就介绍如何检测<code>payload</code>的执行。</p>
+<ul>
+<li><code>Windows Command-Line Logging</code>: 我们可以开启针对创建进程的<code>log</code>。通过对<code>Group Policy</code>的设置，可以通过观察<code>Windows Event ID 4688</code>监视进程的创建。</li>
+<li><code>Sysmon</code>: 同样的，<code>sysmon</code>生成的<code>Event ID 1</code>也是针对创建进程的<code>log</code>。相比于<code>Windows</code>内置的<code>Event</code>，<code>sysmon</code>生成的<code>Event</code>有更多的信息：默认记录命令行，执行文件的哈希，父进程的信息。</li>
+<li><code>Powershell Transcripts</code>: 通过<code>Start-Transcript</code>这个<code>cmdlet</code>我们可以使得每次<code>powershell</code>执行时都会记录执行的命令和结果。具体做法是将上述<code>cmdlet</code>写入<code>profile</code>，这样每次<code>powershell</code>执行时，该<code>profile</code>都会自动执行，而之后的执行命令和结果都会被记录下来。</li>
+<li><code>Windows Powershell Logs</code>: <code>Windows</code>有专门的针对<code>powershell</code>执行时的<code>log</code>。如果是通过<code>-Command</code>选项执行的<code>payload</code>，那么记录的<code>log</code>中会显示；但是如果是通过<code>ps1</code>脚本文件执行，那么只会显示脚本文件名，而不会显示内容。</li>
+<li><code>Script Block Logging</code>: 针对上述<code>log</code>不会记录执行的脚本文件的内容的缺点，我们可以使用<code>powershell v5</code>之后新增的<code>log</code>功能，即<code>Script Block Logging</code>。无论是通过<code>-Command</code>还是脚本文件执行的命令，其内容都会被此<code>log</code>记录。</li>
+<li><code>ProcFilter</code>: <code>ProcFilter</code>可以结合<code>YARA</code>规则来阻止或者<code>log</code>进程的创建。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>这里我们总结了当目标的边界设施没有阻挡住<code>payload delivery</code>的时候，攻击者执行<code>payload</code>的常用手段，以及防守方如何阻止<code>payload</code>的执行。最后，基于<code>prevention</code>一定会被绕过的假设，我们还介绍了如何通过各种方法来记录进程的执行，便于<code>detection</code>和<code>incident response</code>。</p>
+<h2 id="参考文章">参考文章</h2>
+<p>[1] <a href="https://github.com/api0cradle/UltimateAppLockerByPassList">https://github.com/api0cradle/UltimateAppLockerByPassList</a></p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 16, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/purple-team-hindering-payload-delivery/" title="Purple Team: Hindering Payload Delivery">Purple Team: Hindering Payload Delivery</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
