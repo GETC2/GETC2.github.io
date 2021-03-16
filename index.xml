@@ -8,12 +8,12 @@
     <language>zh-cn</language>
     <lastBuildDate>Tue, 16 Mar 2021 08:32:41 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Purple Team Hindering Payload Delivery</title>
+      <title>Purple Team: Hindering Payload Delivery</title>
       <link>https://GETC2.github.io/post/purple-team-hindering-payload-delivery/</link>
       <pubDate>Tue, 16 Mar 2021 08:32:41 +0800</pubDate>
       
       <guid>https://GETC2.github.io/post/purple-team-hindering-payload-delivery/</guid>
-      <description>Purple Team: Hindering Payload Delivery 这里记录一下常见的payload delivery的方法以及针对这些方法的防御措施。 Delivery Mechanisms 常见的方法包括但不限于： U盘 Physical Access 邮件 水坑攻击 服务漏洞的利用（这里暂且不讨论此种方法） 下面分别针对这些方法和防御措施进行介绍。 U盘 我们可以通过邮寄，社会工程将带有</description>
+      <description>这里记录一下常见的payload delivery的方法以及针对这些方法的防御措施。 Delivery Mechanisms 常见的方法包括但不限于： U盘 Physical Access 邮件 水坑攻击 服务漏洞的利用（这里暂且不讨论此种方法） 下面分别针对这些方法和防御措施进行介绍。 1. U盘 我们可以通过邮寄，社会工程将带有payl</description>
     </item>
     
     <item>
