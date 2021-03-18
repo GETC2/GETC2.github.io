@@ -6,7 +6,16 @@
     <description>Recent content in Purple Team on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 16 Mar 2021 08:32:56 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/purple-team/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 18 Mar 2021 14:01:08 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/purple-team/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Purple Team: Detecting Persistence</title>
+      <link>https://GETC2.github.io/post/purple-team-detecing-persistence/</link>
+      <pubDate>Thu, 18 Mar 2021 14:01:08 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/purple-team-detecing-persistence/</guid>
+      <description>之前分别从红队和蓝队的视角介绍过如何处理deliver payload,payload execution，这里主要介绍如何处理权限维持，当然最主要的还是从蓝队的视角看如何detect。 实验 这里就直接在域内一台主机上运行有漏洞的应用icecast，如下图所示： 红队需要利用漏洞实现权限维持</description>
+    </item>
+    
     <item>
       <title>Purple Team: Preventing Payload Execution</title>
       <link>https://GETC2.github.io/post/purple-team-preventing-payload-execution/</link>

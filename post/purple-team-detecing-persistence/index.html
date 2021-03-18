@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Purple Team: Detecting Persistence</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 18, 2021
+     - 2 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/purple-team/">Purple Team </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Purple Team: Detecting Persistence 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <p>之前分别从红队和蓝队的视角介绍过如何处理<code>deliver payload,payload execution</code>，这里主要介绍如何处理权限维持，当然最主要的还是从蓝队的视角看如何<code>detect</code>。</p>
+<h2 id="实验">实验</h2>
+<p>这里就直接在域内一台主机上运行有漏洞的应用<code>icecast</code>，如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-12-25.png" alt=""></p>
+<p>红队需要利用漏洞实现权限维持；而蓝队需要发现权限维持。</p>
+<h2 id="红队攻击">红队攻击</h2>
+<p>首先是红队通过<code>metasploit</code>直接寻找与<code>icecast</code>有关的漏洞利用：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-14-23.png" alt=""></p>
+<p>然后直接设置相关选项，利用漏洞：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-23-08.png" alt=""></p>
+<p>然后直接使用注册表作为权限维持的手段：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-25-06.png" alt=""></p>
+<h2 id="蓝队">蓝队</h2>
+<h3 id="1-autoruns">1. Autoruns</h3>
+<p>为了检测权限维持留下的痕迹，我们可以使用<code>sysinternals</code>中的<code>Autoruns</code>，该工具可以显示<code>Windows</code>上所有用来自动执行代码的手段，比如<code>task, registry key, services, WMI...</code>。</p>
+<p>我们直接打开该工具：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-32-05.png" alt=""></p>
+<p>如上图所示，设定以下扫描选项：</p>
+<ol>
+<li>验证代码签名</li>
+<li>向<code>VirusTotal.com</code>验证</li>
+</ol>
+<p>扫描结果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-34-36.png" alt=""></p>
+<p>可以看到，其中有一个注册表的选项被标记为<code>Unkonwn</code>。这就是我们之前通过<code>metasploit</code>进行权限维持时设置的注册表选项。但是用于权限维持的脚本并没有被<code>VirusTotal.com</code>标记。</p>
+<p>看到可疑的注册表选项后，我们可以直接右击该选项，选择<code>Jump to Entry</code>，就会直接显示详细的注册表值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-40-38.png" alt=""></p>
+<h3 id="2-osquey">2. <code>OSQuey</code></h3>
+<p>作为另一个选项，我们还可以使用<code>OSQuery</code>来检测权限维持。<code>OSQuery</code>可以记录和查询各种事情，比如运行的进程，登录的用户，更换密码，<code>USB</code>设备等等。而查询语言类似于<code>SQL，比如下面的查询：</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> processes <span style="color:#66d9ef">WHERE</span> on_disk <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</code></pre></div><p>这里的查询语句主要是为了检测在硬盘上没有可执行文件的进程。</p>
+<p>为了检测权限维持，我们可以在如下的<code>Web</code>控制台构造查询：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-55-06.png" alt=""></p>
+<p>可以看到，有两台机器上运行着<code>OSQuery</code>的<code>agent</code>，我们的目标时<code>WINDOWS02</code>这台主机，直接点击该主机的数据库符号，然后构造查询：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-57-36.png" alt=""></p>
+<p>如图所示，该查询名为<code>Persistence</code>，且查询语句的意图很明显，和<code>Autoruns</code>类似，这里我们查询在主机启动时会自动执行的所有记录。我们直接点击<code>RUN</code>，结果如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-59-55.png" alt=""></p>
+<p>可以看到，在查询语句返回的记录的最后一条就是权限维持所对应的注册表选项。</p>
+<h2 id="总结">总结</h2>
+<p>作为红队，必须要知道蓝队如何进行<code>prevention, detection, threat hunting</code>。只有这样我们才能更好地影藏自己，模拟现实中的<code>APT</code>。</p>
+<p>这里我们主要介绍了蓝队可以通过哪些方法来检测常见的权限维持手段。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 18, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/purple-team-preventing-payload-execution/" title="Purple Team: Preventing Payload Execution">Purple Team: Preventing Payload Execution</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+

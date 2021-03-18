@@ -95,6 +95,32 @@
 
 <header>
   <p class="meta">Jan 28, 2021
+     - 1 minute read 
+    
+
+    
+  </p>
+  <h1 class="entry-title">
+    <a href="https://GETC2.github.io/post/sniff-ntlm/">Sniff Ntlm</a>
+  </h1>
+</header>
+
+        
+          <p>嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd</p>
+          
+            <footer>
+              <a href="https://GETC2.github.io/post/sniff-ntlm/" rel="full-article">Read On &rarr;</a>
+            </footer>
+          
+        
+      </article>
+      
+      <article>
+        
+        
+
+<header>
+  <p class="meta">Jan 28, 2021
      - 2 minute read 
     
 
@@ -318,32 +344,6 @@
           
             <footer>
               <a href="https://GETC2.github.io/post/metadata-threasure-hunt/" rel="full-article">Read On &rarr;</a>
-            </footer>
-          
-        
-      </article>
-      
-      <article>
-        
-        
-
-<header>
-  <p class="meta">Dec 30, 2020
-     - 3 minute read 
-    
-
-    
-  </p>
-  <h1 class="entry-title">
-    <a href="https://GETC2.github.io/post/egress-analysis/">Egress Analysis</a>
-  </h1>
-</header>
-
-        
-          <p>简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的</p>
-          
-            <footer>
-              <a href="https://GETC2.github.io/post/egress-analysis/" rel="full-article">Read On &rarr;</a>
             </footer>
           
         
