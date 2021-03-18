@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Purple Team: Detecting C2 Channel</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 18, 2021
+     - 4 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/purple-team/">Purple Team </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Purple Team: Detecting C2 Channel 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <p>相比于之前介绍的权限维持，<code>C2</code>很难被检测到。因为一般的<code>C2</code>可以通过<code>DNS, HTTP</code>等协议进行通信，而<code>DNS, HTTP</code>在一般环境中的流量很大。再加上<code>C2</code>的通信内容通常很隐蔽，比如将命令和执行结果隐写并借由社交媒体进行通信。</p>
+<p>在这里为了全面，还是介绍一下如何建立<code>C2</code>以及如何检测。</p>
+<h2 id="实验">实验</h2>
+<p>这里我们的实验环境为以下主机：</p>
+<ul>
+<li>域控制器</li>
+<li>防火墙（pfsense, suricata）</li>
+<li>Ubuntu (JA3,Bro,RITA)</li>
+<li>Kali (攻击者主机)</li>
+<li>Windows (工作站)</li>
+</ul>
+<p>其中我们直接在<code>Kali</code>和<code>Windows</code>工作站之间建立<code>C2</code>通道。主要通过<code>metasploit</code>和<code>Empire</code>这两个框架。</p>
+<h2 id="红队">红队</h2>
+<h3 id="empire">Empire</h3>
+<p>首先是通过<code>Empire</code>来建立通道。由于之前介绍过<code>Empire</code>的使用方法，这里不具体说明设置。</p>
+<p>第一步，设置<code>listener</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-02-56.png" alt=""></p>
+<p>这里只设置了端口和<code>Host</code>，其他按照默认设定。</p>
+<p>然后是生成<code>launcher</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-04-18.png" alt=""></p>
+<p>这里直接生成的是<code>powershell</code>脚本。在介绍<code>payload delivery</code>的时候说过，由于<code>ps1</code>脚本默认无法双击执行，所以一般需要用<code>vbs, js, hta, vba</code>等脚本来间接执行<code>powershell</code>，但是这里我们直接将生成的<code>payload</code>在目标工作站执行，所以就直接生成<code>powershell</code>了。</p>
+<p>然后直接在目标工作站执行该脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-07-36.png" alt=""></p>
+<p>其实在执行脚本之前，需要关闭 <code>Virus&amp;Threat Protection</code>，不然会由于<code>AMSI</code>无法执行。</p>
+<p>通道建立完成后，随便执行一些命令，生成流量：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-12-23.png" alt=""></p>
+<h3 id="metasploit">Metasploit</h3>
+<p>接着是通过<code>Metasploit</code>来建立通道：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-16-11.png" alt=""></p>
+<p>和之前的<code>Empire</code>同样，为了方便，我们直接在工作站执行匹配该<code>handler</code>的<code>payload</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-18-47.png" alt=""></p>
+<p>直接下载<code>Kali</code>机器上的<code>payload</code>并执行，然后建立通道：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-20-25.png" alt=""></p>
+<p>然后随便执行一些命令，生成流量：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-21-26.png" alt=""></p>
+<h2 id="蓝队">蓝队</h2>
+<p>作为蓝队，我们可以在防火墙的<code>suricata</code>上抓包，以供其他工具分析：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-27-20.png" alt=""></p>
+<p>如上图所示，我们登录防火墙<code>pfsense</code>的<code>Web</code>控制台，然后到<code>Diagnostics/Packet Capture</code>下面命令<code>suricata</code>抓包：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-27-31.png" alt=""></p>
+<p>我们针对<code>Metasploit</code>和<code>Empire</code>建立的通道错开时间分别抓包，下载之后并分别命名为<code>empire.cap,meterpreter.cap</code>。</p>
+<p>在红队建立上述两个通道并执行命令之后，我们就可以开始检测通道了。</p>
+<p>首先是看<code>suricata</code>有没有生成关于<code>C2</code>通道的<code>alert</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-30-43.png" alt=""></p>
+<p>在这上面并没有关于<code>C2</code>通道的规则被触发。</p>
+<p>然后我们利用其他工具来分析<code>suricata</code>抓到的包，看看能否探测到通道的痕迹。</p>
+<h3 id="ja3">JA3</h3>
+<p>第一个工具是<code>JA3</code>。<code>JA3</code>对握手时的<code>SSL</code>的客户端或者服务端<code>fingerprint</code>。具体来讲，<code>JA3</code>会记录握手时协议中的某些域的值，将这些值组成字符串然后进行哈希。然后将这些哈希和已知的正常客户端或者服务端的哈希进行比较，如果不匹配的话，就说明需要进一步调查。</p>
+<p>这里我们利用<code>JA3</code>分别对<code>empire.cap, meterpreter.cap</code> 进行分析：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-42-26.png" alt=""></p>
+<p>如上图所示，第一个红框代表的是服务端的<code>ip</code>，第二个红框代表的是截取的握手协议的某些域的值，第三个红框代表的是对这些值的哈希。</p>
+<p>在针对<code>empire.cap</code>所分析的结果中并没有出现目标工作站或者攻击者主机的<code>ip</code>。这是由于<code>payload</code>与<code>listener</code>通信时并没有使用<code>https</code>。</p>
+<p>同样的，我们针对<code>meterpreter.cap</code>分析结果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-47-11.png" alt=""></p>
+<p>可以发现，出现了关于攻击者主机的结果。我们在<code>JA3</code>自带的哈希数据库中匹配这些哈希：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-49-17.png" alt=""></p>
+<p>可以发现，正常客户端或者服务端的哈希数据库没有与只匹配的。</p>
+<p>我们直接搜索这些哈希，可以发现这与<code>meterpreter</code>与<code>handler</code>握手时的哈希一致：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-51-35.png" alt=""></p>
+<h3 id="rita">RITA</h3>
+<p><code>Real Intelligence Threat Analytics (RITA)</code>是一个专门分析网络流量的框架。这个框架的输入是<code>Bro</code>生成的<code>log</code>，然后可以根据这些<code>log</code>来进一步分析：</p>
+<ul>
+<li>寻找<code>beaconing</code>的痕迹</li>
+<li>寻找基于<code>DNS</code>的通道</li>
+<li>寻找可疑的<code>URL</code></li>
+</ul>
+<p>下面我们就用<code>RITA</code>来分析之前的两个抓包。首先需要用<code>Bro</code>生成<code>log</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-57-31.png" alt=""></p>
+<p>从上图可以看见，<code>Bro</code>主要是从抓包中生成了各种<code>log</code>，比如<code>dns.log, http.log, conn.log</code>。</p>
+<p>之后导入<code>Bro</code>生成的<code>log</code> :</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_20-58-40.png" alt=""></p>
+<p>最后利用<code>RITA</code>分析：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_21-02-19.png" alt=""></p>
+<p><code>RITA</code>分析后会生成<code>html</code>文件，我们打开这个文件查看分析结果：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_21-04-03.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_21-04-15.png" alt=""></p>
+<p>可以看到，<code>RITA</code>生成了关于<code>Beacon, Long URLs, User Agents</code>的各种报告。</p>
+<p>其中关于<code>Long URLs</code>的结果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_21-06-48.png" alt=""></p>
+<p>可以看到，与<code>empire</code>设置的<code>listener</code>有关的<code>URL</code>点击数很多；</p>
+<p>而关于<code>Beacon</code>的结果却什么都没有：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_21-06-14.png" alt=""></p>
+<p>这可能是因为我们的通道连接时间太短了，如果时间更长一些的话，<code>RITA</code>应该可以发现。但是如果<code>Empire</code>设定了了<code>jitter</code>的话，应该也没那么容易检测到。</p>
+<h2 id="总结">总结</h2>
+<p>这里主要介绍了防守方是如何检测<code>C2</code>通道的。相比于之前介绍的权限维持的检测，这个更加困难，因为攻击者可以有各种方法将命令和执行结果融入正常流量中。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 18, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/purple-team-detecing-persistence/" title="Purple Team: Detecting Persistence">Purple Team: Detecting Persistence</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+

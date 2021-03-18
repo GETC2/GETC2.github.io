@@ -136,18 +136,18 @@
 <p>看到可疑的注册表选项后，我们可以直接右击该选项，选择<code>Jump to Entry</code>，就会直接显示详细的注册表值：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-40-38.png" alt=""></p>
 <h3 id="2-osquey">2. <code>OSQuey</code></h3>
-<p>作为另一个选项，我们还可以使用<code>OSQuery</code>来检测权限维持。<code>OSQuery</code>可以记录和查询各种事情，比如运行的进程，登录的用户，更换密码，<code>USB</code>设备等等。而查询语言类似于<code>SQL，比如下面的查询：</code></p>
+<p>作为另一个选项，我们还可以使用<code>OSQuery</code>来检测权限维持。<code>OSQuery</code>可以记录和查询各种事情，比如运行的进程，登录的用户，更换密码，<code>USB</code>设备等等。而查询语言类似于<code>SQL</code>，比如下面的查询：</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> processes <span style="color:#66d9ef">WHERE</span> on_disk <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
 </code></pre></div><p>这里的查询语句主要是为了检测在硬盘上没有可执行文件的进程。</p>
 <p>为了检测权限维持，我们可以在如下的<code>Web</code>控制台构造查询：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-55-06.png" alt=""></p>
-<p>可以看到，有两台机器上运行着<code>OSQuery</code>的<code>agent</code>，我们的目标时<code>WINDOWS02</code>这台主机，直接点击该主机的数据库符号，然后构造查询：</p>
+<p>可以看到，有两台机器上运行着<code>OSQuery</code>的<code>agent</code>，我们的目标是<code>WINDOWS02</code>这台主机，直接点击该主机的数据库符号，然后构造查询：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-57-36.png" alt=""></p>
 <p>如图所示，该查询名为<code>Persistence</code>，且查询语句的意图很明显，和<code>Autoruns</code>类似，这里我们查询在主机启动时会自动执行的所有记录。我们直接点击<code>RUN</code>，结果如下所示：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-18_14-59-55.png" alt=""></p>
 <p>可以看到，在查询语句返回的记录的最后一条就是权限维持所对应的注册表选项。</p>
 <h2 id="总结">总结</h2>
-<p>作为红队，必须要知道蓝队如何进行<code>prevention, detection, threat hunting</code>。只有这样我们才能更好地影藏自己，模拟现实中的<code>APT</code>。</p>
+<p>作为红队，必须要知道蓝队如何进行<code>prevention, detection, threat hunting</code>。只有这样我们才能更好地隐藏自己，模拟现实中的<code>APT</code>。</p>
 <p>这里我们主要介绍了蓝队可以通过哪些方法来检测常见的权限维持手段。</p>
 
         </div>
@@ -169,6 +169,8 @@
         <a class="basic-alignment left" href="https://GETC2.github.io/post/purple-team-preventing-payload-execution/" title="Purple Team: Preventing Payload Execution">Purple Team: Preventing Payload Execution</a>
     
 
+    
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/purple-team-detecting-c2-channel/" title="Purple Team: Detecting C2 Channel">Purple Team: Detecting C2 Channel</a>
     
   </p>
   
