@@ -6,7 +6,16 @@
     <description>Recent content in Purple Team on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Thu, 18 Mar 2021 15:07:25 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/purple-team/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 20 Mar 2021 15:04:12 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/purple-team/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Purple Team: Lateral Movement</title>
+      <link>https://GETC2.github.io/post/purple-team-lateral-movement/</link>
+      <pubDate>Sat, 20 Mar 2021 15:04:12 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/purple-team-lateral-movement/</guid>
+      <description>接着之前介绍的权限维持和C2通道的建立，这里介绍一下横向移动的步骤和蓝队方的措施。 红队 首先是大概的步骤： 权限提升 dump credentials 横向移动 接下来依次介绍各个步骤的具体细节。 权限提升 其实如果初始payload所在的进程在本地就有管理员权限的话，就没有必要进行下面的权限提升</description>
+    </item>
+    
     <item>
       <title>Purple Team: Detecting C2 Channel</title>
       <link>https://GETC2.github.io/post/purple-team-detecting-c2-channel/</link>

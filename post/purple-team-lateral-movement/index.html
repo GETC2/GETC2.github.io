@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Purple Team: Lateral Movement</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 20, 2021
+     - 5 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/purple-team/">Purple Team </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Purple Team: Lateral Movement 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <p>接着之前介绍的权限维持和<code>C2</code>通道的建立，这里介绍一下横向移动的步骤和蓝队方的措施。</p>
+<h2 id="红队">红队</h2>
+<p>首先是大概的步骤：</p>
+<ul>
+<li>权限提升</li>
+<li><code>dump credentials</code></li>
+<li>横向移动</li>
+</ul>
+<p>接下来依次介绍各个步骤的具体细节。</p>
+<h3 id="权限提升">权限提升</h3>
+<p>其实如果初始<code>payload</code>所在的进程在本地就有管理员权限的话，就没有必要进行下面的权限提升了，有可能需要进行<code>UAC Bypass</code>。</p>
+<p>而如果运行<code>payload</code>的进程不是管理员的话，我们可以尝试一下方法：</p>
+<ul>
+<li><code>DLL search order hijacking</code></li>
+<li><code>Unquoted paths with spaces</code></li>
+<li><code>Unattended install files</code></li>
+<li><code>Group Policy Preferences</code></li>
+<li><code>Writable Windows Service executables</code></li>
+<li>&hellip;</li>
+</ul>
+<p>这些都是很常见的权限提升方法。需要注意的是，这些方法利用的都是配置漏洞，我们可以利用<code>Powerup, BeRoot</code>等工具来寻找这些漏洞。与之对应的是，蓝队也可以使用这些工具来发现修补漏洞。这种情况下，可能就无法利用这些手段进行权限提升了。</p>
+<h3 id="dump-credentials"><code>Dump Credentials</code></h3>
+<p>这里总结一下在一台<code>Windows</code>主机上，可以利用的<code>credentials</code>有哪些。</p>
+<table>
+<thead>
+<tr>
+<th>工具/手段</th>
+<th>本地/域凭据</th>
+<th>前提要求</th>
+<th>凭据格式</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>从<code>SAM</code>获取凭据</td>
+<td>本地</td>
+<td>管理员</td>
+<td>NT 哈希</td>
+<td>破解哈希/PTH</td>
+</tr>
+<tr>
+<td>获取<code>Access Tokens</code></td>
+<td>本地/域</td>
+<td>管理员</td>
+<td><code>Token</code></td>
+<td><code>impersonate</code></td>
+</tr>
+<tr>
+<td>获取缓存的凭据</td>
+<td>域</td>
+<td>管理员</td>
+<td><code>DCC</code></td>
+<td>破解</td>
+</tr>
+<tr>
+<td>从内存获取凭据，票据</td>
+<td>本地/域</td>
+<td>管理员</td>
+<td>明文，NT哈希，票据</td>
+<td>PTH/PTT/Over-PTH</td>
+</tr>
+</tbody>
+</table>
+<p>以上就是常见的从当前主机获取各种凭据的方法。这些方法有以下几个点需要注意：</p>
+<ul>
+<li>对于从<code>SAM</code>获取的凭据，如果目标没有在多个主机上使用相同的管理员密码，那么此时<code>PTH</code>是不起作用的；而破解哈希在已经获得管理员的情况下也显得多此一举。</li>
+<li>如果要通过<code>impersonate Access Token</code>来横向移动，这里的<code>Access Token</code>对应的<code>logon session</code>需要有缓存的<code>NT</code>哈希或者票据，不然无法通过<code>SSO</code>横向移动。典型的比如<code>Network Logon Session</code>，此时就无法靠<code>Access Token</code>横向移动。具体的原理可以看<code>2020 Black Hat</code>的这个演示 [1]。</li>
+<li>获取<code>DCC</code>格式的缓存凭据之后需要破解才能利用，但是实际破解比较困难。</li>
+<li>最后从内存获取凭据和票据之后，可以借用<code>Mimikatz</code>来<code>PTH/PTT</code>/Over-PTH。这里具体的原理还是请看上面那一个演示 [1]。</li>
+</ul>
+<p>当然除了以上比较直接的方法，还可以攻击<code>Kerberos</code>协议，具体的方法就是传统的以下几种：</p>
+<ul>
+<li><code>Kerberoasting</code></li>
+<li><code>Over-PTH</code></li>
+</ul>
+<p>其中<code>kerberos</code>协议和<code>kerberoasting</code>的具体原理这里就不展开了，其实还是比较简单的。而<code>Over-PTH</code>的原理和<code>PTH/PTT</code>原理是一样的，都是通过将<code>lsass</code>进程中的哈希，票据，<code>kerberos</code>加密<code>key</code> <code>dump</code>出来后，覆盖掉与当前进程<code>Access Token</code>相关的<code>logon session</code>中的哈希，票据，<code>key</code>，然后借由<code>SSO</code>横向移动。（然而实际中，<code>Mimikatz</code>的做法是<code>spawn</code>新的进程(默认为<code>cmd.exe</code>)，将这些东西写入到新的进程中取）[1]。</p>
+<p>以上就是横向移动中大概需要的步骤和技巧。下面来看以下作为蓝队如何阻止和检测到横向移动。</p>
+<h2 id="蓝队">蓝队</h2>
+<h3 id="阻止横向移动">阻止横向移动</h3>
+<p>关于如何阻止横向移动其实有很多方法。</p>
+<ol>
+<li>保证<code>least privilege</code>：依据<code>role-based</code>的原则，限制域账号的权限。除个别管理账号外，防止域账号可以登录多个工作站，服务器甚至域控制器。另外通过<code>Domain Admins</code>管理的时候，通过专门的<code>jump box</code>登录，和日常使用账号的工作站分开。</li>
+<li>通过<code>Domain Protected Users</code>管理管理员账号：禁止<code>lsass</code>进程在内存中保存账号明文，<code>kerberos</code>加密<code>key</code>；禁止本地缓存域凭据；禁止使用<code>NTLM</code>认证。</li>
+<li>针对<code>lsass</code>开启<code>Protected Processes</code>：防止<code>Mimikatz</code> <code>dump</code>内存中的哈希和票据。但由于这个设置是通过内核实现的，<code>Mimikatz</code>可以通过加载驱动关掉这个设置。</li>
+<li>针对<code>lsass</code>开启<code>Credential Guard</code>：通过硬件，将<code>LsaIso</code>进程隔离在虚拟环境中，其中哈希和票据都保存在这个进程的内存中；而正常的<code>lsass</code>进程中只有加密过的哈希和票据，<code>lsass</code>通过<code>rpc</code>和<code>LsaIso</code>通信。</li>
+<li>开启<code>Remote Credential Guard</code>：在与<code>RDP</code>服务器通信时，客户端的<code>TGT</code>不保留在服务端，防止服务端被<code>compromise</code>。</li>
+</ol>
+<h3 id="检测横向移动">检测横向移动</h3>
+<p>由于横向移动最主要的还是发生在末端，一般并不会和横向移动的目标主机以外的机器产生流量，所以主要还是依靠末端的<code>log</code>来检测。</p>
+<p>比如依靠<code>Windows</code>内置的<code>log</code>：我们可以通过进程创建时生成的<code>Event ID 4688</code>来检测，当此<code>log</code>中的命令行参数出现了<code>Mimikatz</code>的参数时，我们就可以检测到横向移动。当然作为攻击方也可以修改工具，此时这种简单的检测手段 就不起作用了。</p>
+<p>我们还可以检测和以下活动相关的<code>Event</code>：</p>
+<ul>
+<li><code>Pass the hash (PTH)</code></li>
+<li><code>Over pass the hash (Over-PTH)</code></li>
+<li><code>Kerberos RC4 encryption</code></li>
+<li>&hellip;</li>
+</ul>
+<p>具体的来说，当攻击方实施了<code>Over-PTH</code>后，会产生<code>Event ID 4624</code>，且该<code>Event</code>带有下列属性：</p>
+<ul>
+<li><code>LogonType: 9</code></li>
+<li><code>LogonProcessName: seclogo</code></li>
+<li><code>AuthenticationPackageName: Negotiate</code></li>
+</ul>
+<p>又或者当攻击者向<code>KDC</code>请求加密类型为<code>RC4</code>的服务票据时，会产生<code>Event ID 4769</code>，且具体有以下属性：</p>
+<ul>
+<li><code>TicketOptions: '0x40810000'</code></li>
+<li><code>TicketEncryptionType: '0x17'</code></li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>以上就是在横向移动阶段，红队和蓝队分别如何攻击和检测的手段。</p>
+<h2 id="参考文章">参考文章</h2>
+<p>[1] <a href="https://www.youtube.com/watch?v=RMVyYvt0bLY&amp;t=1275s">https://www.youtube.com/watch?v=RMVyYvt0bLY&amp;t=1275s</a></p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 20, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/purple-team-detecting-c2-channel/" title="Purple Team: Detecting C2 Channel">Purple Team: Detecting C2 Channel</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
