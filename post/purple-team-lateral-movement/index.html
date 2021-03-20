@@ -177,7 +177,7 @@
 <li>对于从<code>SAM</code>获取的凭据，如果目标没有在多个主机上使用相同的管理员密码，那么此时<code>PTH</code>是不起作用的；而破解哈希在已经获得管理员的情况下也显得多此一举。</li>
 <li>如果要通过<code>impersonate Access Token</code>来横向移动，这里的<code>Access Token</code>对应的<code>logon session</code>需要有缓存的<code>NT</code>哈希或者票据，不然无法通过<code>SSO</code>横向移动。典型的比如<code>Network Logon Session</code>，此时就无法靠<code>Access Token</code>横向移动。具体的原理可以看<code>2020 Black Hat</code>的这个演示 [1]。</li>
 <li>获取<code>DCC</code>格式的缓存凭据之后需要破解才能利用，但是实际破解比较困难。</li>
-<li>最后从内存获取凭据和票据之后，可以借用<code>Mimikatz</code>来<code>PTH/PTT</code>/Over-PTH。这里具体的原理还是请看上面那一个演示 [1]。</li>
+<li>最后从内存获取凭据和票据之后，可以借用<code>Mimikatz</code>来<code>PTH/PTT/Over-PTH</code>。这里具体的原理还是请看上面那一个演示 [1]。</li>
 </ul>
 <p>当然除了以上比较直接的方法，还可以攻击<code>Kerberos</code>协议，具体的方法就是传统的以下几种：</p>
 <ul>
