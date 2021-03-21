@@ -90,7 +90,7 @@
 
 <header>
   <p class="meta">Mar 20, 2021
-     - 5 minute read 
+     - 6 minute read 
     
 
     
@@ -217,6 +217,127 @@
 <li><code>TicketOptions: '0x40810000'</code></li>
 <li><code>TicketEncryptionType: '0x17'</code></li>
 </ul>
+<p>当然我们还可以使用<code>honeypot</code>或者<code>canary</code>来诱使攻击方进行横向移动，生成相关的<code>Event</code>并时刻监测。下面就用实验来具体说明。</p>
+<h3 id="实验">实验</h3>
+<p>实验环境是域环境，包括域控制器和一台主机，另外还有运行<code>ELK</code>的<code>Ubuntu</code>。</p>
+<h4 id="1-创建用户canary">1. 创建用户(<code>canary</code>)</h4>
+<p>首先登陆域控制器创建用户：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-06-35.png" alt=""></p>
+<p>然后设置密码，这里为了方便随便设置的密码，一般来说需要设置强度很大的密码：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-08-22.png" alt=""></p>
+<p>然后将该用户加入到<code>Domain Admins</code>中：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-11-15.png" alt=""></p>
+<p>接着我们使用这个用户在主机上生成<code>logon Session</code>，当然<code>lsass</code>中缓存的哈希是不正确的。这里我们使用现成的<code>powershell</code>脚本：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"><span style="color:#66d9ef">function</span> New-HoneyHash {
+<span style="color:#75715e">&lt;#
+</span><span style="color:#75715e"></span><span style="color:#e6db74">.SYNOPSIS</span><span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Inject artificial credentials into LSASS. Inspired by Mark Baggett&#39;s article:
+</span><span style="color:#75715e">https://isc.sans.edu/diary/Detecting+Mimikatz+Use+On+Your+Network/19311/
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Author: Matthew Graeber (@mattifestation)
+</span><span style="color:#75715e">License: BSD 3-Clause
+</span><span style="color:#75715e">Required Dependencies: None
+</span><span style="color:#75715e">Optional Dependencies: None
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#e6db74">.DESCRIPTION</span><span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">New-HoneyHash is a simple wrapper for advapi32!CreateProcessWithLogonW
+</span><span style="color:#75715e">that specifies the LOGON_NETCREDENTIALS_ONLY flag. New-HoneyHash will
+</span><span style="color:#75715e">prompt you for a password. Enter a fake password at the password prompt.
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#e6db74">.PARAMETER</span><span style="color:#75715e"> Domain
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Specifies the fake domain.
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#e6db74">.PARAMETER</span><span style="color:#75715e"> Username
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Specifies the fake user name.
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#e6db74">.PARAMETER</span><span style="color:#75715e"> Password
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">Specified the fake password.
+</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span><span style="color:#e6db74">.EXAMPLE</span><span style="color:#75715e">
+</span><span style="color:#75715e">
+</span><span style="color:#75715e">New-HoneyHash -Domain linux.org -Username root
+</span><span style="color:#75715e">#&gt;</span>
+    [<span style="color:#66d9ef">CmdletBinding</span>()]
+    <span style="color:#66d9ef">Param</span> (
+        [<span style="color:#66d9ef">Parameter</span>(<span style="color:#66d9ef">Mandatory</span> = $True, <span style="color:#66d9ef">Position</span> = 0)]
+        [ValidateNotNullOrEmpty()]
+        <span style="color:#66d9ef">[String]</span>
+        $Domain,
+
+        [<span style="color:#66d9ef">Parameter</span>(<span style="color:#66d9ef">Mandatory</span> = $True, <span style="color:#66d9ef">Position</span> = 1)]
+        [ValidateNotNullOrEmpty()]
+        <span style="color:#66d9ef">[String]</span>
+        $Username,
+
+        [<span style="color:#66d9ef">Parameter</span>(<span style="color:#66d9ef">Mandatory</span> = $True, <span style="color:#66d9ef">Position</span> = 1)]
+        [ValidateNotNullOrEmpty()]
+        <span style="color:#66d9ef">[String]</span>
+        $Password
+    )
+
+    $PSPassword = $Password | ConvertTo-SecureString -asPlainText -Force
+
+    $SystemModule = <span style="color:#66d9ef">[Microsoft.Win32.IntranetZoneCredentialPolicy]</span>.Module
+    $NativeMethods = $SystemModule.GetType(<span style="color:#e6db74">&#39;Microsoft.Win32.NativeMethods&#39;</span>)
+    $SafeNativeMethods = $SystemModule.GetType(<span style="color:#e6db74">&#39;Microsoft.Win32.SafeNativeMethods&#39;</span>)
+    $CreateProcessWithLogonW = $NativeMethods.GetMethod(<span style="color:#e6db74">&#39;CreateProcessWithLogonW&#39;</span>, <span style="color:#66d9ef">[Reflection.BindingFlags]</span> <span style="color:#e6db74">&#39;NonPublic, Static&#39;</span>)
+    $LogonFlags = $NativeMethods.GetNestedType(<span style="color:#e6db74">&#39;LogonFlags&#39;</span>, <span style="color:#66d9ef">[Reflection.BindingFlags]</span> <span style="color:#e6db74">&#39;NonPublic&#39;</span>)
+    $StartupInfo = $NativeMethods.GetNestedType(<span style="color:#e6db74">&#39;STARTUPINFO&#39;</span>, <span style="color:#66d9ef">[Reflection.BindingFlags]</span> <span style="color:#e6db74">&#39;NonPublic&#39;</span>)
+    $ProcessInformation = $SafeNativeMethods.GetNestedType(<span style="color:#e6db74">&#39;PROCESS_INFORMATION&#39;</span>, <span style="color:#66d9ef">[Reflection.BindingFlags]</span> <span style="color:#e6db74">&#39;NonPublic&#39;</span>)
+
+    $Flags = <span style="color:#66d9ef">[Activator]</span>::CreateInstance($LogonFlags)
+    $Flags.value__ = 2 <span style="color:#75715e"># LOGON_NETCREDENTIALS_ONLY </span>
+    $StartInfo = <span style="color:#66d9ef">[Activator]</span>::CreateInstance($StartupInfo)
+    $ProcInfo = <span style="color:#66d9ef">[Activator]</span>::CreateInstance($ProcessInformation)
+
+    $Credential = New-Object System.Management.Automation.PSCredential(<span style="color:#e6db74">&#34;</span>$($Domain)<span style="color:#e6db74">\</span>$($UserName)<span style="color:#e6db74">&#34;</span>,$PSPassword)
+
+    $PasswordPtr = <span style="color:#66d9ef">[System.Runtime.InteropServices.Marshal]</span>::SecureStringToCoTaskMemUnicode($Credential.Password)
+    $StrBuilder = New-Object System.Text.StringBuilder
+    $null = $StrBuilder.Append(<span style="color:#e6db74">&#39;cmd.exe&#39;</span>)
+
+    $Result = $CreateProcessWithLogonW.Invoke($null, @(<span style="color:#66d9ef">[String]</span> $UserName,
+                                             <span style="color:#66d9ef">[String]</span> $Domain,
+                                             <span style="color:#66d9ef">[IntPtr]</span> $PasswordPtr,
+                                             ($Flags <span style="color:#f92672">-as</span> $LogonFlags),     <span style="color:#75715e"># LOGON_NETCREDENTIALS_ONLY </span>
+                                             $null,
+                                             <span style="color:#66d9ef">[Text.StringBuilder]</span> $StrBuilder,
+                                             0x08000000, <span style="color:#75715e"># Don&#39;t display a window</span>
+                                             $null,
+                                             $null,
+                                             $StartInfo,
+                                             $ProcInfo))
+
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">-not</span> $Result) {
+        <span style="color:#66d9ef">throw</span> <span style="color:#e6db74">&#39;Unable to create process as user.&#39;</span>
+    }
+
+    <span style="color:#66d9ef">if</span> ($ProcInfo.dwProcessId) {
+        <span style="color:#75715e"># Kill the cmd.exe process</span>
+        <span style="color:#75715e"># Stop-Process -Id $ProcInfo.dwProcessId</span>
+    }
+
+    <span style="color:#e6db74">&#39;&#34;Honey hash&#34; injected into LSASS successfully! Use Mimikatz to confirm.&#39;</span>
+}
+</code></pre></div><p>这里的脚本主要使用以下函数生成了<code>logon Session</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">CreateProcessWithLogonW
+</code></pre></div><p>其中调用该函数的一个<code>flag</code>是<code>LOGON_NETCREDENTIALS_ONLY</code>。这样调用函数后会复制当前进程的<code>Access Token</code>，并指向新的<code>logon Session</code>，其中该<code>logon Session</code>对应的缓存凭据可以随便指定而不用受到验证。这是因为通过<code>LOGON_NETCREDENTIALS_ONLY</code>这个参数，我们指定了该缓存凭据只有在请求<code>Network Resources</code>的时候才会验证该凭据。<code>Mimikatz</code>中<code>PTH</code>也是使用的该函数。具体的原理还是请看 [1]。</p>
+<p>我们直接调用其中的函数：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-25-03.png" alt=""></p>
+<p>最后用<code>Mimikatz</code>验证以下并进行横向移动：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-28-25.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-29-07.png" alt=""></p>
+<p>可以发现，<code>lsass</code>内存中的确有刚才生成的缓存凭据。</p>
+<p>让我们直接用该明文密码登录域控制器：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-33-05.png" alt=""></p>
+<p>当然，由于密码是错误的，肯定无法登录。接着我们用<code>Kibana</code>来过滤于该账号有关的<code>Event</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-21_08-43-14.png" alt=""></p>
+<p>我们可以在<code>Kibana Windows Event logs</code>中创建关于该账号的<code>filter</code>，然后专门监视有没有<code>Event</code>出现。如果有，就说明可能有入侵者在进行横向移动。</p>
 <h2 id="总结">总结</h2>
 <p>以上就是在横向移动阶段，红队和蓝队分别如何攻击和检测的手段。</p>
 <h2 id="参考文章">参考文章</h2>
