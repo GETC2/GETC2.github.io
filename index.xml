@@ -6,7 +6,16 @@
     <description>Recent content on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 20 Mar 2021 15:04:12 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 22 Mar 2021 10:33:59 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Purple Team: Domain Persistence</title>
+      <link>https://GETC2.github.io/post/purple-team-domain-persistence/</link>
+      <pubDate>Mon, 22 Mar 2021 10:33:59 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/purple-team-domain-persistence/</guid>
+      <description>之前介绍过横向移动，如果发现了具有域管理员权限的机器，并且能通过之前介绍的各种方法获取Access Token,NT hash, kerberos key，那么就可以获取域管理员权限。在这之后，我们可以通过以下方法达到Domain Persistence： NTDS.dit 创建域管理员账号 金票 Skeleton key DCSync或者DC</description>
+    </item>
+    
     <item>
       <title>Purple Team: Lateral Movement</title>
       <link>https://GETC2.github.io/post/purple-team-lateral-movement/</link>

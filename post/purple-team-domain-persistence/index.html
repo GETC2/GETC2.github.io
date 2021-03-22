@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  
+  <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+
+  
+    
+    
+      <link href="/css/fonts.css" rel="stylesheet" type="text/css">
+    
+  
+
+  
+  <title>Purple Team: Domain Persistence</title>
+
+  
+  
+  <link rel="stylesheet" href="/css/hugo-octopress.css">
+
+  
+  
+
+  
+    <link rel="stylesheet" href="/css/fork-awesome.min.css">
+  
+
+  
+  <link href="https://GETC2.github.io/favicon.png" rel="icon">
+
+  
+  
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="">
+  <meta name="author" content="KUHAKU">
+
+  
+  <meta name="generator" content="Hugo 0.78.0" />
+
+  
+  
+
+  
+  
+</head>
+<body>
+
+
+<header role="banner">
+<hgroup>
+  
+  <h1><a href="https://GETC2.github.io/">GET command and control</a></h1>
+    <h2>Stay hungry. Stay foolish.</h2>
+</hgroup></header>
+
+
+<nav role="navigation">
+<fieldset class="mobile-nav">
+  
+  <select onchange="location = this.value;">
+    <option value="">Navigate…</option>
+      
+  </select>
+</fieldset>
+
+
+<ul class="main-navigation">
+  
+  
+</ul>
+
+<ul class="subscription">
+  
+</ul>
+
+
+</nav>
+
+
+<div id="main">
+  <div id="content">
+    <div>
+      <article class="hentry" role="article">
+
+        
+        
+
+<header>
+  <p class="meta">Mar 22, 2021
+     - 6 minute read 
+    
+
+    
+    
+      - <a class="label" href="https://GETC2.github.io/categories/purple-team/">Purple Team </a>
+    
+  </p>
+  <h1 class="entry-title">
+     Purple Team: Domain Persistence 
+  </h1>
+</header>
+
+
+        <div class="entry-content">
+          
+          
+          
+          <p>之前介绍过横向移动，如果发现了具有域管理员权限的机器，并且能通过之前介绍的各种方法获取<code>Access Token,NT hash, kerberos key</code>，那么就可以获取域管理员权限。在这之后，我们可以通过以下方法达到<code>Domain Persistence</code>：</p>
+<ul>
+<li><code>NTDS.dit</code></li>
+<li>创建域管理员账号</li>
+<li>金票</li>
+<li><code>Skeleton key</code></li>
+<li><code>DCSync</code>或者<code>DCShadow</code></li>
+</ul>
+<p>其中第一和第二个方法比较直观，这里直接从红队和蓝队的角度介绍下面三个方法。</p>
+<h2 id="实验">实验</h2>
+<p>以下是实验机器：</p>
+<ul>
+<li>域控制器</li>
+<li>防火墙 (pfsense)</li>
+<li><code>Ubuntu (ELK)</code></li>
+<li><code>Windows</code>主机</li>
+<li><code>kali</code></li>
+</ul>
+<h3 id="1-skeleton-key">1. Skeleton key</h3>
+<p>该方法的原理就是通过<code>patch</code>域控制器的内存，使得域控制器在对每个用户进行认证时，除了尝试原本的正确密码，还可以尝试另外一个通用的密码。需要注意的是，该方法还需要将票据的加密方法<code>downgrade</code>到<code>RC4</code>，因为此时的加密<code>key</code>都是用户密码的<code>NT hash</code>；而<code>AES</code>加密<code>key</code>的输入是<code>NT hash</code>和<code>salt</code>；现存的工具，比如<code>Mimikatz</code>对域控制器的<code>patch</code>无法分别为每一个用户指定加密<code>key</code>。另外，如果要实现域管理员权限维持的话，还需要在域控制器重新启动时重新对内存<code>patch</code>。</p>
+<p>以上就是基本原理和需要注意的点，下面就直接登陆域控制器对内存进行<code>patch</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_14-12-44.png" alt=""></p>
+<p><code>Mimikatz</code>设定的默认密码是<code>mimikatz</code>，我们直接在加入域的主机上用该密码登录：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_14-33-25.png" alt=""></p>
+<p>然后登陆成功。</p>
+<p>下面我们从蓝队的角度来考虑如何检测<code>skeleton key</code>。由于<code>Mimikatz</code>会让票据使用<code>RC4</code>加密，而除了<code>legacy</code>设备不支持<code>AES</code>加密外，一般的设备都会默认使用最强的加密算法，即<code>AES</code>。我们可以监视使用<code>RC4</code>加密的<code>Windows Event log</code>。这里直接通过<code>Kibana</code>来过滤寻找此类<code>log</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_14-41-05.png" alt=""></p>
+<p>如图所示，我们直接在<code>Kibana</code>的<code>Web</code>界面中点击<code>Windows Event logs</code>，其中有一项可视化是专门关于<code>kerberos</code>认证的<code>Ticket Encryption Type</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_14-42-53.png" alt=""></p>
+<p>其中0x17代表<code>RC4</code>加密，我们可以过滤该类型的<code>log</code>，然后查看<code>log</code>的具体细节。其中可以发现，进行认证的正是我们刚才登录的用户<code>alan.marshall</code>。</p>
+<h2 id="2-golden-ticket">2. Golden Ticket</h2>
+<p>相比于<code>Skeleton Key</code>，<code>Golden Ticket</code>即金票很难被检测到，因为<code>kerberos</code>是一个无状态的协议：<code>KDC</code>无法知道客户端提交的<code>TGT</code>是否是<code>KDC</code>之前生成的票据。</p>
+<p>具体的实现方法还是和<code>Silver Ticket</code>相似，只要获得域管理员权限后，我们就可以<code>dump</code>域控制器的<code>lsass</code>进程的内存，然后获得<code>krbtgt</code>服务账号的<code>NT hash</code>或者<code>AES key</code>，最后就可以生成任意账户的<code>TGT</code>了。</p>
+<p>在这里我们演示如何利用<code>NT hash</code>，即用<code>RC4</code>来加密<code>TGT</code>，现实中还是应该用<code>AES key</code>，不然很容易被检测到。我们首先登录到域控制器，然后利用<code>Mimikatz</code>获取<code>krbtgt</code>的<code>NT hash</code> :</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_14-54-36.png" alt=""></p>
+<p>如图所示，除了<code>NT hash</code>，还有<code>AES key</code>。这里我们选择<code>NT hash</code>。</p>
+<p>下一步就是生成金票。<code>Mimikatz</code>生成金票需要以下几个参数：</p>
+<ul>
+<li>用户名</li>
+<li>域</li>
+<li><code>SID</code></li>
+<li><code>krbtgt NT hash</code></li>
+</ul>
+<p>这里我们还需要域账号的<code>SID</code>前缀：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_14-56-56.png" alt=""></p>
+<p>如上图所示，红框标出的就是代表该域的<code>identifier</code>。下面我们直接在主机上生成金票：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-01-39.png" alt=""></p>
+<p>各个参数的意义很明显，其中<code>ptt</code>就是将生成的金票直接注入到本进程中，这样就拥有了域管理员权限了。我们直接利用<code>psexec</code>来测试连接域控制器：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-18-42.png" alt=""></p>
+<p>可以发现，在当前<code>logon session</code>中，的确存在刚刚注入的金票，并且不需要提供凭据就可以直连域控制器。</p>
+<p>那么蓝队如何发现金票呢？我们先来对比一下正常票据和<code>Mimikatz</code>生成的票据：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-27-50.png" alt=""></p>
+<p>上图就是正常的票据，而下图是<code>Mimikatz</code>生成的票据：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-25-48.png" alt=""></p>
+<p>可以看到，<code>Mimikatz</code>生成的票据有这三处不自然：</p>
+<ul>
+<li>域名称全是小写字母</li>
+<li>使用<code>RC4</code>加密（当然我们可以选择利用<code>AES key</code>加密）</li>
+<li>票据有效时间很长</li>
+</ul>
+<p>如果攻击方不修改<code>Mimikatz</code>代码的话，我们可以利用以上特点来寻找金票被生成的痕迹。</p>
+<h2 id="3-dcsync">3. DCSync</h2>
+<p><code>DCSync</code>可以在获得域管理员的情况下，利用<code>Directory Replication Service (MSDRS)</code>来从域控制器获取任意账号的凭据。比如我们可以要求同步<code>krbtgt</code>账号的凭据，然后就可以像上一步那样直接生成金票。</p>
+<p>为了演示方便，我们直接在主机上利用域管理员账号启动<code>Mimikatz</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-45-55.png" alt=""></p>
+<p>然后直接进行<code>DCSync</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-46-55.png" alt=""></p>
+<p>可以看到，成功取回关于域管理员的凭据信息。</p>
+<p>那么作为蓝队该如何检测<code>DCSync</code>呢？一般来说，域控制器和工作站应该在不同的子网，当进行<code>DCSync</code>的时候，工作站会通过<code>MSDRS</code>协议与域控制器通信，我们可以在域控制器和工作站的子网间利用<code>IDS</code>监视<code>MSDRS</code>协议的使用。</p>
+<p>具体来说，我们可以在本实验的防火墙上设置<code>Suricata</code>的规则，使其监视连接域控制器子网的接口，看看有没有<code>MSDRS</code>协议的使用。其中规则可以如下设置：</p>
+<pre><code>alert tcp any any -&gt; any any (msg:&quot;Mimikatz DRSUAPI&quot;; flow:established,to_server;
+content:&quot;|05 00 0b|&quot;; depth:3; content:&quot;|35 42 51 e3 06 4b d1 11 ab 04 00 c0 4f c2
+dc d2|&quot;; depth:100; flowbits:set,drsuapi; flowbits:noalert;
+reference:url,blog.didierstevens.com; classtype:policy-violation; sid:1000001; rev:1;)
+
+
+alert tcp any any -&gt; any any (msg:&quot;Mimikatz DRSUAPI DsGetNCChanges Request&quot;;
+flow:established,to_server; flowbits:isset,drsuapi; content:&quot;|05 00 00|&quot;; depth:3;
+content:&quot;|00 03|&quot;; offset:22 depth:2; reference:url,blog.didierstevens.com;
+classtype:policy-violation; sid:1000002; rev:1;)
+</code></pre><p>当<code>Suricata</code>发现连接域控制器的接口有<code>MSDRS</code>协议特征的流量通过时，会自动报警，并将<code>log</code>发送到<code>Ubuntu</code>上的<code>ELK</code>进行可视化。</p>
+<p>由于在进行<code>DCSync</code>之前，我们已经设置好了以上规则，所以我们直接查看<code>Kibana</code>上<code>Suricata</code>的<code>log</code>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-56-25.png" alt=""></p>
+<p>在查看有关<code>Suricata</code>的<code>log</code>之后，就会发现符合刚才添加的两条规则的<code>log</code>:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-56-50.png" alt=""></p>
+<p>之后进一步查看有关<code>log</code>的细节就会发现与域控制器通信的我们的<code>Windows</code>主机：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/GETC2/blog-pics@master/img/Snipaste_2021-03-22_15-57-55.png" alt=""></p>
+<p><code>DCShadow</code>和<code>DCSync</code>原理有区别，但是基本思路差不多。它是通过将任意主机注册为域控制器，然后把对活动目录所做的修改，比如添加账号，<code>push</code>到别的域控制器上面。从蓝队的角度来看，无法通过<code>Windows Event log</code>来检测该行为。要想记录下对活动目录的修改，需要由修改方进行<code>log</code>，但是此处我们只是将主机注册为域控制器，我们不会主动对此修改进行<code>log</code>；而进行同步的域控制器只能有关于同步的<code>log</code>，具体同步的内容并不在<code>log</code>里面。但是我们还是可以通过<code>IDS</code>来监视外出域控子网的流量，看看有没有关于同步协议的流量。这和检测<code>DCSync</code>的思路是一致的。</p>
+<h2 id="总结">总结</h2>
+<p>到这里就差不多将攻击方和防守方的大概流程介绍地差不多了：</p>
+<ul>
+<li><code>Payload delivery</code></li>
+<li><code>Payload execution</code></li>
+<li><code>Persistence</code></li>
+<li><code>C2 channel</code></li>
+<li><code>Privilige Escalation</code></li>
+<li><code>lateral movement</code></li>
+<li><code>Domain persistence</code></li>
+</ul>
+<p>当然，根据具体情况还有最后一步就是实现具体目标，比如窃取数据，<code>ransomware</code>，对设施进行破坏等等。这里由于情况较多就不进一步展开了。</p>
+
+        </div>
+        
+
+<footer>
+  <p class="meta">
+    <span class="byline author vcard">Posted by <span class="fn">KUHAKU</span></span>
+    
+    <time>Mar 22, 2021</time>
+    
+    </span>
+  </p>
+
+  
+
+  <p class="meta">
+    
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/purple-team-lateral-movement/" title="Purple Team: Lateral Movement">Purple Team: Lateral Movement</a>
+    
+
+    
+  </p>
+  
+</footer>
+
+      </article>
+    </div>
+    
+
+<aside class="sidebar thirds">
+  <section class="first odd">
+
+    
+
+    <p>
+      
+    </p>
+  </section>
+
+
+
+  
+  <ul class="sidebar-nav">
+    <li class="sidebar-nav-item">
+      
+      
+      
+      
+      
+         
+      
+      
+      
+      
+      
+      
+      
+
+    
+    
+    </li>
+  </ul>
+
+  
+
+  
+    
+      <section class="odd">
+        
+          <h1>分类</h1>
+        
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/cryptography/" title="Cryptography" >Cryptography</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/php/" title="PHP" >PHP</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/reverse-engineering/" title="Reverse Engineering" >Reverse Engineering</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/web-pentesting/" title="Web Pentesting" >Web Pentesting</a>
+          </li>
+        
+      </section>
+    
+  
+
+  
+  
+  
+</aside>
+
+  </div>
+</div>
+
+    <footer role="contentinfo">
+      <p>Copyright &copy; 2021 KUHAKU - <a href="https://GETC2.github.io/license/">License</a> -
+        <span class="credit">Powered by <a target="_blank" href="https://gohugo.io" rel="noopener noreferrer">Hugo</a> and <a target="_blank" href="https://github.com/parsiya/hugo-octopress/" rel="noopener noreferrer">Hugo-Octopress</a> theme.
+      </p>
+    </footer>
+
+    
+    
+    
+
+    
+  </body>
+</html>
+
