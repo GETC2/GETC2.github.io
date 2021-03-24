@@ -94,6 +94,9 @@
     
 
     
+    
+      - <a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a>
+    
   </p>
   <h1 class="entry-title">
      Web Cache Poisoning 
@@ -105,8 +108,7 @@
           
           
           
-          <h1 id="web-cache-poisoning">Web Cache Poisoning</h1>
-<p>这一篇博客主要记录如何利用Host头部注入以及Web cache poisoning来实现客户端攻击。</p>
+          <p>这一篇博客主要记录如何利用Host头部注入以及Web cache poisoning来实现客户端攻击。</p>
 <p>有的时候我们会发现应用容易受到Host头部攻击，应用会将攻击者注入Host头部的payload返回给用户。XSS和Host头部注入有点相似，XSS是攻击者构造链接诱使用户点击从而进行客户端攻击；但是Host头部注入无法通过构造链接实现，一般用户也不会擅自改变请求的Host头部。</p>
 <p>在之前的<code>Password Reset Poisoning</code>攻击中，虽然我们同样在Host头部注入payload，但是由于最终这个payload发往了用户的邮箱中，我们才能实现客户端攻击。那么在一般的请求中进行Host头部注入攻击如何才能攻击到用户呢？答案就是<code>Web Cache Poisoning</code>。</p>
 <p>当目标应用使用了Web缓存，那么我们就有可能利用缓存来deliver我们向Host头部注入的payload。为了进行<code>Web Cache Poisoning</code>攻击，我们需要构造注入了payload请求，并且应用的响应里面包含我们注入的payload。然后使得Web缓存服务器缓存我们的请求。当用户和我们请求同样的资源时，就有可能受到被注入了payload的响应然后受到客户端攻击。</p>
@@ -163,7 +165,7 @@
     
 
     
-      <a class="basic-alignment right" href="https://GETC2.github.io/post/access-restricted-func/" title="Access Restricted Func">Access Restricted Func</a>
+      <a class="basic-alignment right" href="https://GETC2.github.io/post/access-restricted-func/" title="Bypass Authentication with Host Header Injection">Bypass Authentication with Host Header Injection</a>
     
   </p>
   
@@ -226,6 +228,10 @@
         
           <li>
             <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/red-team/" title="Red Team" >Red Team</a>
           </li>
         
           <li>

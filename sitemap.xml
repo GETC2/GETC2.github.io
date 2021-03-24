@@ -118,6 +118,11 @@
   </url>
   
   <url>
+    <loc>https://GETC2.github.io/categories/reverse-engineering/</loc>
+    <lastmod>2021-02-27T09:12:35+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://GETC2.github.io/post/windows-buffer-overflow2/</loc>
     <lastmod>2021-02-27T09:12:35+08:00</lastmod>
   </url>
@@ -153,11 +158,6 @@
   </url>
   
   <url>
-    <loc>https://GETC2.github.io/categories/reverse-engineering/</loc>
-    <lastmod>2021-02-21T20:56:12+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://GETC2.github.io/post/afl-fuzzing/</loc>
     <lastmod>2021-02-20T09:38:43+08:00</lastmod>
   </url>
@@ -169,6 +169,11 @@
   
   <url>
     <loc>https://GETC2.github.io/post/rdp-escape/</loc>
+    <lastmod>2021-02-16T14:18:05+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://GETC2.github.io/categories/red-team/</loc>
     <lastmod>2021-02-16T14:18:05+08:00</lastmod>
   </url>
   

@@ -6,7 +6,61 @@
     <description>Recent content in Reverse Engineering on GET command and control</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 21 Feb 2021 20:56:12 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/reverse-engineering/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 27 Feb 2021 09:12:35 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/reverse-engineering/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Windows Buffer Overflow(2)</title>
+      <link>https://GETC2.github.io/post/windows-buffer-overflow2/</link>
+      <pubDate>Sat, 27 Feb 2021 09:12:35 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/windows-buffer-overflow2/</guid>
+      <description>Windows栈溢出（2） 之前介绍过如何绕过ASLR和safeSEH并利用栈溢出；在Linux上面也介绍了如何利用ret2libc来绕过DEP。这里来介绍一下在Windows上如何绕过DEP。 主要的思路是通过调用Windows的函数来关闭DEP，然后让控制</description>
+    </item>
+    
+    <item>
+      <title>Windows Buffer Overflow</title>
+      <link>https://GETC2.github.io/post/windows-buffer-overflow/</link>
+      <pubDate>Thu, 25 Feb 2021 14:15:00 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/windows-buffer-overflow/</guid>
+      <description>Windows栈溢出 之前的栈溢出都是关于Linux下面的程序，而Windows上面的栈溢出漏洞虽然和Linux原理相同，但是由于针对栈溢出的保护措施的实现不同，所以绕过这些措施的技术也就不同。比如Windows上面的DEP,ASLR,canary的实现就不</description>
+    </item>
+    
+    <item>
+      <title>Buffer Overflow(5)</title>
+      <link>https://GETC2.github.io/post/buffer-overflow5/</link>
+      <pubDate>Tue, 23 Feb 2021 19:39:16 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/buffer-overflow5/</guid>
+      <description>栈溢出（5） 之前介绍过如何通过静态代码段寻找有用的指令来绕过ASLR，之前是通过linux-gate.so.1这一共享库中的jmp %esp指令完成的。这个办法在linux 2.6.17内核版本是可行的，但是之后的内核版本要么就是去除了jmp %esp指令，要么</description>
+    </item>
+    
+    <item>
+      <title>Buffer Overflow(4)</title>
+      <link>https://GETC2.github.io/post/buffer-overflow4/</link>
+      <pubDate>Tue, 23 Feb 2021 09:49:37 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/buffer-overflow4/</guid>
+      <description>栈溢出（4） 之前提到阻止栈溢出利用的措施有DEP，canary，这次我们介绍Address Space Layout Randomization(ASLR)。 所谓的ASLR就是将栈，堆或者共享库的载入地址进行随机化，每次执行的载入地址都不同，这样的话攻击者就无法用准确的值覆盖返回</description>
+    </item>
+    
+    <item>
+      <title>Buffer Overflow(3)</title>
+      <link>https://GETC2.github.io/post/buffer-overflow3/</link>
+      <pubDate>Mon, 22 Feb 2021 20:06:30 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/buffer-overflow3/</guid>
+      <description>栈溢出（3） 在之前的栈溢出中，我们介绍了最基本的不带任何保护的栈溢出利用，以及通过ret2libc绕过DEP从而利用栈溢出。这里我们介绍另一种阻止栈溢出的常用手段：canary。canary一般是linux中的叫法，在windows中称为security c</description>
+    </item>
+    
+    <item>
+      <title>Buffer Overflow(2)</title>
+      <link>https://GETC2.github.io/post/buffer-overflow2/</link>
+      <pubDate>Mon, 22 Feb 2021 09:29:38 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/buffer-overflow2/</guid>
+      <description>栈溢出（2） 之前提到过如何利用最简单的栈溢出，即没有任何的保护的栈溢出。现在我们加上一些限制，然后展示如何绕过限制进行漏洞利用。 这里我们有一个栈溢出漏洞程序，它的缓冲区比较小，无法容纳shellcode，而且栈上的代码无法执行（DEP），我们需要想办法绕过</description>
+    </item>
+    
     <item>
       <title>Buffer Overflow</title>
       <link>https://GETC2.github.io/post/buffer-overflow/</link>
@@ -14,6 +68,15 @@
       
       <guid>https://GETC2.github.io/post/buffer-overflow/</guid>
       <description>栈溢出(1) 说到漏洞很容易让人联想到栈溢出，这也说明了栈溢出的普遍性。正因为如此，针对栈溢出的mitigation也很多： 编译时的ASLR, DEP, LFH 操作系统的Canaries, SafeSEH 针对这些措施，也有相应的办法绕过。这里纯粹记录一下从最基本的栈溢出到如何绕过带保护</description>
+    </item>
+    
+    <item>
+      <title>Sulley Fuzzing</title>
+      <link>https://GETC2.github.io/post/sulley-fuzzing/</link>
+      <pubDate>Fri, 19 Feb 2021 20:18:15 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/sulley-fuzzing/</guid>
+      <description>Sulley是用于fuzzing的框架。针对使用特定协议运行在特定端口的服务，我们可以使用Sulley来寻找目标的漏洞。常见的比如缓冲区溢出，注入命令，directory traversal等等。基本原理就是通过研究目标使用的协议，发现可能产生漏洞的点，然后</description>
     </item>
     
   </channel>

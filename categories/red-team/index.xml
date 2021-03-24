@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Red Team on GET command and control</title>
+    <link>https://GETC2.github.io/categories/red-team/</link>
+    <description>Recent content in Red Team on GET command and control</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 16 Feb 2021 14:18:05 +0800</lastBuildDate><atom:link href="https://GETC2.github.io/categories/red-team/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Escaping Restricted Desktops</title>
+      <link>https://GETC2.github.io/post/rdp-escape/</link>
+      <pubDate>Tue, 16 Feb 2021 14:18:05 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/rdp-escape/</guid>
+      <description>在我们获得对一台主机的访问后，要想进行后渗透活动时可能会遇到一系列障碍。比如这台主机已经被加固过了，我们无法使用已有的工具来实现我们的目的。 常见的加固措施如下： GPO或者SRP Group Policy Objects可以用来 限制Windows的各种部件 隐藏系统文件 阻止针对系统设</description>
+    </item>
+    
+    <item>
+      <title>OSPF</title>
+      <link>https://GETC2.github.io/post/ospf/</link>
+      <pubDate>Wed, 10 Feb 2021 22:04:54 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/ospf/</guid>
+      <description>利用OSPF实现中间人攻击 之前提到在IPv4环境下可以用arp spoofing实现中间人攻击；在IPv6的环境下可以利用arp的对等协议实现中间人攻击。除了这些，我们还可以直接利用路由协议实现中间人攻击。 这里我们以OSPF为例，展示如何实现中间人攻击。 路由</description>
+    </item>
+    
+    <item>
+      <title>sslstrip</title>
+      <link>https://GETC2.github.io/post/sslstrip/</link>
+      <pubDate>Wed, 10 Feb 2021 21:03:12 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/sslstrip/</guid>
+      <description>sslstrip 之前提到如何利用Ettercap实现中间人攻击，并修改HTTP的响应从而获取密码。如果客户端用HTTP请求服务，而服务器要求客户端使用HTTPS的话，我们就无法修改响应。但是，我们可以利用sslstrip脚本修改服务器的HTTP响应的请求头Locatio</description>
+    </item>
+    
+    <item>
+      <title>SNMP</title>
+      <link>https://GETC2.github.io/post/snmp/</link>
+      <pubDate>Wed, 10 Feb 2021 19:02:52 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/snmp/</guid>
+      <description>利用SNMP攻击路由器 Simple Network Management Protocal(SNMP)顾名思义就是用来管理网络设备的。在SNMP的框架中，有四个组成部分： 被管理的设备：这种设备允许通过SNMP协议读或者写SNMP变量 Agent: 运行在被管理设备上的服务 NMS: 一种管理控制台，过与agent交互，Net</description>
+    </item>
+    
+    <item>
+      <title>IPv6 Attack</title>
+      <link>https://GETC2.github.io/post/ipv6-attack/</link>
+      <pubDate>Wed, 10 Feb 2021 14:41:01 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/ipv6-attack/</guid>
+      <description>针对IPv6服务攻击 IPv6提供了很多攻击机会。比如我们可以利用局域网内的IPv6进行中间人攻击。再比如，有的IDS支持IPv4，但是却没有针对IPv6的规则，我们可以利用这点来绕过IDS。 这一次我们利用的点在于，有的服务只能通过IPv6访问，我们可以发现</description>
+    </item>
+    
+    <item>
+      <title>Ettercap</title>
+      <link>https://GETC2.github.io/post/ettercap/</link>
+      <pubDate>Tue, 09 Feb 2021 14:32:30 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/ettercap/</guid>
+      <description>利用Ettercap实现中间人攻击 在实现了Network Access Control的局域网上，无论是之前介绍的Captive Portal认证，还是802.1X认证，抑或是实现了VLAN的交换机，我们都可以通过某种形式的攻击绕过这种限制从而获得局域网络的访问权。在获得</description>
+    </item>
+    
+    <item>
+      <title>Captive Portal Bypass</title>
+      <link>https://GETC2.github.io/post/captive-portal-bypass/</link>
+      <pubDate>Mon, 08 Feb 2021 16:27:23 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/captive-portal-bypass/</guid>
+      <description>Captive Portal Bypass Captive Portal就是所谓的强制门户认证系统。当我们在公共场所连接WIFI的时候，比如大学，机场，酒店，经常会有一个认证界面自动跳出来，只有经过某种形式的认证（比如用户名加密码，或者手机号加验证码）才能访问网络。这其实就是Network Access Control（</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(4)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/</link>
+      <pubDate>Sun, 07 Feb 2021 22:04:03 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B4/</guid>
+      <description>红队基本流程之四：Closure 在实现了模拟Adversary的目标后，最后就是收尾了。 在这个步骤，红队的主要责任就是介绍整个行动的流程，从一开始的发信到之后的最终目标，所有的操作以及时间节点，还有结果都要进行记录并展示。这主要是为了和蓝队的响应做对照，看</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(3)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/</link>
+      <pubDate>Sun, 07 Feb 2021 21:29:13 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B3/</guid>
+      <description>红队基本流程之三：Testing 在完成Planning之后，红队就可以开始针对目标行动了。而这又分为许多步骤，比较典型的就是以下步骤： 基础设施建设 侦察（Recon） 社会工程 Weaponization Initial Access Network Propagation Action on Objectives 基础设施建设 这一步一般就是选择在云端部署必要的设施，有的时候这一步需</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(2)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/</link>
+      <pubDate>Fri, 05 Feb 2021 20:07:41 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B2/</guid>
+      <description>红队基本流程之二：Planning 之前介绍过红队基本流程中的Threat Intelligence。其实，它与planning之间是密不可分的。planning中有的决定依靠Threat Inteligence。比如Adversary使用的TTP，最后拟定的A</description>
+    </item>
+    
+    <item>
+      <title>红队基本流程(1)</title>
+      <link>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/</link>
+      <pubDate>Fri, 05 Feb 2021 14:13:26 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/%E7%BA%A2%E9%98%9F%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B1/</guid>
+      <description>红队基本流程之一：Threat Intelligence 简介 在进行红队活动时，需要遵循一定的框架和方法。这里的框架和方法确定了针对特定目标进行模拟红队行动的宏观步骤。如今存在着很多可供选择的框架和方法，这里我们介绍其中一个，总共分为四个步骤，如下图所示： 我们首先介绍第一步，即Th</description>
+    </item>
+    
+    <item>
+      <title>Golden Ticket</title>
+      <link>https://GETC2.github.io/post/golden-ticket/</link>
+      <pubDate>Fri, 29 Jan 2021 21:05:37 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/golden-ticket/</guid>
+      <description>Golden Ticket 之前我们利用Kerberoasting获取了具有域管理员权限的账号svcsqlserver，我们可以利用这个账号和dcsync来获取krbtgt账号的hash，从而可以生成Golden Ticket，其实就是伪造的域管理员的TGT。 实验 首先登陆到目标域的</description>
+    </item>
+    
+    <item>
+      <title>Responder</title>
+      <link>https://GETC2.github.io/post/responder/</link>
+      <pubDate>Fri, 29 Jan 2021 19:48:33 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/responder/</guid>
+      <description>Responder获取NetNTLM哈希 windows的命名解析顺序如下： 本地host文件 DNS Link-Local Multicast Name Resolution （LLMNR） NetBIOS 如果输入的主机名错误，那么目标机器就会利用LLMNR向子网内的主机发送解析请求。作为攻击者，我们可以声称我们是对应的主机，并要求进行NetN</description>
+    </item>
+    
+    <item>
+      <title>Kerberoasting</title>
+      <link>https://GETC2.github.io/post/kerberoasting/</link>
+      <pubDate>Fri, 29 Jan 2021 19:07:11 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/kerberoasting/</guid>
+      <description>Kerberoasting kerberoasting是通过向KDC请求针对目标服务的服务票据并针对该服务对应的账号进行破解的攻击。 合适的目标服务是对应的账号是手动生成的，因为机器自动生成的账号密码很难破解。 实验设置 我们已经得到了目标域的一个有效的账号密码，现在我们需要利用这个账号</description>
+    </item>
+    
+    <item>
+      <title>Sniff Ntlm</title>
+      <link>https://GETC2.github.io/post/sniff-ntlm/</link>
+      <pubDate>Thu, 28 Jan 2021 15:54:52 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/sniff-ntlm/</guid>
+      <description>嗅探NTLM协议并破解密码 除了dump目标机器的hash之外，还可以直接嗅探NTLM协议然后破解密码。 下面介绍一下基本的步骤和时用到的工具。 1. 嗅探NTLM协议 首先我们使用tcpdump来嗅探针对端口445的访问： sudo tcpdump -nv -s0 port 445 -w /tmp/winauth.pcap 参数-s0是为了指示tcpd</description>
+    </item>
+    
+    <item>
+      <title>Msf Pivot</title>
+      <link>https://GETC2.github.io/post/msf-pivot/</link>
+      <pubDate>Thu, 28 Jan 2021 15:13:59 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/msf-pivot/</guid>
+      <description>与metasploit有关的pivoting方法总结 1. metasploit内置的端口转发 首先是最简单的端口转发，命令如下所示： portfwd add -l local_port_num -r ip_addr -p remote_port_num 在meterpreter内执行此命令后，会在本地端口和远程IP很远程端口之间转发。 2. metasploit内置的ro</description>
+    </item>
+    
+    <item>
+      <title>Dump the Hash</title>
+      <link>https://GETC2.github.io/post/dump-the-hash/</link>
+      <pubDate>Thu, 28 Jan 2021 14:41:09 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/dump-the-hash/</guid>
+      <description>利用meterpreter获取目标机器的hash 在后渗透的阶段，很重要的一项任务就是获取目标机器上的hash，当然不论是windows还是linux都需要有相应的权限才有可能获取到hash。 在这里，我们演示如何通过meterpreter的后渗透模块来获取h</description>
+    </item>
+    
+    <item>
+      <title>Empire</title>
+      <link>https://GETC2.github.io/post/empire/</link>
+      <pubDate>Wed, 27 Jan 2021 08:22:03 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/empire/</guid>
+      <description>Empire的基本使用流程 Empire是用于后渗透阶段的框架，里面整合了用于各种后渗透阶段活动的powershell脚本。这里记录一下empire的基本使用流程。 实验环境 实验由两台主机组成，一个是攻击者主机，另一台是目标主机。 实验步骤 1 启动Empire 首先</description>
+    </item>
+    
+    <item>
+      <title>Netcat port forward</title>
+      <link>https://GETC2.github.io/post/netcat_port_forward/</link>
+      <pubDate>Wed, 27 Jan 2021 07:58:38 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/netcat_port_forward/</guid>
+      <description>利用netcat实现端口转发 实验环境 现有两台主机，一台是攻击者主机（windows），另一台是目标主机（Linux）。目标是通过攻击者主机成功登录目标主机ssh服务。 实验步骤 首先利用Putty登录目标主机： 可以看到成功登录ssh服务。 然后我们在目标主机的防</description>
+    </item>
+    
+    <item>
+      <title>Veil</title>
+      <link>https://GETC2.github.io/post/veil/</link>
+      <pubDate>Tue, 26 Jan 2021 18:32:29 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/veil/</guid>
+      <description>Veil的一般使用流程 veil框架主要用来生成payload并对payload进行免杀。下面我们来看一下veil的基本使用步骤。 veil主要由两个工具组成，我们主要关注如何通过Evasion来对payload免杀。可以看到，初始界面会提示veil支持的命令</description>
+    </item>
+    
+    <item>
+      <title>Egress Analysis</title>
+      <link>https://GETC2.github.io/post/egress-analysis/</link>
+      <pubDate>Wed, 30 Dec 2020 09:52:56 +0800</pubDate>
+      
+      <guid>https://GETC2.github.io/post/egress-analysis/</guid>
+      <description>简介 作为红队，我们需要知道蓝队是如何防守的，这样我们才能更好地进攻。我们以Data Exfiltration为例，来研究蓝队是如何检测和阻止的。 实验环境 如上图所示，红队需要把sensitive_data.csv上传到攻击者的机器上；而蓝队需要检测并阻止红队的</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -14,7 +14,7 @@
   
 
   
-  <title>Accessing Internal Websites</title>
+  <title>Accessing Internal Websites with Host Head Injection</title>
 
   
   
@@ -94,9 +94,12 @@
     
 
     
+    
+      - <a class="label" href="https://GETC2.github.io/categories/web-pentesting/">Web Pentesting </a>
+    
   </p>
   <h1 class="entry-title">
-     Accessing Internal Websites 
+     Accessing Internal Websites with Host Head Injection 
   </h1>
 </header>
 
@@ -105,8 +108,7 @@
           
           
           
-          <h1 id="利用host头部注入访问内网">利用Host头部注入访问内网</h1>
-<p>有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看<code>DNS record</code>的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的<code>DNS record</code>。但是只要知道内部域名对应的IP地址或者域名，攻击者就可以访问。可以通过暴力破解来遍历可能的内部域名或者IP地址。</p>
+          <p>有的公司会让同一个服务器伺服外部网站和内部网站。这样的服务器同时具有公网IP和内网IP。如果光是查看<code>DNS record</code>的话无法知道外部网站和内部网站位于同一个服务器；而且有的内部域名并没有公共的<code>DNS record</code>。但是只要知道内部域名对应的IP地址或者域名，攻击者就可以访问。可以通过暴力破解来遍历可能的内部域名或者IP地址。</p>
 <h1 id="基于路由的ssrf">基于路由的SSRF</h1>
 <p>通过Host头部注入可以利用中间节点，比如负载均衡器和反向代理服务器，来实现SSRF。测试方法是在Host头部注入我们自己的服务器域名，如果有来自中间节点对这个域名的DNS查询，说明这个中间节点有可能受到攻击。接下来可以测试是否可以通过这个节点访问内网。</p>
 <h1 id="lab1">lab1</h1>
@@ -154,7 +156,7 @@
 
   <p class="meta">
     
-        <a class="basic-alignment left" href="https://GETC2.github.io/post/access-restricted-func/" title="Access Restricted Func">Access Restricted Func</a>
+        <a class="basic-alignment left" href="https://GETC2.github.io/post/access-restricted-func/" title="Bypass Authentication with Host Header Injection">Bypass Authentication with Host Header Injection</a>
     
 
     
@@ -221,6 +223,10 @@
         
           <li>
             <a href="https://GETC2.github.io/categories/purple-team/" title="Purple Team" >Purple Team</a>
+          </li>
+        
+          <li>
+            <a href="https://GETC2.github.io/categories/red-team/" title="Red Team" >Red Team</a>
           </li>
         
           <li>
